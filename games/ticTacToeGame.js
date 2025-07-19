@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const ticTacToeGame = {
 =======
 export const ticTacToeGame = {
 >>>>>>> ec8738a (Optimization change)
+=======
+const ticTacToeGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = { 
             board: Array(9).fill(EMPTY), 

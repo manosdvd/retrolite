@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const wordleGame = {
     // Controller to manage event listeners
     controller: null,
@@ -32,6 +33,9 @@ const wordleGame = {
             secretWord: wordleGame.availableWords.pop(),
 =======
 export const wordleGame = {
+=======
+const wordleGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         const { gridRows, gridCols } = currentMode;
         gameState = {

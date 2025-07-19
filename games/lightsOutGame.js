@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const lightsOutGame = {
 =======
 export const lightsOutGame = {
 >>>>>>> ec8738a (Optimization change)
+=======
+const lightsOutGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = { board: Array(25).fill(0), moves: 0 };
         // Ensure a solvable board by starting from a solved state and pressing buttons

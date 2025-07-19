@@ -24,6 +24,7 @@
 >>>>>>> c183d2a (First commit)
 =======
     
+<<<<<<< HEAD
     /* Centralized Color Palette */
     --color-1: #ef4444; /* red */
     --color-2: #f97316; /* orange */
@@ -35,6 +36,18 @@
     --color-8: #a855f7; /* purple */
     --color-9: #ec4899; /* pink */
 >>>>>>> ec8738a (Optimization change)
+=======
+    /* Centralized Color Palette - High Contrast */
+    --color-1: #F44336; /* Vivid Red */
+    --color-2: #2196F3; /* Bright Blue */
+    --color-3: #4CAF50; /* Strong Green */
+    --color-4: #FFEB3B; /* Bold Yellow */
+    --color-5: #9C27B0; /* Deep Purple */
+    --color-6: #FF9800; /* Vibrant Orange */
+    --color-7: #00BCD4; /* Bright Cyan */
+    --color-8: #E91E63; /* Hot Pink */
+    --color-9: #FFFFFF; /* White */
+>>>>>>> d91859e (Added some games)
 }
 
 body {
@@ -77,6 +90,9 @@ body {
     font-weight: bold;
     color: rgba(255, 255, 255, 0.7);
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> d91859e (Added some games)
     position: relative;
     overflow: hidden; /* Hide parts of blocks that are animating */
 }
@@ -100,10 +116,15 @@ body {
 .light-inner.color-5 { background-color: var(--color-5); }
 .light-inner.color-6 { background-color: var(--color-6); }
 
+<<<<<<< HEAD
 =======
 }
 
 >>>>>>> c183d2a (First commit)
+=======
+/* Remove background-color from the main .light rule if it exists */
+
+>>>>>>> d91859e (Added some games)
 .light.is-on {
     background-color: var(--theme-color);
     box-shadow: 0 0 15px var(--theme-color), 0 0 25px var(--theme-color), inset 0 0 5px var(--theme-shadow-color);
@@ -178,13 +199,13 @@ body {
 =======
 
 /* Using CSS variables for game colors */
-.light.path-1, .light.color-1.line-dot::before, .light.echo-1 { background-color: var(--color-1); }
-.light.path-2, .light.color-2.line-dot::before, .light.echo-2 { background-color: var(--color-2); }
-.light.path-3, .light.color-3.line-dot::before, .light.echo-3 { background-color: var(--color-3); }
-.light.path-4, .light.color-4.line-dot::before, .light.echo-4 { background-color: var(--color-4); }
-.light.path-5, .light.color-5.line-dot::before, .light.echo-5 { background-color: var(--color-5); }
-.light.path-6, .light.color-6.line-dot::before, .light.echo-6 { background-color: var(--color-6); }
-.light.path-7, .light.color-7.line-dot::before, .light.echo-7 { background-color: var(--color-7); }
+.light.color-1, .light.path-1, .light.color-1.line-dot::before, .light.echo-1 { background-color: var(--color-1); }
+.light.color-2, .light.path-2, .light.color-2.line-dot::before, .light.echo-2 { background-color: var(--color-2); }
+.light.color-3, .light.path-3, .light.color-3.line-dot::before, .light.echo-3 { background-color: var(--color-3); }
+.light.color-4, .light.path-4, .light.color-4.line-dot::before, .light.echo-4 { background-color: var(--color-4); }
+.light.color-5, .light.path-5, .light.color-5.line-dot::before, .light.echo-5 { background-color: var(--color-5); }
+.light.color-6, .light.path-6, .light.color-6.line-dot::before, .light.echo-6 { background-color: var(--color-6); }
+.light.color-7, .light.path-7, .light.color-7.line-dot::before, .light.echo-7 { background-color: var(--color-7); }
 .light.echo-8 { background-color: var(--color-8); }
 .light.echo-9 { background-color: var(--color-9); }
 >>>>>>> ec8738a (Optimization change)
@@ -566,6 +587,27 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     animation: shake 0.6s cubic-bezier(.36,.07,.19,.97);
 }
 
+.light.is-removing {
+    transform: scale(0);
+    opacity: 0;
+    transition: transform 0.2s, opacity 0.2s;
+}
+
+.light.is-appearing {
+    animation: appear 0.3s ease-out;
+}
+
+@keyframes appear {
+    from {
+        transform: scale(0.5);
+        opacity: 0;
+    }
+    to {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
 #game-container:not(.hidden) {
     display: flex;
     flex-direction: column;
@@ -583,6 +625,18 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     flex-shrink: 0;
 }
 <<<<<<< HEAD
+<<<<<<< HEAD
 >>>>>>> c183d2a (First commit)
 =======
 >>>>>>> ec8738a (Optimization change)
+=======
+
+#game-container.meteos-active > #game-board {
+    flex-grow: 1;
+    min-height: 0;
+}
+
+.meteos-active .light {
+    aspect-ratio: unset;
+}
+>>>>>>> d91859e (Added some games)

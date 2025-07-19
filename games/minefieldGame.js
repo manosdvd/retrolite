@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const minefieldGame = {
 =======
 export const minefieldGame = {
 >>>>>>> ec8738a (Optimization change)
+=======
+const minefieldGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         const newGameButton = createControlButton('New Game', 'btn-green', () => {
             startGame(currentMode); // Restart the game

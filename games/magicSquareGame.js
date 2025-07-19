@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const magicSquareGame = {
 =======
 export const magicSquareGame = {
 >>>>>>> ec8738a (Optimization change)
+=======
+const magicSquareGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         const merlinToggles = [
             [0, 1, 3], [0, 1, 2, 4], [1, 2, 5], [0, 3, 4, 6], [1, 3, 4, 5, 7],

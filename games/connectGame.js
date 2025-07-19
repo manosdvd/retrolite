@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const connectGame = {
 =======
 export const connectGame = {
 >>>>>>> ec8738a (Optimization change)
+=======
+const connectGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = { board: Array(42).fill(EMPTY), currentPlayer: HUMAN, gameOver: false, difficulty: 'Hard' };
         const easyBtn = createControlButton('Easy', 'btn-green', () => { gameState.difficulty = 'Easy'; gameStatus.textContent = 'Difficulty: Easy'; });

@@ -1,4 +1,5 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const lineDrawGame = {
     setup: () => {
         const size = currentMode.gridSize;
@@ -31,6 +32,9 @@ const lineDrawGame = {
 
 =======
 export const lineDrawGame = {
+=======
+const lineDrawGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         const size = currentMode.gridSize;
         const puzzle = lineDrawGame.generatePuzzle(size);

@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const echoGame = {
 =======
 export const echoGame = {
 >>>>>>> ec8738a (Optimization change)
+=======
+const echoGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = { sequence: [], playerSequence: [], level: 1, state: 'WATCH' };
         gameBoard.querySelectorAll('.light').forEach(light => light.classList.add('is-off'));

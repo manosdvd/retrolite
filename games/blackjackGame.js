@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const blackjackGame = {
 =======
 export const blackjackGame = {
 >>>>>>> ec8738a (Optimization change)
+=======
+const blackjackGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = {
             deck: [], playerHand: [], cpuHand: [], gameOver: false, playerTurn: true,

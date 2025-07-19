@@ -1,8 +1,12 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
 const sliderPuzzleGame = {
 =======
 export const sliderPuzzleGame = {
 >>>>>>> ec8738a (Optimization change)
+=======
+const sliderPuzzleGame = {
+>>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = { board: [1, 2, 3, 4, 5, 6, 7, 8, EMPTY], emptyIndex: 8, moves: 0 };
         sliderPuzzleGame.shuffle();
