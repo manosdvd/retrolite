@@ -276,6 +276,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 .wordle-cell-back.wordle-present, .key.wordle-present { background-color: #f59e0b; border-color: #f59e0b; color: white; }
 .wordle-cell-back.wordle-absent,  .key.wordle-absent  { background-color: #1f2937; border-color: #1f2937; color: #9ca3af; }
 <<<<<<< HEAD
+<<<<<<< HEAD
 .wordle-cell.shake { animation: shake 0.6s cubic-bezier(.36,.07,.19,.97); }
 
 /* On-Screen Keyboard Styles */
@@ -516,6 +517,12 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 .keyboard-row { display: flex; justify-content: center; gap: 5px; }
 .key { padding: 1rem 0.75rem; background-color: #4b5563; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: bold; text-align: center; font-size: clamp(0.75rem, 3vw, 1rem); }
 .key-large { flex-grow: 1.5; padding: 1rem 0.5rem; }
+=======
+.keyboard { display: flex; flex-direction: column; gap: 10px; }
+.keyboard-row { display: flex; justify-content: center; gap: 8px; }
+.key { padding: 0.9rem; background-color: #4b5563; border-radius: 6px; cursor: pointer; text-transform: uppercase; font-weight: bold; text-align: center; font-size: clamp(0.75rem, 3vw, 1rem); }
+.key-large { flex-grow: 1.5; padding: 0.9rem 0.5rem; }
+>>>>>>> a6c14f1 (tweaked the keyboard keys for wordle)
 
 .win-line {
     position: absolute;
