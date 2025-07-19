@@ -1,8 +1,13 @@
+<<<<<<< HEAD
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=VT323&display=swap');
+=======
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+>>>>>>> c183d2a (First commit)
 
 :root {
     --theme-color: #ef4444;
     --theme-shadow-color: #f87171;
+<<<<<<< HEAD
     
     /* Centralized Color Palette - High Contrast */
     --color-1: #F44336; /* Vivid Red */
@@ -14,6 +19,8 @@
     --color-7: #00BCD4; /* Bright Cyan */
     --color-8: #E91E63; /* Hot Pink */
     --color-9: #FFFFFF; /* White */
+=======
+>>>>>>> c183d2a (First commit)
 }
 
 body {
@@ -55,6 +62,7 @@ body {
     font-size: 1.5rem;
     font-weight: bold;
     color: rgba(255, 255, 255, 0.7);
+<<<<<<< HEAD
     position: relative;
     overflow: hidden; /* Hide parts of blocks that are animating */
 }
@@ -78,6 +86,10 @@ body {
 .light-inner.color-5 { background-color: var(--color-5); }
 .light-inner.color-6 { background-color: var(--color-6); }
 
+=======
+}
+
+>>>>>>> c183d2a (First commit)
 .light.is-on {
     background-color: var(--theme-color);
     box-shadow: 0 0 15px var(--theme-color), 0 0 25px var(--theme-color), inset 0 0 5px var(--theme-shadow-color);
@@ -95,19 +107,31 @@ body {
     box-shadow: inset 0 0 10px rgba(0,0,0,0.7);
 }
 
+<<<<<<< HEAD
 .light.is-player-1 { background-color: var(--color-2); box-shadow: 0 0 15px var(--color-2); transform: scale(1); animation: drop 0.3s ease-out; }
 .light.is-player-2 { background-color: var(--color-6); box-shadow: 0 0 15px var(--color-6); transform: scale(1); animation: drop 0.3s ease-out; }
+=======
+.light.is-player-1 { background-color: #3b82f6; box-shadow: 0 0 15px #3b82f6; transform: scale(1); animation: drop 0.3s ease-out; }
+.light.is-player-2 { background-color: #f59e0b; box-shadow: 0 0 15px #f59e0b; transform: scale(1); animation: drop 0.3s ease-out; }
+>>>>>>> c183d2a (First commit)
 .light.is-empty { background-color: #1a1a2e; box-shadow: inset 0 0 5px #000; }
 .light.is-selected { border-color: #fde047; transform: scale(1.1); box-shadow: 0 0 20px #fde047; }
 
 .light.is-mine { background-color: #ef4444; }
+<<<<<<< HEAD
 .light.is-mine::after { content: ''; font-size: 1.2rem; }
 .light.is-revealed { background-color: #4b5563; color: #fff; cursor: default; }
 .light.is-flagged::after { content: '\01F6A9'; font-size: 1.2rem; }
+=======
+.light.is-mine::after { content: '💣'; font-size: 1.2rem; }
+.light.is-revealed { background-color: #4b5563; color: #fff; cursor: default; }
+.light.is-flagged::after { content: '🚩'; font-size: 1.2rem; }
+>>>>>>> c183d2a (First commit)
 .light.is-hidden { background-color: #374151; }
 
 .light.line-dot::before { content: ''; display: block; width: 60%; height: 60%; border-radius: 50%; box-shadow: 0 0 10px #000; transition: transform 0.2s; }
 .light.line-dot:hover::before { transform: scale(1.2); }
+<<<<<<< HEAD
 
 /* Using CSS variables for game colors */
 .light.color-1, .light.path-1, .light.color-1.line-dot::before, .light.echo-1 { background-color: var(--color-1); }
@@ -125,6 +149,17 @@ body {
     box-shadow: 0 0 15px #ffffff, 0 0 25px #ffffff;
     animation: pulse 1s infinite;
 }
+=======
+.light.path-1, .light.color-1.line-dot::before, .light.echo-1 { background-color: #ef4444; }
+.light.path-2, .light.color-2.line-dot::before, .light.echo-2 { background-color: #f97316; }
+.light.path-3, .light.color-3.line-dot::before, .light.echo-3 { background-color: #f59e0b; }
+.light.path-4, .light.color-4.line-dot::before, .light.echo-4 { background-color: #84cc16; }
+.light.path-5, .light.color-5.line-dot::before, .light.echo-5 { background-color: #22c55e; }
+.light.path-6, .light.color-6.line-dot::before, .light.echo-6 { background-color: #06b6d4; }
+.light.path-7, .light.color-7.line-dot::before, .light.echo-7 { background-color: #6366f1; }
+.light.echo-8 { background-color: #a855f7; }
+.light.echo-9 { background-color: #ec4899; }
+>>>>>>> c183d2a (First commit)
 
 .light.is-feedback { background-color: #fde047; box-shadow: 0 0 20px #fde047, 0 0 30px #fde047; transform: scale(1.1); border-color: #fde047; }
 .light.is-center-inactive { background-color: #111; cursor: not-allowed; }
@@ -137,6 +172,7 @@ body {
 .hidden { display: none; }
 button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 
+<<<<<<< HEAD
 .menu-button {
     display: flex;
     justify-content: center;
@@ -165,6 +201,23 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 .control-button { padding: 0.75rem 1.25rem; font-weight: bold; border-radius: 8px; transition: all 0.15s ease-out; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
 .control-button:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.3); }
 .control-button:active { transform: translateY(1px) scale(0.98); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+=======
+.menu-button { display: flex; justify-content: center; align-items: center; width: 100%; min-height: 60px; padding: 0.5rem 1rem; margin-bottom: 1rem; font-size: 1.1rem; font-weight: bold; color: white; text-align: center; text-transform: uppercase; letter-spacing: 0.1em; background: linear-gradient(145deg, #e53e3e, #c53030); border-radius: 10px; border: 2px solid #f56565; box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 -4px 0 rgba(0,0,0,0.2); transition: all 0.15s ease-out; transform: translateY(0); }
+.menu-button:hover { background: linear-gradient(145deg, #f56565, #e53e3e); transform: translateY(-2px); box-shadow: 0 7px 20px rgba(0,0,0,0.35), inset 0 -4px 0 rgba(0,0,0,0.2); }
+.menu-button:active { transform: translateY(1px); box-shadow: 0 3px 10px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); }
+
+.control-button {
+    padding: 0.75rem 1.25rem;
+    font-weight: bold;
+    border-radius: 8px;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+}
+.control-button:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.3); }
+.control-button:active { transform: translateY(1px); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+>>>>>>> c183d2a (First commit)
 .btn-blue { background-color: #3b82f6; color: white; } .btn-blue:hover { background-color: #2563eb; }
 .btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
 .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
@@ -172,11 +225,16 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 .btn-pink { background-color: #ec4899; color: white; } .btn-pink:hover { background-color: #db2777; }
 .btn-orange { background-color: #f97316; color: white; } .btn-orange:hover { background-color: #ea580c; }
 
+<<<<<<< HEAD
 .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
 .pulse { animation: pulse 0.5s ease-in-out infinite alternate; }
 
 .confetti-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
 .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0.7; animation: confetti-fall 5s linear infinite; }
+=======
+.input-group { display: flex; align-items: center; gap: 0.5rem; color: white; }
+.input-group input { background-color: #1a1a2e; border: 1px solid #4b5563; border-radius: 0.25rem; padding: 0.25rem 0.5rem; width: 4rem; text-align: center; }
+>>>>>>> c183d2a (First commit)
 
 /* Wordle Styles */
 .wordle-grid { gap: 5px; padding: 10px; }
@@ -189,6 +247,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 .wordle-cell-back.wordle-correct, .key.wordle-correct { background-color: #22c55e; border-color: #22c55e; color: white; }
 .wordle-cell-back.wordle-present, .key.wordle-present { background-color: #f59e0b; border-color: #f59e0b; color: white; }
 .wordle-cell-back.wordle-absent,  .key.wordle-absent  { background-color: #1f2937; border-color: #1f2937; color: #9ca3af; }
+<<<<<<< HEAD
 .wordle-cell.shake { animation: shake 0.6s cubic-bezier(.36,.07,.19,.97); }
 
 /* On-Screen Keyboard Styles */
@@ -424,3 +483,68 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     color: white;
 }
 
+=======
+.keyboard { display: flex; flex-direction: column; gap: 8px; }
+.keyboard-row { display: flex; justify-content: center; gap: 5px; }
+.key { padding: 1rem 0.75rem; background-color: #4b5563; border-radius: 4px; cursor: pointer; text-transform: uppercase; font-weight: bold; text-align: center; font-size: clamp(0.75rem, 3vw, 1rem); }
+.key-large { flex-grow: 1.5; padding: 1rem 0.5rem; }
+
+.win-line {
+    position: absolute;
+    background-color: var(--theme-color);
+    height: 5px;
+    border-radius: 5px;
+    transform-origin: left center;
+    box-shadow: 0 0 10px var(--theme-shadow-color);
+    animation: draw-line 0.5s ease-out;
+}
+
+@keyframes draw-line {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+#digital-clock {
+    position: fixed;
+    top: 0.5rem;
+    right: 1rem;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.25rem;
+    color: var(--theme-color, #ef4444);
+    text-shadow: 0 0 8px var(--theme-shadow-color, #f87171);
+    z-index: 2000;
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+@keyframes drop {
+    0% { transform: translateY(-100px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes shake {
+    10%, 90% { transform: translateX(-1px); }
+    20%, 80% { transform: translateX(2px); }
+    30%, 50%, 70% { transform: translateX(-4px); }
+    40%, 60% { transform: translateX(4px); }
+}
+.wordle-cell.shake {
+    animation: shake 0.6s cubic-bezier(.36,.07,.19,.97);
+}
+
+#game-container:not(.hidden) {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 1rem); /* Adjust for body padding */
+}
+
+#game-container.wordle-active > #game-board {
+    flex-grow: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+#game-container.wordle-active > #keyboard-container,
+#game-container.wordle-active > #game-controls {
+    flex-shrink: 0;
+}
+>>>>>>> c183d2a (First commit)
