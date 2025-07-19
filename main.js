@@ -484,7 +484,7 @@ window.startGame = function(mode) {
     // --- DOM Elements ---
     const mainMenu = document.getElementById('main-menu');
     const gameContainer = document.getElementById('game-container');
-    let gameBoard = document.getElementById('game-board'); // Use 'let' to allow reassignment
+    let gameBoard = document.getElementById('game-board');
     const gameTitle = document.getElementById('game-title');
     const gameStatus = document.getElementById('game-status');
     const gameRules = document.getElementById('game-rules');
@@ -501,20 +501,97 @@ window.startGame = function(mode) {
     const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
     const P1 = 1, P2 = -1, EMPTY = 0, AI = -1, HUMAN = 1;
 
+    // --- Gauntlet Mode Object ---
+    const gauntlet = {
+        isActive: false,
+        score: 0,
+        gameTimer: null,
+        availableGames: [],
+
+        start: function() {
+            this.isActive = true;
+            this.score = 0;
+            this.availableGames = Object.keys(gameModes).filter(k => k !== 'musicMachine' && k !== 'gauntlet');
+            this.shuffleGames();
+            this.nextGame();
+        },
+
+        shuffleGames: function() {
+            for (let i = this.availableGames.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [this.availableGames[i], this.availableGames[j]] = [this.availableGames[j], this.availableGames[i]];
+            }
+        },
+
+        nextGame: function() {
+            if (!this.isActive) return;
+            if (this.availableGames.length === 0) {
+                this.shuffleGames();
+            }
+            const nextGameKey = this.availableGames.pop();
+            const mode = gameModes[nextGameKey];
+            startGame(mode);
+        },
+
+        onGameComplete: function(isSuccess) {
+            if (!this.isActive) return;
+
+            clearTimeout(this.gameTimer);
+            this.gameTimer = null;
+
+            if (isSuccess) {
+                this.score++;
+                playSound('G5', '8n');
+                const successModal = createModal('success-modal', 'SUCCESS!', `<p class="text-2xl">Score: ${this.score}</p>`, 'Next Game', () => {
+                    successModal.remove();
+                    this.nextGame();
+                });
+                setTimeout(() => successModal.classList.add('is-visible'), 10);
+            } else {
+                playSound('C3', '2n');
+                this.end();
+            }
+        },
+
+        end: function() {
+            const finalScore = this.score;
+            this.isActive = false;
+            this.score = 0;
+            clearTimeout(this.gameTimer);
+            this.gameTimer = null;
+
+            const endModal = createModal('gauntlet-over-modal', 'Gauntlet Over',
+                `<p class="text-2xl">Your final score is ${finalScore}.</p>`,
+                'Main Menu',
+                () => {
+                    endModal.remove();
+                    gameContainer.classList.add('hidden');
+                    mainMenu.classList.remove('hidden');
+                    currentMode = null;
+                }
+            );
+            setTimeout(() => endModal.classList.add('is-visible'), 10);
+        }
+    };
+
     // --- Main Menu Logic ---
     mainMenu.addEventListener('click', (e) => {
         if (e.target.matches('[data-mode]')) {
-            const mode = e.target.dataset.mode;
-            if (gameModes[mode]) {
+            const modeKey = e.target.dataset.mode;
+            if (gameModes[modeKey]) {
                 mainMenu.classList.add('hidden');
                 gameContainer.classList.remove('hidden');
-                startGame(gameModes[mode]);
+                if (modeKey === 'gauntlet') {
+                    gauntlet.start();
+                } else {
+                    gauntlet.isActive = false;
+                    startGame(gameModes[modeKey]);
+                }
             }
         }
     });
 
     // --- Event Handlers for the Game Board ---
-    // These are attached once to the gameBoard container.
     function handleBoardClick(e) {
         if (e.target.matches('.light') && currentMode && currentMode.handler) {
             currentMode.handler(e, 'click');
@@ -530,24 +607,17 @@ window.startGame = function(mode) {
     
     // --- General Game Functions ---
     function startGame(mode) {
-        // --- OPTIMIZED: Robust Event Listener Cleanup ---
-        // By cloning the game board, we remove all old event listeners (click, contextmenu, mousedown, etc.)
-        // from any previous game without needing to track them manually.
         const newGameBoard = gameBoard.cloneNode(false);
         gameBoard.parentNode.replaceChild(newGameBoard, gameBoard);
-        gameBoard = newGameBoard; // Re-assign the global variable to the new board
+        gameBoard = newGameBoard;
         
-        // Re-attach the main delegated event listeners to the new, clean board
         gameBoard.addEventListener('click', handleBoardClick);
         gameBoard.addEventListener('contextmenu', handleBoardContextMenu);
         
-        // --- Global Listener Cleanup ---
-        // Specific listeners on `window` or other elements must still be removed manually.
         if (currentMode) {
-            if (currentMode.name === 'wordle') {
+            if (currentMode.name === 'wordGuess') {
                 window.removeEventListener('keydown', wordleGame.handler);
-            } else if (currentMode.name === 'lineDraw') {
-                // The board listeners are already gone, but window listeners remain.
+            } else if (currentMode.name === 'colorConnect') {
                 window.removeEventListener('mousemove', lineDrawGame.handleMouseMove);
                 window.removeEventListener('mouseup', lineDrawGame.handleMouseUp);
                 window.removeEventListener('touchmove', lineDrawGame.handleMouseMove);
@@ -563,15 +633,20 @@ window.startGame = function(mode) {
         gameTitle.style.color = mode.color;
         gameTitle.style.textShadow = `0 0 10px ${mode.shadow}`;
         
-        gameContainer.classList.toggle('wordle-active', mode.name === 'wordle');
+        gameContainer.classList.toggle('wordle-active', mode.name === 'wordGuess');
 
         gameBoard.innerHTML = '';
-        gameBoard.className = 'game-grid mb-2'; // Reset classes
+        gameBoard.className = 'game-grid mb-2';
         keyboardContainer.innerHTML = '';
-        gameStatus.textContent = '';
         statsContainer.innerHTML = '';
         buttonContainer.innerHTML = '';
         modalContainer.innerHTML = '';
+        
+        if (gauntlet.isActive) {
+            gameStatus.innerHTML = `GAUNTLET SCORE: ${gauntlet.score} <span id="gauntlet-timer" class="ml-4 text-cyan-400"></span>`;
+        } else {
+            gameStatus.textContent = '';
+        }
         
         const cols = mode.gridCols || mode.gridSize;
         const rows = mode.gridRows || mode.gridSize;
@@ -580,8 +655,7 @@ window.startGame = function(mode) {
             gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
             gameBoard.classList.toggle('large-grid', cols > 5 || rows > 5);
         
-            // Create grid cells, but don't handle setup for games that do it themselves
-            if (mode.name !== 'minefield' && mode.name !== 'wordle') {
+            if (mode.name !== 'minefield' && mode.name !== 'wordGuess' && mode.name !== 'lightMatch') {
                 const fragment = document.createDocumentFragment();
                 for (let i = 0; i < rows * cols; i++) {
                     const light = document.createElement('div');
@@ -595,16 +669,37 @@ window.startGame = function(mode) {
         
         mode.setup();
 
-        const backButton = createControlButton('Menu', 'btn-red', () => {
-            gameContainer.classList.add('hidden');
-            mainMenu.classList.remove('hidden');
-            // Final cleanup when returning to menu
-             if (currentMode && currentMode.name === 'wordle') {
-                window.removeEventListener('keydown', wordleGame.handler);
+        const backButtonText = gauntlet.isActive ? 'Quit Gauntlet' : 'Menu';
+        const backButton = createControlButton(backButtonText, 'btn-red', () => {
+            if (gauntlet.isActive) {
+                gauntlet.end();
+            } else {
+                gameContainer.classList.add('hidden');
+                mainMenu.classList.remove('hidden');
+                if (currentMode && currentMode.name === 'wordGuess') {
+                    window.removeEventListener('keydown', wordleGame.handler);
+                }
+                currentMode = null;
             }
-            currentMode = null;
         });
         buttonContainer.appendChild(backButton);
+
+        const timedGames = ['blackjack', 'sequence', 'lightMatch'];
+        if (gauntlet.isActive && timedGames.includes(mode.name)) {
+            let timeLeft = mode.name === 'lightMatch' ? 120 : 60;
+            const timerEl = document.getElementById('gauntlet-timer');
+            const updateTimer = () => {
+                if(timerEl) timerEl.textContent = `TIME: ${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(gauntlet.gameTimer);
+                    const isWin = mode.name === 'lightMatch' ? (gameState.score >= 1000) : true;
+                    gauntlet.onGameComplete(isWin);
+                }
+                timeLeft--;
+            };
+            updateTimer();
+            gauntlet.gameTimer = setInterval(updateTimer, 1000);
+        }
     }
     
     function createControlButton(text, colorClass, onClick) {
@@ -637,7 +732,7 @@ window.startGame = function(mode) {
 
     function showWinModal(title, message) {
         const winModal = createModal('win-modal', title, `<p>${message}</p>`, 'Play Again', () => {
-            winModal.classList.remove('is-visible');
+            winModal.remove();
             if (currentMode) startGame(currentMode);
         });
         setTimeout(() => winModal.classList.add('is-visible'), 10);
@@ -651,18 +746,19 @@ window.startGame = function(mode) {
         }
     }
     
+    // --- Individual Game Logic ---
+
     const lightsOutGame = {
         setup: () => {
             gameState = { board: Array(25).fill(0), moves: 0 };
-            // Ensure a solvable board by starting from a solved state and pressing buttons
             for (let i = 0; i < 15; i++) {
                 const randomIndex = Math.floor(Math.random() * 25);
                 lightsOutGame.toggle(randomIndex, 5, gameState.board);
             }
-            
-            const solveButton = createControlButton('Solve', 'btn-yellow', lightsOutGame.solve);
-            buttonContainer.prepend(solveButton);
-            
+            if (!gauntlet.isActive) {
+                const solveButton = createControlButton('Solve', 'btn-yellow', lightsOutGame.solve);
+                buttonContainer.prepend(solveButton);
+            }
             lightsOutGame.updateBoard();
             updateStats(`Moves: 0`);
         },
@@ -675,7 +771,8 @@ window.startGame = function(mode) {
             lightsOutGame.updateBoard();
             updateStats(`Moves: ${gameState.moves}`);
             if (gameState.board.every(light => light === 0)) {
-                showWinModal('You Win!', `You solved it in ${gameState.moves} moves.`);
+                if (gauntlet.isActive) { gauntlet.onGameComplete(true); }
+                else { showWinModal('You Win!', `You solved it in ${gameState.moves} moves.`); }
             }
         },
         toggle: (index, size, board) => {
@@ -699,7 +796,6 @@ window.startGame = function(mode) {
             });
         },
         solve: async () => {
-            // This is a complex algorithm (Gaussian elimination) and remains unchanged.
             if (gameState.isSolving) return;
             gameState.isSolving = true;
             document.querySelector('.btn-yellow').disabled = true;
@@ -781,13 +877,13 @@ window.startGame = function(mode) {
             lights.forEach((light, i) => {
                 light.classList.toggle('is-on', gameState.board[i] === 1);
                 light.classList.toggle('is-off', gameState.board[i] === 0);
-                light.classList.remove('is-center-inactive');
             });
         },
         checkWin: () => {
             const winState = [1, 1, 1, 1, 0, 1, 1, 1, 1];
             if (gameState.board.every((val, i) => val === winState[i])) {
-                showWinModal('You Win!', `You solved Merlin's puzzle in ${gameState.moves} moves!`);
+                if (gauntlet.isActive) { gauntlet.onGameComplete(true); }
+                else { showWinModal('You Win!', `You solved the puzzle in ${gameState.moves} moves!`); }
             }
         }
     };
@@ -795,20 +891,17 @@ window.startGame = function(mode) {
     const ticTacToeGame = {
         setup: () => {
             gameState = { 
-                board: Array(9).fill(EMPTY), 
-                currentPlayer: P1, 
-                gameOver: false,
-                mode: gameState.mode || 'CPU',
-                winLines: [
-                    [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], 
-                    [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]
-                ]
+                board: Array(9).fill(EMPTY), currentPlayer: P1, gameOver: false,
+                mode: gauntlet.isActive ? 'CPU' : (gameState.mode || 'CPU'),
+                winLines: [ [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6] ]
             };
-            const modeButton = createControlButton(`Mode: ${gameState.mode}`, 'btn-blue', () => {
-                gameState.mode = gameState.mode === 'CPU' ? '2P' : 'CPU';
-                startGame(currentMode);
-            });
-            buttonContainer.prepend(modeButton);
+            if (!gauntlet.isActive) {
+                const modeButton = createControlButton(`Mode: ${gameState.mode}`, 'btn-blue', () => {
+                    gameState.mode = gameState.mode === 'CPU' ? '2P' : 'CPU';
+                    startGame(currentMode);
+                });
+                buttonContainer.prepend(modeButton);
+            }
             ticTacToeGame.updateBoard();
             gameStatus.textContent = "Player 1's Turn";
         },
@@ -827,17 +920,19 @@ window.startGame = function(mode) {
             }
         },
         makeMove: (index, player) => {
+            if (gameState.gameOver) return;
             gameState.board[index] = player;
             playSound(player === HUMAN ? 'C4' : 'G3');
             ticTacToeGame.updateBoard();
             const winInfo = checkWin(gameState.board, player, gameState.winLines);
             if (winInfo) {
-                ticTacToeGame.end(`${player === P1 ? 'Player 1' : 'CPU'} Wins!`, winInfo.line);
+                ticTacToeGame.end(player === P1 ? 'Player 1 Wins!' : 'CPU Wins!', winInfo.line);
             } else if (isDraw(gameState.board)) {
                 ticTacToeGame.end("It's a Draw!");
             } else {
                 gameState.currentPlayer *= -1;
-                gameStatus.textContent = `Player ${gameState.currentPlayer === P1 ? 1 : 2}'s Turn`;
+                const turnText = gameState.mode === '2P' ? `Player ${gameState.currentPlayer === P1 ? 1 : 2}'s Turn` : "Your Turn";
+                if(!gauntlet.isActive) gameStatus.textContent = turnText;
             }
         },
         aiMove: () => {
@@ -898,11 +993,14 @@ window.startGame = function(mode) {
         },
         end: (message, winLine = null) => {
             gameState.gameOver = true;
-            gameStatus.textContent = message;
-            if (winLine) {
-                ticTacToeGame.drawWinLine(winLine);
+            if (gauntlet.isActive) {
+                const isWin = message.includes('Player 1 Wins!');
+                gauntlet.onGameComplete(isWin);
+            } else {
+                gameStatus.textContent = message;
+                if (winLine) ticTacToeGame.drawWinLine(winLine);
+                showWinModal(message, "A classic battle.");
             }
-            showWinModal(message, "A classic battle.");
         },
         updateBoard: () => {
             const lights = gameBoard.querySelectorAll('.light');
@@ -952,7 +1050,7 @@ window.startGame = function(mode) {
             });
             buttonContainer.prepend(startButton);
             updateStats(`Level: 1`);
-            gameStatus.textContent = "Press Start";
+            if(!gauntlet.isActive) gameStatus.textContent = "Press Start";
         },
         nextSequence: () => {
             gameState.state = 'WATCH';
@@ -963,7 +1061,7 @@ window.startGame = function(mode) {
         },
         playSequence: async () => {
             gameState.state = 'WATCH';
-            gameStatus.textContent = "Watch carefully...";
+            if(!gauntlet.isActive) gameStatus.textContent = "Watch carefully...";
             gameBoard.style.pointerEvents = 'none';
             for (const index of gameState.sequence) {
                 const light = gameBoard.querySelector(`[data-index='${index}']`);
@@ -976,7 +1074,7 @@ window.startGame = function(mode) {
                 await delay(200);
             }
             gameState.state = 'PLAY';
-            gameStatus.textContent = "Your turn!";
+            if(!gauntlet.isActive) gameStatus.textContent = "Your turn!";
             gameState.playerSequence = [];
             gameBoard.style.pointerEvents = 'auto';
         },
@@ -997,10 +1095,14 @@ window.startGame = function(mode) {
             const currentMoveIndex = gameState.playerSequence.length - 1;
 
             if (gameState.playerSequence[currentMoveIndex] !== gameState.sequence[currentMoveIndex]) {
-                gameStatus.textContent = "Wrong! Game Over.";
-                playSound('C3', '4n');
-                showWinModal('Game Over', `You reached level ${gameState.level}.`);
                 gameState.state = 'WATCH';
+                if (gauntlet.isActive) {
+                    gauntlet.onGameComplete(false);
+                } else {
+                    gameStatus.textContent = "Wrong! Game Over.";
+                    playSound('C3', '4n');
+                    showWinModal('Game Over', `You reached level ${gameState.level}.`);
+                }
                 return;
             }
 
@@ -1025,7 +1127,6 @@ window.startGame = function(mode) {
             };
 
             gameBoard.classList.add('wordle-grid');
-            // OPTIMIZED: Use a DocumentFragment to create and append cells efficiently
             const fragment = document.createDocumentFragment();
             for(let i=0; i < gridRows * gridCols; i++) {
                 const cell = document.createElement('div');
@@ -1045,7 +1146,6 @@ window.startGame = function(mode) {
                 ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
                 ['Enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace']
             ];
-            // OPTIMIZED: Use a DocumentFragment for keyboard creation
             const keyboardFragment = document.createDocumentFragment();
             keys.forEach(row => {
                 const rowDiv = document.createElement('div');
@@ -1095,18 +1195,18 @@ window.startGame = function(mode) {
         },
         submitGuess: async () => {
             if (gameState.gameOver || gameState.currentCol < currentMode.gridCols) {
-                gameStatus.textContent = "Not enough letters";
-                setTimeout(() => gameStatus.textContent = '', 2000);
+                if(!gauntlet.isActive) gameStatus.textContent = "Not enough letters";
+                setTimeout(() => { if(!gauntlet.isActive) gameStatus.textContent = '' }, 2000);
                 return;
             }
             const guess = gameState.board[gameState.currentRow].join('');
             if (!wordList.includes(guess)) {
-                gameStatus.textContent = "Not in word list";
+                if(!gauntlet.isActive) gameStatus.textContent = "Not in word list";
                 const rowCells = Array.from(gameBoard.children).slice(gameState.currentRow * 5, gameState.currentRow * 5 + 5);
                 rowCells.forEach(cell => cell.classList.add('shake'));
                 setTimeout(() => {
                     rowCells.forEach(cell => cell.classList.remove('shake'));
-                    gameStatus.textContent = '';
+                    if(!gauntlet.isActive) gameStatus.textContent = '';
                 }, 600);
                 return;
             }
@@ -1149,10 +1249,12 @@ window.startGame = function(mode) {
 
             if (guess === secret) {
                 gameState.gameOver = true;
-                showWinModal('You Win!', `You guessed it in ${gameState.currentRow + 1} tries!`);
+                if (gauntlet.isActive) { gauntlet.onGameComplete(true); }
+                else { showWinModal('You Win!', `You guessed it in ${gameState.currentRow + 1} tries!`); }
             } else if (gameState.currentRow === 5) {
                 gameState.gameOver = true;
-                showWinModal('Game Over', `The word was: ${secret.toUpperCase()}`);
+                if (gauntlet.isActive) { gauntlet.onGameComplete(false); }
+                else { showWinModal('Game Over', `The word was: ${secret.toUpperCase()}`); }
             } else {
                 gameState.currentRow++;
                 gameState.currentCol = 0;
@@ -1169,7 +1271,7 @@ window.startGame = function(mode) {
             });
         },
         scrollActiveRowIntoView: () => {
-            if (!currentMode || currentMode.name !== 'wordle' || !gameBoard.children.length) return;
+            if (!currentMode || currentMode.name !== 'wordGuess' || !gameBoard.children.length) return;
             const activeCell = gameBoard.children[gameState.currentRow * 5];
             if (activeCell) activeCell.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
@@ -1180,12 +1282,10 @@ window.startGame = function(mode) {
             gameState = {
                 deck: [], playerHand: [], cpuHand: [], gameOver: false, playerTurn: true,
             };
-            // 1 is Ace, 2-10 are numbers, 10 is J/Q/K
-            for (let s = 0; s < 4; s++) { // 4 suits
+            for (let s = 0; s < 4; s++) {
                 for (let i = 1; i <= 10; i++) gameState.deck.push(i);
-                gameState.deck.push(10, 10, 10); // J, Q, K
+                gameState.deck.push(10, 10, 10);
             }
-            // Shuffle deck
             for (let i = gameState.deck.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [gameState.deck[i], gameState.deck[j]] = [gameState.deck[j], gameState.deck[i]];
@@ -1193,7 +1293,7 @@ window.startGame = function(mode) {
 
             const hitButton = createControlButton('Hit', 'btn-blue', blackjackGame.hit);
             const standButton = createControlButton('Stand', 'btn-yellow', blackjackGame.stand);
-            gameState.hitButton = hitButton; // Store button in gameState
+            gameState.hitButton = hitButton;
             gameState.standButton = standButton;
             buttonContainer.prepend(standButton);
             buttonContainer.prepend(hitButton);
@@ -1206,10 +1306,10 @@ window.startGame = function(mode) {
                 await blackjackGame.dealCard(AI);
                 
                 hitButton.disabled = false; standButton.disabled = false;
-                gameStatus.textContent = "Your turn. Hit or Stand?";
+                if(!gauntlet.isActive) gameStatus.textContent = "Your turn. Hit or Stand?";
 
                 if (blackjackGame.calculateHandValue(gameState.playerHand) === 21) {
-                    gameStatus.textContent = "Blackjack!";
+                    if(!gauntlet.isActive) gameStatus.textContent = "Blackjack!";
                     setTimeout(blackjackGame.stand, 1000);
                 }
             };
@@ -1220,7 +1320,7 @@ window.startGame = function(mode) {
             let score = hand.reduce((sum, card) => sum + card, 0);
             let aceCount = hand.filter(card => card === 1).length;
             while (score <= 11 && aceCount > 0) {
-                score += 10; // Treat an Ace as 11 if it doesn't bust the hand
+                score += 10;
                 aceCount--;
             }
             return score;
@@ -1281,7 +1381,7 @@ window.startGame = function(mode) {
             gameState.playerTurn = false;
             gameState.hitButton.disabled = true;
             gameState.standButton.disabled = true;
-            gameStatus.textContent = "CPU's Turn...";
+            if(!gauntlet.isActive) gameStatus.textContent = "CPU's Turn...";
 
             const hiddenCard = gameState.cpuHand.find(c => c.hidden);
             if (hiddenCard) {
@@ -1300,26 +1400,27 @@ window.startGame = function(mode) {
             const finalPlayerScore = blackjackGame.calculateHandValue(gameState.playerHand);
             const finalCpuScore = blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card));
             
-            if (finalCpuScore > 21) {
-                blackjackGame.end("CPU Busts! You Win!");
-            } else if (finalCpuScore > finalPlayerScore) {
-                blackjackGame.end("CPU Wins!");
-            } else if (finalPlayerScore > finalCpuScore) {
-                blackjackGame.end("You Win!");
-            } else {
-                blackjackGame.end("It's a Push (Tie)!");
-            }
+            if (finalCpuScore > 21) { blackjackGame.end("CPU Busts! You Win!"); }
+            else if (finalCpuScore > finalPlayerScore) { blackjackGame.end("CPU Wins!"); }
+            else if (finalPlayerScore > finalCpuScore) { blackjackGame.end("You Win!"); }
+            else { blackjackGame.end("It's a Push (Tie)!"); }
         },
         end: (message) => {
             if (gameState.gameOver) return;
             gameState.gameOver = true;
-            gameState.playerTurn = false;
-            gameState.cpuHand.forEach(c => c.hidden = false);
-            blackjackGame.updateBoardAndScores();
-            gameStatus.textContent = message;
-            const finalPlayerScore = blackjackGame.calculateHandValue(gameState.playerHand);
-            const finalCpuScore = blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card));
-            showWinModal(message, `Final Scores - You: ${finalPlayerScore}, CPU: ${finalCpuScore}`);
+            if (gauntlet.isActive) {
+                const isWin = message.includes("You Win");
+                const isBust = message.includes("Bust");
+                gauntlet.onGameComplete(isWin && !isBust);
+            } else {
+                gameState.playerTurn = false;
+                gameState.cpuHand.forEach(c => c.hidden = false);
+                blackjackGame.updateBoardAndScores();
+                gameStatus.textContent = message;
+                const finalPlayerScore = blackjackGame.calculateHandValue(gameState.playerHand);
+                const finalCpuScore = blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card));
+                showWinModal(message, `Final Scores - You: ${finalPlayerScore}, CPU: ${finalCpuScore}`);
+            }
         }
     };
 
@@ -1327,12 +1428,14 @@ window.startGame = function(mode) {
         setup: () => {
             gameState = { board: [1, 2, 3, 4, 5, 6, 7, 8, EMPTY], emptyIndex: 8, moves: 0 };
             sliderPuzzleGame.shuffle();
-            const shuffleButton = createControlButton('Shuffle', 'btn-yellow', () => {
-                sliderPuzzleGame.shuffle();
-                gameState.moves = 0;
-                updateStats(`Moves: 0`);
-            });
-            buttonContainer.prepend(shuffleButton);
+            if (!gauntlet.isActive) {
+                const shuffleButton = createControlButton('Shuffle', 'btn-yellow', () => {
+                    sliderPuzzleGame.shuffle();
+                    gameState.moves = 0;
+                    updateStats(`Moves: 0`);
+                });
+                buttonContainer.prepend(shuffleButton);
+            }
             updateStats(`Moves: 0`);
         },
         shuffle: () => {
@@ -1355,7 +1458,7 @@ window.startGame = function(mode) {
                 sliderPuzzleGame.checkWin();
             }
         },
-        swapTiles: (index1, index2, isShuffling = false) => {
+        swapTiles: (index1, index2) => {
             [gameState.board[index1], gameState.board[index2]] = [gameState.board[index2], gameState.board[index1]];
             gameState.emptyIndex = (gameState.emptyIndex === index1) ? index2 : index1;
         },
@@ -1371,28 +1474,30 @@ window.startGame = function(mode) {
         checkWin: () => {
             const winState = [1, 2, 3, 4, 5, 6, 7, 8, EMPTY];
             if (gameState.board.every((val, i) => val === winState[i])) {
-                showWinModal('You Win!', `Solved in ${gameState.moves} moves!`);
+                if (gauntlet.isActive) { gauntlet.onGameComplete(true); }
+                else { showWinModal('You Win!', `Solved in ${gameState.moves} moves!`); }
             }
         }
     };
 
     const minefieldGame = {
         setup: () => {
-            const newGameButton = createControlButton('New Game', 'btn-green', () => {
-                startGame(currentMode); // Restart the game
-            });
-            buttonContainer.prepend(newGameButton);
+            if (!gauntlet.isActive) {
+                const newGameButton = createControlButton('New Game', 'btn-green', () => {
+                    startGame(currentMode);
+                });
+                buttonContainer.prepend(newGameButton);
+            }
             minefieldGame.start(8, 8, 10);
         },
         start: (width, height, mines) => {
-            if (mines >= width * height) { gameStatus.textContent = "Too many mines!"; return; }
+            if (mines >= width * height) { if(!gauntlet.isActive) gameStatus.textContent = "Too many mines!"; return; }
             
             gameState = { firstClick: true, width, height, mines, flagged: 0, gameOver: false };
             gameBoard.innerHTML = '';
             gameBoard.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
             gameBoard.classList.toggle('large-grid', width > 5 || height > 5);
 
-            // OPTIMIZED: Use a DocumentFragment to create and append cells efficiently
             const fragment = document.createDocumentFragment();
             for(let i = 0; i < width * height; i++) {
                 const light = document.createElement('div');
@@ -1403,7 +1508,7 @@ window.startGame = function(mode) {
             gameBoard.appendChild(fragment);
 
             statsContainer.innerHTML = `Mines: <span id="mine-count">${mines}</span>`;
-            gameStatus.textContent = "Click any cell to begin.";
+            if(!gauntlet.isActive) gameStatus.textContent = "Click any cell to begin.";
         },
         finishSetup: (firstClickIndex) => {
              const { width, height, mines } = gameState;
@@ -1435,9 +1540,13 @@ window.startGame = function(mode) {
                 if (gameState.flagged[index]) return;
                 if (gameState.board[index] === 'M') {
                     gameState.gameOver = true;
-                    minefieldGame.revealAllMines();
-                    gameStatus.textContent = "Game Over!";
-                    showWinModal('BOOM!', 'You hit a mine.');
+                    if (gauntlet.isActive) {
+                        gauntlet.onGameComplete(false);
+                    } else {
+                        minefieldGame.revealAllMines();
+                        gameStatus.textContent = "Game Over!";
+                        showWinModal('BOOM!', 'You hit a mine.');
+                    }
                     return;
                 }
                 minefieldGame.revealCell(index);
@@ -1501,12 +1610,13 @@ window.startGame = function(mode) {
             });
         },
         checkWin: () => {
-            if (!gameState.board) return; // Guard against checking before setup
+            if (!gameState.board) return;
             const revealedCount = gameState.revealed ? gameState.revealed.filter(Boolean).length : 0;
             const totalNonMines = gameState.board.length - gameState.mines;
             if (revealedCount === totalNonMines) {
                 gameState.gameOver = true;
-                showWinModal('You Win!', 'You cleared the minefield!');
+                if (gauntlet.isActive) { gauntlet.onGameComplete(true); }
+                else { showWinModal('You Win!', 'You cleared the minefield!'); }
             }
         }
     };
@@ -1549,12 +1659,14 @@ window.startGame = function(mode) {
     const connectGame = {
         setup: () => {
             gameState = { board: Array(42).fill(EMPTY), currentPlayer: HUMAN, gameOver: false, difficulty: 'Hard' };
-            const easyBtn = createControlButton('Easy', 'btn-green', () => { gameState.difficulty = 'Easy'; gameStatus.textContent = 'Difficulty: Easy'; });
-            const hardBtn = createControlButton('Hard', 'btn-blue', () => { gameState.difficulty = 'Hard'; gameStatus.textContent = 'Difficulty: Hard'; });
-            buttonContainer.prepend(hardBtn);
-            buttonContainer.prepend(easyBtn);
+            if(!gauntlet.isActive){
+                const easyBtn = createControlButton('Easy', 'btn-green', () => { gameState.difficulty = 'Easy'; gameStatus.textContent = 'Difficulty: Easy'; });
+                const hardBtn = createControlButton('Hard', 'btn-blue', () => { gameState.difficulty = 'Hard'; gameStatus.textContent = 'Difficulty: Hard'; });
+                buttonContainer.prepend(hardBtn);
+                buttonContainer.prepend(easyBtn);
+            }
             connectGame.updateBoard();
-            gameStatus.textContent = "Your Turn";
+            if(!gauntlet.isActive) gameStatus.textContent = "Your Turn";
         },
         handler: (e) => {
             if (gameState.gameOver || gameState.currentPlayer === AI) return;
@@ -1572,7 +1684,7 @@ window.startGame = function(mode) {
             connectGame.makeMove(landingIndex, HUMAN);
             if (gameState.gameOver) return;
             gameState.currentPlayer = AI;
-            gameStatus.textContent = "AI is thinking...";
+            if(!gauntlet.isActive) gameStatus.textContent = "AI is thinking...";
             setTimeout(connectGame.aiMove, 500);
         },
         aiMove: () => {
@@ -1587,7 +1699,7 @@ window.startGame = function(mode) {
             connectGame.makeMove(landingIndex, AI);
             if (!gameState.gameOver) {
                 gameState.currentPlayer = HUMAN;
-                gameStatus.textContent = "Your Turn";
+                if(!gauntlet.isActive) gameStatus.textContent = "Your Turn";
             }
         },
         makeMove: (index, player) => {
@@ -1596,16 +1708,23 @@ window.startGame = function(mode) {
             connectGame.updateBoard();
             if (checkConnectWin(gameState.board, player)) {
                 gameState.gameOver = true;
-                gameStatus.textContent = player === HUMAN ? "You Win!" : "AI Wins!";
-                showWinModal(player === HUMAN ? "You Win!" : "AI Wins!", "Four in a row!");
+                if (gauntlet.isActive) {
+                    gauntlet.onGameComplete(player === HUMAN);
+                } else {
+                    const message = player === HUMAN ? "You Win!" : "AI Wins!";
+                    gameStatus.textContent = message;
+                    showWinModal(message, "Four in a row!");
+                }
             } else if (isDraw(gameState.board)) {
                 gameState.gameOver = true;
-                gameStatus.textContent = "It's a Draw!";
-                showWinModal("It's a Draw!", "Well fought!");
+                if (gauntlet.isActive) { gauntlet.onGameComplete(false); }
+                else {
+                    gameStatus.textContent = "It's a Draw!";
+                    showWinModal("It's a Draw!", "Well fought!");
+                }
             }
         },
         findBestMove: (board) => {
-            // AI logic remains complex and unchanged
             const validCols = getValidColumns(board);
             if (gameState.difficulty === 'Easy') return validCols[Math.floor(Math.random() * validCols.length)];
             let bestScore = -Infinity;
@@ -1663,7 +1782,6 @@ window.startGame = function(mode) {
             gameState = { size, board: Array(size * size).fill(0), pairs: puzzle.pairs, paths: {}, isDrawing: false, currentColor: 0, startNode: -1 };
             puzzle.pairs.forEach(p => { gameState.paths[p.c] = []; });
             lineDrawGame.updateBoard();
-            // Attach listeners to the new game board and window
             gameBoard.addEventListener('mousedown', lineDrawGame.handleMouseDown);
             window.addEventListener('mousemove', lineDrawGame.handleMouseMove);
             window.addEventListener('mouseup', lineDrawGame.handleMouseUp);
@@ -1708,7 +1826,6 @@ window.startGame = function(mode) {
                 if (!grid.includes(0)) return { pairs };
                 attempts++;
             }
-            // Fallback for rare cases where a solvable puzzle isn't generated
             return lineDrawGame.generatePuzzle(size);
         },
         handleMouseDown: (e) => {
@@ -1798,30 +1915,246 @@ window.startGame = function(mode) {
                 return ends[0] === pairEnds[0] && ends[1] === pairEnds[1];
             });
             if (allPaired && !gameState.board.includes(0)) {
-                showWinModal('You Win!', 'You connected all the dots!');
+                if (gauntlet.isActive) { gauntlet.onGameComplete(true); }
+                else { showWinModal('You Win!', 'You connected all the dots!'); }
             }
         }
     };
 
+    const lightMatchGame = {
+        setup: () => {
+            const size = 8;
+            const numColors = 6;
+            gameState = {
+                size,
+                numColors,
+                board: [],
+                selected: null,
+                isAnimating: false,
+                score: 0
+            };
+            gameBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+            gameBoard.classList.add('large-grid');
+
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < size * size; i++) {
+                const light = document.createElement('div');
+                light.classList.add('light');
+                light.dataset.index = i;
+                fragment.appendChild(light);
+            }
+            gameBoard.appendChild(fragment);
+
+            do {
+                for (let i = 0; i < size * size; i++) {
+                    gameState.board[i] = Math.floor(Math.random() * numColors) + 1;
+                }
+            } while (lightMatchGame.findMatches().length > 0);
+
+            lightMatchGame.updateBoard();
+            updateStats(`Score: 0`);
+        },
+
+        handler: (e) => {
+            if (gameState.isAnimating) return;
+            const index = parseInt(e.target.dataset.index);
+
+            if (gameState.selected === null) {
+                gameState.selected = index;
+                e.target.classList.add('is-selected');
+            } else {
+                const first = gameState.selected;
+                const second = index;
+                const firstEl = gameBoard.querySelector(`[data-index='${first}']`);
+                if(firstEl) firstEl.classList.remove('is-selected');
+                
+                gameState.selected = null;
+
+                const isAdjacent = Math.abs(first % 8 - second % 8) + Math.abs(Math.floor(first / 8) - Math.floor(second / 8)) === 1;
+
+                if (isAdjacent) {
+                    lightMatchGame.attemptSwap(first, second);
+                }
+            }
+        },
+
+        attemptSwap: async (index1, index2) => {
+            gameState.isAnimating = true;
+            await lightMatchGame.animateSwap(index1, index2);
+            
+            const matches = lightMatchGame.findMatches();
+            if (matches.length > 0) {
+                await lightMatchGame.resolveBoard();
+            } else {
+                await delay(100);
+                await lightMatchGame.animateSwap(index1, index2); 
+            }
+            gameState.isAnimating = false;
+
+            if (!lightMatchGame.hasPossibleMoves()) {
+                if (gauntlet.isActive) {
+                    gauntlet.onGameComplete(gameState.score >= 1000);
+                } else {
+                    showWinModal("No More Moves!", `Final Score: ${gameState.score}`);
+                }
+            }
+        },
+        
+        animateSwap: async (index1, index2) => {
+            [gameState.board[index1], gameState.board[index2]] = [gameState.board[index2], gameState.board[index1]];
+            lightMatchGame.updateBoard();
+            await delay(200);
+        },
+
+        resolveBoard: async () => {
+            let chain = 1;
+            while (true) {
+                const matches = lightMatchGame.findMatches();
+                if (matches.length === 0) break;
+                
+                playSound(notes[chain % notes.length], '4n');
+                gameState.score += matches.length * 10 * chain;
+                updateStats(`Score: ${gameState.score}`);
+
+                await lightMatchGame.animateRemoval(matches);
+                await lightMatchGame.animateDrop();
+                await lightMatchGame.animateRefill();
+                chain++;
+
+                if(gauntlet.isActive && gameState.score >= 1000){
+                    gauntlet.onGameComplete(true);
+                    return;
+                }
+            }
+        },
+
+        findMatches: () => {
+            const matches = new Set();
+            const { size, board } = gameState;
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size - 2; c++) {
+                    const i = r * size + c;
+                    if (board[i] && board[i] === board[i+1] && board[i] === board[i+2]) {
+                        matches.add(i); matches.add(i+1); matches.add(i+2);
+                    }
+                }
+            }
+            for (let c = 0; c < size; c++) {
+                for (let r = 0; r < size - 2; r++) {
+                    const i = r * size + c;
+                    if (board[i] && board[i] === board[i + size] && board[i] === board[i + 2 * size]) {
+                        matches.add(i); matches.add(i + size); matches.add(i + 2 * size);
+                    }
+                }
+            }
+            return [...matches];
+        },
+
+        animateRemoval: async (matches) => {
+            matches.forEach(index => {
+                const el = gameBoard.querySelector(`[data-index='${index}']`);
+                if (el) el.classList.add('is-removing');
+            });
+            await delay(200);
+            
+            matches.forEach(index => {
+                gameState.board[index] = 0;
+            });
+            lightMatchGame.updateBoard();
+        },
+
+        animateDrop: async () => {
+            const { size } = gameState;
+            for (let c = 0; c < size; c++) {
+                let emptyRow = size - 1;
+                for (let r = size - 1; r >= 0; r--) {
+                    const index = r * size + c;
+                    if (gameState.board[index] !== 0) {
+                        const fallToIndex = emptyRow * size + c;
+                        if (index !== fallToIndex) {
+                            [gameState.board[index], gameState.board[fallToIndex]] = [gameState.board[fallToIndex], gameState.board[index]];
+                        }
+                        emptyRow--;
+                    }
+                }
+            }
+            await delay(100);
+            lightMatchGame.updateBoard();
+        },
+
+        animateRefill: async () => {
+            const { size, numColors } = gameState;
+            for (let i = 0; i < size * size; i++) {
+                if (gameState.board[i] === 0) {
+                    gameState.board[i] = Math.floor(Math.random() * numColors) + 1;
+                }
+            }
+            await delay(100);
+            lightMatchGame.updateBoard();
+        },
+
+        updateBoard: () => {
+            const lights = gameBoard.querySelectorAll('[data-index]');
+            lights.forEach((light, i) => {
+                const color = gameState.board[i];
+                light.className = 'light';
+                if (color > 0) {
+                    light.classList.add(`color-${color}`);
+                } else {
+                    light.classList.add('is-off');
+                }
+            });
+        },
+
+        hasPossibleMoves: () => {
+            const { size, board } = gameState;
+            for (let r = 0; r < size; r++) {
+                for (let c = 0; c < size - 1; c++) {
+                    const i1 = r * size + c;
+                    const i2 = r * size + c + 1;
+                    [board[i1], board[i2]] = [board[i2], board[i1]];
+                    if (lightMatchGame.findMatches().length > 0) {
+                        [board[i1], board[i2]] = [board[i2], board[i1]];
+                        return true;
+                    }
+                    [board[i1], board[i2]] = [board[i2], board[i1]];
+                }
+            }
+            for (let c = 0; c < size; c++) {
+                for (let r = 0; r < size - 1; r++) {
+                    const i1 = r * size + c;
+                    const i2 = (r + 1) * size + c;
+                    [board[i1], board[i2]] = [board[i2], board[i1]];
+                    if (lightMatchGame.findMatches().length > 0) {
+                        [board[i1], board[i2]] = [board[i2], board[i1]];
+                        return true;
+                    }
+                    [board[i1], board[i2]] = [board[i2], board[i1]];
+                }
+            }
+            return false;
+        }
+    };
+
     // --- Game Definitions ---
-    // DEBUG: Removed the duplicate declaration of this constant.
     const gameModes = {
-        lightsOut: { name: 'lightsOut', title: 'LIGHTS OUT 5x5', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171' },
-        magicSquare: { name: 'magicSquare', title: "MERLIN'S MAGIC SQUARE", rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa' },
+        lightPuzzle: { name: 'lightPuzzle', title: 'LIGHT PUZZLE', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171' },
+        magicSquare: { name: 'magicSquare', title: 'MAGIC SQUARE', rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa' },
         ticTacToe: { name: 'ticTacToe', title: 'TIC-TAC-TOE', rules: 'Get three in a row.', gridSize: 3, setup: ticTacToeGame.setup, handler: ticTacToeGame.handler, color: '#3b82f6', shadow: '#60a5fa' },
-        echo: { name: 'echo', title: 'ECHO', rules: 'Repeat the sequence.', gridSize: 3, setup: echoGame.setup, handler: echoGame.handler, color: '#22c55e', shadow: '#4ade80' },
-        wordle: { name: 'wordle', title: 'WORDLE', rules: 'Guess the 5-letter word.', gridRows: 6, gridCols: 5, setup: wordleGame.setup, handler: wordleGame.handler, color: '#f97316', shadow: '#fb923c' },
-        blackjack21: { name: 'blackjack21', title: 'BLACKJACK 21', rules: 'Aces are 1 or 11. Get 21 to win.', gridRows: 4, gridCols: 4, setup: blackjackGame.setup, handler: () => {}, color: '#06b6d4', shadow: '#22d3ee' },
+        sequence: { name: 'sequence', title: 'SEQUENCE', rules: 'Repeat the sequence. Survive for 1 minute!', gridSize: 3, setup: echoGame.setup, handler: echoGame.handler, color: '#22c55e', shadow: '#4ade80' },
+        wordGuess: { name: 'wordGuess', title: 'WORD GUESS', rules: 'Guess the 5-letter word.', gridRows: 6, gridCols: 5, setup: wordleGame.setup, handler: wordleGame.handler, color: '#f97316', shadow: '#fb923c' },
+        blackjack: { name: 'blackjack', title: 'BLACKJACK', rules: 'Get 21, or survive for 1 minute!', gridRows: 4, gridCols: 4, setup: blackjackGame.setup, handler: () => {}, color: '#06b6d4', shadow: '#22d3ee' },
+        lightMatch: { name: 'lightMatch', title: 'LIGHT MATCH', rules: 'Match 3+ lights. Score 1000 to win!', gridSize: 8, setup: lightMatchGame.setup, handler: lightMatchGame.handler, color: '#f43f5e', shadow: '#fb7185' },
         musicMachine: { name: 'musicMachine', title: 'MUSIC MACHINE', rules: 'Compose a tune.', gridSize: 3, setup: musicMachineGame.setup, handler: musicMachineGame.handler, color: '#d946ef', shadow: '#e879f9' },
         sliderPuzzle: { name: 'sliderPuzzle', title: 'SLIDER PUZZLE', rules: 'Order the tiles from 1 to 8.', gridSize: 3, setup: sliderPuzzleGame.setup, handler: sliderPuzzleGame.handler, color: '#ec4899', shadow: '#f472b6' },
-        minefield: { name: 'minefield', title: 'MINEFIELD', rules: 'Click a cell to start.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af' },
-        connect: { name: 'connect', title: 'CONNECT AI', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6' },
-        lineDraw: { name: 'lineDraw', title: 'LINE DRAW', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: () => {}, color: '#14b8a6', shadow: '#2dd4bf' }
+        minefield: { name: 'minefield', title: 'MINEFIELD', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af' },
+        fourInARow: { name: 'fourInARow', title: 'FOUR IN A ROW', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6' },
+        colorConnect: { name: 'colorConnect', title: 'COLOR CONNECT', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: () => {}, color: '#14b8a6', shadow: '#2dd4bf' },
+        gauntlet: { name: 'gauntlet', title: 'GAUNTLET', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: () => {}, color: '#facc15', shadow: '#fde047'}
     };
 
     // --- Utility Functions ---
     function updateStats(text) { statsContainer.textContent = text; }
-
     function getNeighbors(i, rows, cols) {
         const neighbors = [];
         const r = Math.floor(i / cols), c = i % cols;
@@ -1858,25 +2191,21 @@ window.startGame = function(mode) {
     }
     function checkConnectWin(board, player) {
         const W = 7, H = 6;
-        // Horizontal check
         for (let r = 0; r < H; r++) {
             for (let c = 0; c <= W - 4; c++) {
                 if (board[r*W+c] === player && board[r*W+c+1] === player && board[r*W+c+2] === player && board[r*W+c+3] === player) return true;
             }
         }
-        // Vertical check
         for (let r = 0; r <= H - 4; r++) {
             for (let c = 0; c < W; c++) {
                 if (board[r*W+c] === player && board[(r+1)*W+c] === player && board[(r+2)*W+c] === player && board[(r+3)*W+c] === player) return true;
             }
         }
-        // Diagonal (down-right) check
         for (let r = 0; r <= H - 4; r++) {
             for (let c = 0; c <= W - 4; c++) {
                 if (board[r*W+c] === player && board[(r+1)*W+c+1] === player && board[(r+2)*W+c+2] === player && board[(r+3)*W+c+3] === player) return true;
             }
         }
-        // Diagonal (up-right) check
         for (let r = 3; r < H; r++) {
             for (let c = 0; c <= W - 4; c++) {
                 if (board[r*W+c] === player && board[(r-1)*W+c+1] === player && board[(r-2)*W+c+2] === player && board[(r-3)*W+c+3] === player) return true;
@@ -1886,10 +2215,14 @@ window.startGame = function(mode) {
     }
     
 <<<<<<< HEAD
+<<<<<<< HEAD
 });
 >>>>>>> c183d2a (First commit)
 =======
     // Initial setup of the main board listeners
+=======
+    // Initial setup
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
     gameBoard.addEventListener('click', handleBoardClick);
     gameBoard.addEventListener('contextmenu', handleBoardContextMenu);
 });

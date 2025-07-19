@@ -42,18 +42,26 @@
             <button data-mode="gauntlet" class="menu-button col-span-2 sm:col-span-3">Gauntlet</button>
 =======
         <div class="px-4 grid grid-cols-2 gap-x-4">
-            <button data-mode="lightsOut" class="menu-button">Lights Out 5x5</button>
-            <button data-mode="magicSquare" class="menu-button">Merlin's Magic Square</button>
+            <button data-mode="lightPuzzle" class="menu-button">Light Puzzle</button>
+            <button data-mode="magicSquare" class="menu-button">Magic Square</button>
             <button data-mode="ticTacToe" class="menu-button">Tic-Tac-Toe</button>
-            <button data-mode="echo" class="menu-button">Echo</button>
-            <button data-mode="wordle" class="menu-button">Wordle</button>
-            <button data-mode="blackjack21" class="menu-button">Blackjack 21</button>
+            <button data-mode="sequence" class="menu-button">Sequence</button>
+            <button data-mode="wordGuess" class="menu-button">Word Guess</button>
+            <button data-mode="blackjack" class="menu-button">Blackjack</button>
             <button data-mode="sliderPuzzle" class="menu-button">Slider Puzzle</button>
             <button data-mode="minefield" class="menu-button">Minefield</button>
+<<<<<<< HEAD
             <button data-mode="connect" class="menu-button">Connect AI</button>
             <button data-mode="lineDraw" class="menu-button">Line Draw</button>
             <button data-mode="musicMachine" class="menu-button col-span-2">Music Machine</button>
 >>>>>>> 3512e96 (changed retro.html to index.html for easier management)
+=======
+            <button data-mode="fourInARow" class="menu-button">Four in a Row</button>
+            <button data-mode="colorConnect" class="menu-button">Color Connect</button>
+            <button data-mode="lightMatch" class="menu-button">Light Match</button>
+            <button data-mode="musicMachine" class="menu-button">Music Machine</button>
+            <button data-mode="gauntlet" class="menu-button col-span-2">Gauntlet</button>
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
         </div>
     </div>
 
@@ -111,8 +119,22 @@
     
     <div id="modal-container"></div>
 
-    <!-- Scripts are loaded at the end of the body -->
+    <!-- Game Scripts -->
     <script src="words.js"></script>
+    <script src="games/lightsOutGame.js"></script>
+    <script src="games/magicSquareGame.js"></script>
+    <script src="games/ticTacToeGame.js"></script>
+    <script src="games/echoGame.js"></script>
+    <script src="games/wordleGame.js"></script>
+    <script src="games/blackjackGame.js"></script>
+    <script src="games/sliderPuzzleGame.js"></script>
+    <script src="games/minefieldGame.js"></script>
+    <script src="games/connectGame.js"></script>
+    <script src="games/lineDrawGame.js"></script>
+    <script src="games/musicMachineGame.js"></script>
+    <script src="games/lightMatchGame.js"></script>
+    
+    <!-- Main Application Logic -->
     <script src="main.js"></script>
 </body>
 </html>

@@ -7,6 +7,9 @@ A curated collection of classic and puzzle mini-games built with a retro-inspire
 This collection features a variety of games to test your logic, memory, and strategy:
 
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
 * **Light Puzzle:** A classic puzzle where the goal is to turn all the lights off. Clicking a light toggles it and its adjacent neighbors. Includes a "Solve" feature\!  
 * **Magic Square:** A logic puzzle where you must turn on all the outer lights using specific button presses.  
 * **Tic-Tac-Toe:** The timeless game of X's and O's. Play against another person or a much-improved AI that will actively block and try to win. A line is drawn to show the winning combination.  
@@ -18,6 +21,7 @@ This collection features a variety of games to test your logic, memory, and stra
 * **Four in a Row:** Try to get four of your colored discs in a row (horizontally, vertically, or diagonally) before the AI does.  
 * **Color Connect:** A flow-style puzzle game. Connect the matching colored dots without crossing the paths.  
 * **Music Machine:** A simple 3x3 grid to create and play back your own musical sequences.
+<<<<<<< HEAD
 
 ## **✨ Features**
 
@@ -64,38 +68,46 @@ Once the page is loaded, click on any game from the main menu to start playing\!
 *   **Connect AI:** Try to get four of your colored discs in a row (horizontally, vertically, or diagonally) before the AI does.
 *   **Line Draw:** A flow-style puzzle game. Connect the matching colored dots without crossing the paths.
 *   **Music Machine:** A simple 3x3 grid to create and play back your own musical sequences.
+=======
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
 
 ## **✨ Features**
 
-*   **11-in-1:** A diverse selection of games in a single application.
-*   **Retro Design:** A neon, arcade-style theme built with Tailwind CSS for a nostalgic feel.
-*   **Polished UI/UX:** Consistent design and intuitive controls across all games.
-*   **Enhanced Gameplay:** Smart AI, quality-of-life features, and more strategic depth in classic games.
-*   **Modular & Performant:** Game logic is organized into modules for readability, and the code is optimized for smooth performance.
-*   **Audio Feedback:** Sound effects powered by **Tone.js** provide an immersive experience.
-*   **No Build Required:** Built with browser-native technologies and CDN-hosted libraries. No complex setup or build process is needed.
-*   **Fully Responsive:** Play on any device, from desktop to mobile.
+* **11-in-1:** A diverse selection of games in a single application.  
+* **Retro Design:** A neon, arcade-style theme built with Tailwind CSS for a nostalgic feel.  
+* **Polished UI/UX:** Consistent design and intuitive controls across all games.  
+* **Enhanced Gameplay:** Smart AI, quality-of-life features, and more strategic depth in classic games.  
+* **Modular & Performant:** Game logic is organized into modules for readability, and the code is optimized for smooth performance.  
+* **Audio Feedback:** Sound effects powered by **Tone.js** provide an immersive experience.  
+* **No Build Required:** Built with browser-native technologies and CDN-hosted libraries. No complex setup or build process is needed.  
+* **Fully Responsive:** Play on any device, from desktop to mobile.
 
 ## **🚀 How to Play**
 
-1.  **Local:**
-    *   Clone or download this repository.
-    *   Open the `retro.html` file in your favorite web browser.
-2.  **Live Demo:**
-    *   You can easily deploy this project to a free hosting service like [Netlify](https://www.netlify.com/) or [GitHub Pages](https://pages.github.com/). Simply point the service to your GitHub repository.
+1. **Local:**  
+   * Clone or download this repository.  
+   * Open the index.html file in your favorite web browser.  
+2. **Live Demo:**  
+   * You can easily deploy this project to a free hosting service like [Netlify](https://www.netlify.com/) or [GitHub Pages](https://pages.github.com/). Simply point the service to your GitHub repository.
 
-Once the page is loaded, click on any game from the main menu to start playing!
+Once the page is loaded, click on any game from the main menu to start playing\!
 
 ## **🛠️ Technologies Used**
 
-*   **HTML5:** For the basic structure and content.
-*   **CSS3 & [Tailwind CSS](https://tailwindcss.com/):** For styling and creating the retro, responsive layout.
-*   **JavaScript (ES6+):** For all game logic and interactivity, structured into separate files for maintainability.
-*   [**Tone.js**](https://tonejs.github.io/): For generating web-based audio and sound effects.
+* **HTML5:** For the basic structure and content.  
+* **CSS3 & [Tailwind CSS](https://tailwindcss.com/):** For styling and creating the retro, responsive layout.  
+* **JavaScript (ES6+):** For all game logic and interactivity, structured into separate files for maintainability.  
+* [**Tone.js**](https://tonejs.github.io/): For generating web-based audio and sound effects.
 
 ## **Future Ideas**
 
+<<<<<<< HEAD
 *   Add more classic games like Snake, Pong, or Tetris.
 *   Implement a high-score system using `localStorage`.
 *   Create customizable themes and color palettes.
 >>>>>>> c183d2a (First commit)
+=======
+* Add more classic games like Snake, Pong, or a block-stacking puzzle.  
+* Implement a high-score system using localStorage.  
+* Create customizable themes and color palettes.
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)

@@ -1,4 +1,5 @@
 const lightMatchGame = {
+<<<<<<< HEAD
     controller: null,
 
     setup: () => {
@@ -15,10 +16,38 @@ const lightMatchGame = {
         
         gameBoard.classList.add('large-grid');
 
+=======
+    setup: () => {
+        const size = 8;
+        const numColors = 6;
+        gameState = {
+            size,
+            numColors,
+            board: [],
+            selected: null,
+            isAnimating: false,
+            score: 0
+        };
+        gameBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        gameBoard.classList.add('large-grid');
+
+        // Initial board creation
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < size * size; i++) {
+            const light = document.createElement('div');
+            light.classList.add('light');
+            light.dataset.index = i;
+            fragment.appendChild(light);
+        }
+        gameBoard.appendChild(fragment);
+
+        // Fill board and ensure no initial matches
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
         do {
             for (let i = 0; i < size * size; i++) {
                 gameState.board[i] = Math.floor(Math.random() * numColors) + 1;
             }
+<<<<<<< HEAD
         } while (lightMatchGame.findMatchData(gameState.board, []).cellsToClear.size > 0);
 
         lightMatchGame.updateBoard();
@@ -105,21 +134,47 @@ const lightMatchGame = {
             const second = index;
             
             // Remove the highlight from the previously selected piece
+=======
+        } while (lightMatchGame.findMatches().length > 0);
+
+        lightMatchGame.updateBoard();
+        updateStats(`Score: 0`);
+    },
+
+    handler: (e) => {
+        if (gameState.isAnimating) return;
+        const index = parseInt(e.target.dataset.index);
+
+        if (gameState.selected === null) {
+            gameState.selected = index;
+            e.target.classList.add('is-selected');
+        } else {
+            const first = gameState.selected;
+            const second = index;
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
             const firstEl = gameBoard.querySelector(`[data-index='${first}']`);
             if(firstEl) firstEl.classList.remove('is-selected');
             
             gameState.selected = null;
 
+<<<<<<< HEAD
             // Check if the second click is adjacent to the first
             const isAdjacent = Math.abs(first % gameState.size - second % gameState.size) + Math.abs(Math.floor(first / gameState.size) - Math.floor(second / gameState.size)) === 1;
 
             if (isAdjacent && first !== second) {
                 // If adjacent, attempt the swap
+=======
+            // Check if the selected tiles are adjacent
+            const isAdjacent = Math.abs(first % 8 - second % 8) + Math.abs(Math.floor(first / 8) - Math.floor(second / 8)) === 1;
+
+            if (isAdjacent) {
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
                 lightMatchGame.attemptSwap(first, second);
             }
         }
     },
 
+<<<<<<< HEAD
     attemptSwap: async function(index1, index2) {
     if (gameState.isAnimating) return;
     gameState.isAnimating = true;
@@ -186,15 +241,51 @@ const lightMatchGame = {
         if(forward) playSound('C4', '16n');
         else playSound('C3', '16n');
         
+=======
+    attemptSwap: async (index1, index2) => {
+        gameState.isAnimating = true;
+        await lightMatchGame.animateSwap(index1, index2);
+        
+        const matches = lightMatchGame.findMatches();
+        if (matches.length > 0) {
+            await lightMatchGame.resolveBoard();
+        } else {
+            // If no match, swap back
+            await delay(100); // Small pause before swapping back
+            await lightMatchGame.animateSwap(index1, index2); 
+        }
+        gameState.isAnimating = false;
+
+        // After everything, check if there are any possible moves left
+        if (!lightMatchGame.hasPossibleMoves()) {
+            if (gauntlet.isActive) {
+                gauntlet.onGameComplete(gameState.score >= 1000);
+            } else {
+                showWinModal("No More Moves!", `Final Score: ${gameState.score}`);
+            }
+        }
+    },
+    
+    animateSwap: async (index1, index2) => {
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
         const el1 = gameBoard.querySelector(`[data-index='${index1}']`);
         const el2 = gameBoard.querySelector(`[data-index='${index2}']`);
         if (!el1 || !el2) return;
 
+<<<<<<< HEAD
         const el1Color = el1.className;
         const el2Color = el2.className;
 
         el1.className = el2Color;
         el2.className = el1Color;
+=======
+        // Swap the colors in the board state first
+        [gameState.board[index1], gameState.board[index2]] = [gameState.board[index2], gameState.board[index1]];
+        
+        // Animate the visual swap
+        el1.className = `light color-${gameState.board[index1]}`;
+        el2.className = `light color-${gameState.board[index2]}`;
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
         
         el1.style.transform = 'scale(0.8)';
         el2.style.transform = 'scale(1.2)';
@@ -203,6 +294,7 @@ const lightMatchGame = {
         el2.style.transform = 'scale(1)';
     },
 
+<<<<<<< HEAD
     resolveBoard: async function(swappedIndices = []) {
         let chain = 1;
         while (true) {
@@ -288,12 +380,59 @@ const lightMatchGame = {
         }
 
         return { cellsToClear, bombsToCreate };
+=======
+    resolveBoard: async () => {
+        let chain = 1;
+        while (true) {
+            const matches = lightMatchGame.findMatches();
+            if (matches.length === 0) break;
+            
+            playSound(notes[chain % notes.length], '4n');
+            gameState.score += matches.length * 10 * chain;
+            updateStats(`Score: ${gameState.score}`);
+
+            await lightMatchGame.animateRemoval(matches);
+            await lightMatchGame.animateDrop();
+            await lightMatchGame.animateRefill();
+            chain++;
+
+            if(gauntlet.isActive && gameState.score >= 1000){
+                gauntlet.onGameComplete(true);
+                return;
+            }
+        }
+    },
+
+    findMatches: () => {
+        const matches = new Set();
+        const { size, board } = gameState;
+        // Horizontal matches
+        for (let r = 0; r < size; r++) {
+            for (let c = 0; c < size - 2; c++) {
+                const i = r * size + c;
+                if (board[i] && board[i] === board[i+1] && board[i] === board[i+2]) {
+                    matches.add(i); matches.add(i+1); matches.add(i+2);
+                }
+            }
+        }
+        // Vertical matches
+        for (let c = 0; c < size; c++) {
+            for (let r = 0; r < size - 2; r++) {
+                const i = r * size + c;
+                if (board[i] && board[i] === board[i + size] && board[i] === board[i + 2 * size]) {
+                    matches.add(i); matches.add(i + size); matches.add(i + 2 * size);
+                }
+            }
+        }
+        return [...matches];
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
     },
 
     animateRemoval: async (matches) => {
         matches.forEach(index => {
             const el = gameBoard.querySelector(`[data-index='${index}']`);
             if (el) el.classList.add('is-removing');
+<<<<<<< HEAD
             gameState.board[index] = 0;
         });
         await delay(200);
@@ -302,24 +441,49 @@ const lightMatchGame = {
 
     animateDrop: async () => {
         const { size, board } = gameState;
+=======
+        });
+        await delay(200);
+        
+        matches.forEach(index => {
+            gameState.board[index] = 0; // Mark as empty in the state
+        });
+        lightMatchGame.updateBoard(); // Visually remove them
+    },
+
+    animateDrop: async () => {
+        const { size } = gameState;
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
         for (let c = 0; c < size; c++) {
             let emptyRow = size - 1;
             for (let r = size - 1; r >= 0; r--) {
                 const index = r * size + c;
+<<<<<<< HEAD
                 if (board[index] !== 0) {
                     const fallToIndex = emptyRow * size + c;
                     if (index !== fallToIndex) {
                         [board[index], board[fallToIndex]] = [board[fallToIndex], board[index]];
+=======
+                if (gameState.board[index] !== 0) {
+                    const fallToIndex = emptyRow * size + c;
+                    if (index !== fallToIndex) {
+                        [gameState.board[index], gameState.board[fallToIndex]] = [gameState.board[fallToIndex], gameState.board[index]];
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
                     }
                     emptyRow--;
                 }
             }
         }
+<<<<<<< HEAD
         await delay(200);
+=======
+        await delay(100);
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
         lightMatchGame.updateBoard();
     },
 
     animateRefill: async () => {
+<<<<<<< HEAD
         const { size, numColors, board } = gameState;
         let changed = false;
         for (let i = 0; i < size * size; i++) {
@@ -334,10 +498,21 @@ const lightMatchGame = {
             await delay(200);
             lightMatchGame.updateBoard();
         }
+=======
+        const { size, numColors } = gameState;
+        for (let i = 0; i < size * size; i++) {
+            if (gameState.board[i] === 0) {
+                gameState.board[i] = Math.floor(Math.random() * numColors) + 1;
+            }
+        }
+        await delay(100);
+        lightMatchGame.updateBoard();
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
     },
 
     updateBoard: () => {
         const lights = gameBoard.querySelectorAll('[data-index]');
+<<<<<<< HEAD
         lights.forEach(light => {
             const index = parseInt(light.dataset.index);
             const color = gameState.board[index];
@@ -356,30 +531,68 @@ const lightMatchGame = {
                 light.classList.add('is-selected');
             } else {
                 light.classList.remove('is-selected');
+=======
+        lights.forEach((light, i) => {
+            const color = gameState.board[i];
+            light.className = 'light'; // Reset
+            if (color > 0) {
+                light.classList.add(`color-${color}`);
+            } else {
+                light.classList.add('is-off');
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
             }
         });
     },
 
     hasPossibleMoves: () => {
         const { size, board } = gameState;
+<<<<<<< HEAD
+=======
+        // Check for horizontal swaps
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
         for (let r = 0; r < size; r++) {
             for (let c = 0; c < size - 1; c++) {
                 const i1 = r * size + c;
                 const i2 = r * size + c + 1;
+<<<<<<< HEAD
                 const tempBoard = [...board];
                 [tempBoard[i1], tempBoard[i2]] = [tempBoard[i2], tempBoard[i1]];
                 if (lightMatchGame.findMatchData(tempBoard, []).cellsToClear.size > 0) return true;
             }
         }
+=======
+                [board[i1], board[i2]] = [board[i2], board[i1]]; // Swap
+                if (lightMatchGame.findMatches().length > 0) {
+                    [board[i1], board[i2]] = [board[i2], board[i1]]; // Swap back
+                    return true;
+                }
+                [board[i1], board[i2]] = [board[i2], board[i1]]; // Swap back
+            }
+        }
+        // Check for vertical swaps
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
         for (let c = 0; c < size; c++) {
             for (let r = 0; r < size - 1; r++) {
                 const i1 = r * size + c;
                 const i2 = (r + 1) * size + c;
+<<<<<<< HEAD
                 const tempBoard = [...board];
                 [tempBoard[i1], tempBoard[i2]] = [tempBoard[i2], tempBoard[i1]];
                 if (lightMatchGame.findMatchData(tempBoard, []).cellsToClear.size > 0) return true;
+=======
+                [board[i1], board[i2]] = [board[i2], board[i1]]; // Swap
+                if (lightMatchGame.findMatches().length > 0) {
+                    [board[i1], board[i2]] = [board[i2], board[i1]]; // Swap back
+                    return true;
+                }
+                [board[i1], board[i2]] = [board[i2], board[i1]]; // Swap back
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
             }
         }
         return false;
     }
+<<<<<<< HEAD
 };
+=======
+};
+>>>>>>> 8ba1d5f (Added a Bejeweled style game)
