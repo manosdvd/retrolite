@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const wordleGame = {
     // Controller to manage event listeners
     controller: null,
@@ -29,10 +30,18 @@ const wordleGame = {
         gameState = {
             // Pop a word from the shuffled list
             secretWord: wordleGame.availableWords.pop(),
+=======
+export const wordleGame = {
+    setup: () => {
+        const { gridRows, gridCols } = currentMode;
+        gameState = {
+            secretWord: wordList[Math.floor(Math.random() * wordList.length)],
+>>>>>>> ec8738a (Optimization change)
             currentRow: 0,
             currentCol: 0,
             board: Array(gridRows).fill().map(() => Array(gridCols).fill('')),
             gameOver: false,
+<<<<<<< HEAD
             keyColors: {} // Stores the color status of each keyboard key
         };
 
@@ -40,10 +49,29 @@ const wordleGame = {
         
         // Define the on-screen keyboard layout
         const keyLayout = [
+=======
+            keyColors: {}
+        };
+
+        gameBoard.classList.add('wordle-grid');
+        for(let i=0; i < gridRows * gridCols; i++) {
+            const cell = document.createElement('div');
+            cell.className = 'light wordle-cell';
+            cell.innerHTML = `<div class="wordle-cell-inner"><div class="wordle-cell-front"></div><div class="wordle-cell-back"></div></div>`;
+            gameBoard.appendChild(cell);
+        }
+        wordleGame.createKeyboard();
+        window.addEventListener('keydown', wordleGame.handler);
+        setTimeout(wordleGame.scrollActiveRowIntoView, 100);
+    },
+    createKeyboard: () => {
+        const keys = [
+>>>>>>> ec8738a (Optimization change)
             ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
             ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
             ['Enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace']
         ];
+<<<<<<< HEAD
         
         keyboard = new Keyboard(keyLayout, (key) => wordleGame.handler({ key: key }));
 
@@ -69,6 +97,28 @@ const wordleGame = {
             navigator.vibrate(50);
         }
 
+=======
+        keys.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'keyboard-row';
+            row.forEach(key => {
+                const keyDiv = document.createElement('div');
+                keyDiv.className = 'key';
+                keyDiv.textContent = key;
+                keyDiv.dataset.key = key;
+                if (key === 'Enter' || key === 'Backspace') {
+                    keyDiv.classList.add('key-large');
+                }
+                keyDiv.addEventListener('click', () => wordleGame.handler({key}));
+                rowDiv.appendChild(keyDiv);
+            });
+            keyboardContainer.appendChild(rowDiv);
+        });
+    },
+    handler: (e) => {
+        if (gameState.gameOver) return;
+        const { key } = e;
+>>>>>>> ec8738a (Optimization change)
         if (key === 'Enter') {
             wordleGame.submitGuess();
         } else if (key === 'Backspace' || key === 'del') {
@@ -77,7 +127,10 @@ const wordleGame = {
             wordleGame.typeLetter(key.toLowerCase());
         }
     },
+<<<<<<< HEAD
 
+=======
+>>>>>>> ec8738a (Optimization change)
     typeLetter: (letter) => {
         if (gameState.currentCol >= currentMode.gridCols) return;
         gameState.board[gameState.currentRow][gameState.currentCol] = letter;
@@ -86,7 +139,10 @@ const wordleGame = {
         cell.textContent = letter;
         gameState.currentCol++;
     },
+<<<<<<< HEAD
 
+=======
+>>>>>>> ec8738a (Optimization change)
     deleteLetter: () => {
         if (gameState.currentCol > 0) {
             gameState.currentCol--;
@@ -96,16 +152,25 @@ const wordleGame = {
             cell.textContent = '';
         }
     },
+<<<<<<< HEAD
 
     submitGuess: async () => {
         if (gameState.currentCol < currentMode.gridCols) {
+=======
+    submitGuess: async () => {
+        if (gameState.gameOver || gameState.currentCol < currentMode.gridCols) {
+>>>>>>> ec8738a (Optimization change)
             gameStatus.textContent = "Not enough letters";
             setTimeout(() => gameStatus.textContent = '', 2000);
             return;
         }
         const guess = gameState.board[gameState.currentRow].join('');
+<<<<<<< HEAD
         
         if (!expandedWordList.includes(guess)) {
+=======
+        if (!wordList.includes(guess)) {
+>>>>>>> ec8738a (Optimization change)
             gameStatus.textContent = "Not in word list";
             const rowCells = Array.from(gameBoard.children).slice(gameState.currentRow * 5, gameState.currentRow * 5 + 5);
             rowCells.forEach(cell => cell.classList.add('shake'));
@@ -119,7 +184,10 @@ const wordleGame = {
         const secret = gameState.secretWord;
         const feedback = Array(5).fill('');
         let secretCopy = secret.split('');
+<<<<<<< HEAD
 
+=======
+>>>>>>> ec8738a (Optimization change)
         for(let i=0; i<5; i++) {
             if(guess[i] === secret[i]) {
                 feedback[i] = 'correct';
@@ -131,17 +199,25 @@ const wordleGame = {
             if(feedback[i] === '' && secretCopy.includes(guess[i])) {
                 feedback[i] = 'present';
                 secretCopy[secretCopy.indexOf(guess[i])] = null;
+<<<<<<< HEAD
                 if(gameState.keyColors[guess[i]] !== 'wordle-correct') {
                     gameState.keyColors[guess[i]] = 'wordle-present';
                 }
+=======
+                if(gameState.keyColors[guess[i]] !== 'wordle-correct') gameState.keyColors[guess[i]] = 'wordle-present';
+>>>>>>> ec8738a (Optimization change)
             }
         }
         for(let i=0; i<5; i++) {
             if(feedback[i] === '') {
                 feedback[i] = 'absent';
+<<<<<<< HEAD
                 if(!gameState.keyColors[guess[i]]) {
                     gameState.keyColors[guess[i]] = 'wordle-absent';
                 }
+=======
+                if(!gameState.keyColors[guess[i]]) gameState.keyColors[guess[i]] = 'wordle-absent';
+>>>>>>> ec8738a (Optimization change)
             }
         }
 
@@ -169,6 +245,7 @@ const wordleGame = {
             wordleGame.scrollActiveRowIntoView();
         }
     },
+<<<<<<< HEAD
     
     updateKeyboard: () => {
         for (const key in gameState.keyColors) {
@@ -184,5 +261,20 @@ const wordleGame = {
         if (activeCell) {
             activeCell.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+=======
+    updateKeyboard: () => {
+        document.querySelectorAll('.key').forEach(keyEl => {
+            const key = keyEl.dataset.key;
+            if (gameState.keyColors[key]) {
+                keyEl.classList.remove('wordle-correct', 'wordle-present', 'wordle-absent');
+                keyEl.classList.add(gameState.keyColors[key]);
+            }
+        });
+    },
+    scrollActiveRowIntoView: () => {
+        if (!currentMode || currentMode.name !== 'wordle' || !gameBoard.children.length) return;
+        const activeCell = gameBoard.children[gameState.currentRow * 5];
+        if (activeCell) activeCell.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+>>>>>>> ec8738a (Optimization change)
     }
 };

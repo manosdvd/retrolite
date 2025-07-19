@@ -8,6 +8,7 @@
     --theme-color: #ef4444;
     --theme-shadow-color: #f87171;
 <<<<<<< HEAD
+<<<<<<< HEAD
     
     /* Centralized Color Palette - High Contrast */
     --color-1: #F44336; /* Vivid Red */
@@ -21,6 +22,19 @@
     --color-9: #FFFFFF; /* White */
 =======
 >>>>>>> c183d2a (First commit)
+=======
+    
+    /* Centralized Color Palette */
+    --color-1: #ef4444; /* red */
+    --color-2: #f97316; /* orange */
+    --color-3: #f59e0b; /* amber */
+    --color-4: #84cc16; /* lime */
+    --color-5: #22c55e; /* green */
+    --color-6: #06b6d4; /* cyan */
+    --color-7: #6366f1; /* indigo */
+    --color-8: #a855f7; /* purple */
+    --color-9: #ec4899; /* pink */
+>>>>>>> ec8738a (Optimization change)
 }
 
 body {
@@ -132,6 +146,7 @@ body {
 .light.line-dot::before { content: ''; display: block; width: 60%; height: 60%; border-radius: 50%; box-shadow: 0 0 10px #000; transition: transform 0.2s; }
 .light.line-dot:hover::before { transform: scale(1.2); }
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 /* Using CSS variables for game colors */
 .light.color-1, .light.path-1, .light.color-1.line-dot::before, .light.echo-1 { background-color: var(--color-1); }
@@ -160,6 +175,19 @@ body {
 .light.echo-8 { background-color: #a855f7; }
 .light.echo-9 { background-color: #ec4899; }
 >>>>>>> c183d2a (First commit)
+=======
+
+/* Using CSS variables for game colors */
+.light.path-1, .light.color-1.line-dot::before, .light.echo-1 { background-color: var(--color-1); }
+.light.path-2, .light.color-2.line-dot::before, .light.echo-2 { background-color: var(--color-2); }
+.light.path-3, .light.color-3.line-dot::before, .light.echo-3 { background-color: var(--color-3); }
+.light.path-4, .light.color-4.line-dot::before, .light.echo-4 { background-color: var(--color-4); }
+.light.path-5, .light.color-5.line-dot::before, .light.echo-5 { background-color: var(--color-5); }
+.light.path-6, .light.color-6.line-dot::before, .light.echo-6 { background-color: var(--color-6); }
+.light.path-7, .light.color-7.line-dot::before, .light.echo-7 { background-color: var(--color-7); }
+.light.echo-8 { background-color: var(--color-8); }
+.light.echo-9 { background-color: var(--color-9); }
+>>>>>>> ec8738a (Optimization change)
 
 .light.is-feedback { background-color: #fde047; box-shadow: 0 0 20px #fde047, 0 0 30px #fde047; transform: scale(1.1); border-color: #fde047; }
 .light.is-center-inactive { background-color: #111; cursor: not-allowed; }
@@ -547,4 +575,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 #game-container.wordle-active > #game-controls {
     flex-shrink: 0;
 }
+<<<<<<< HEAD
 >>>>>>> c183d2a (First commit)
+=======
+>>>>>>> ec8738a (Optimization change)

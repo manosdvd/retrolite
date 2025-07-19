@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const magicSquareGame = {
+=======
+export const magicSquareGame = {
+>>>>>>> ec8738a (Optimization change)
     setup: () => {
         const merlinToggles = [
             [0, 1, 3], [0, 1, 2, 4], [1, 2, 5], [0, 3, 4, 6], [1, 3, 4, 5, 7],
@@ -39,8 +43,11 @@ const magicSquareGame = {
         if (gameState.board.every((val, i) => val === winState[i])) {
             showWinModal('You Win!', `You solved Merlin's puzzle in ${gameState.moves} moves!`);
         }
+<<<<<<< HEAD
     },
     cleanup: () => {
         // No specific cleanup needed as event listeners are managed by main.js
+=======
+>>>>>>> ec8738a (Optimization change)
     }
 };

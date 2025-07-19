@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const connectGame = {
+=======
+export const connectGame = {
+>>>>>>> ec8738a (Optimization change)
     setup: () => {
         gameState = { board: Array(42).fill(EMPTY), currentPlayer: HUMAN, gameOver: false, difficulty: 'Hard' };
         const easyBtn = createControlButton('Easy', 'btn-green', () => { gameState.difficulty = 'Easy'; gameStatus.textContent = 'Difficulty: Easy'; });
@@ -46,6 +50,7 @@ const connectGame = {
         gameState.board[index] = player;
         playSound(player === HUMAN ? 'C4' : 'G3');
         connectGame.updateBoard();
+<<<<<<< HEAD
         const winLine = utils.checkConnectWin(gameState.board, player);
         if (winLine) {
             gameState.gameOver = true;
@@ -58,6 +63,13 @@ const connectGame = {
             });
             connectGame.addNewGameButton();
         } else if (utils.isDraw(gameState.board)) {
+=======
+        if (checkConnectWin(gameState.board, player)) {
+            gameState.gameOver = true;
+            gameStatus.textContent = player === HUMAN ? "You Win!" : "AI Wins!";
+            connectGame.addNewGameButton();
+        } else if (isDraw(gameState.board)) {
+>>>>>>> ec8738a (Optimization change)
             gameState.gameOver = true;
             gameStatus.textContent = "It's a Draw!";
             connectGame.addNewGameButton();
@@ -116,8 +128,11 @@ const connectGame = {
             else if (gameState.board[i] === AI) light.classList.add('is-player-2');
             else light.classList.add('is-empty');
         });
+<<<<<<< HEAD
     },
     cleanup: () => {
         // No specific cleanup needed as event listeners are managed by main.js
+=======
+>>>>>>> ec8738a (Optimization change)
     }
 };

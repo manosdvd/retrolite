@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 const echoGame = {
+=======
+export const echoGame = {
+>>>>>>> ec8738a (Optimization change)
     setup: () => {
         gameState = { sequence: [], playerSequence: [], level: 1, state: 'WATCH' };
         gameBoard.querySelectorAll('.light').forEach(light => light.classList.add('is-off'));
@@ -67,8 +71,11 @@ const echoGame = {
             gameState.state = 'WATCH';
             setTimeout(echoGame.nextSequence, 1000);
         }
+<<<<<<< HEAD
     },
     cleanup: () => {
         // No specific cleanup needed as event listeners are managed by main.js
+=======
+>>>>>>> ec8738a (Optimization change)
     }
 };
