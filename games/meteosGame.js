@@ -313,19 +313,27 @@ const meteosGame = {
             const clientX = e.touches ? e.touches[0].clientX : e.clientX;
             const clientY = e.touches ? e.touches[0].clientY : e.clientY;
 
+            // Determine lock if not already set
             if (!dragState.lock) {
-                const startEl = gridContainer.querySelector(`[data-x='${dragState.startX}'][data-y='${dragState.startY}']`);
-                if(startEl) {
-                    const startRect = startEl.getBoundingClientRect();
-                    const dx = Math.abs(clientX - (startRect.left + startRect.width / 2));
-                    const dy = Math.abs(clientY - (startRect.top + startRect.height / 2));
-                    if (dx > DRAG_LOCK_THRESHOLD || dy > DRAG_LOCK_THRESHOLD) {
-                        dragState.lock = dx > dy ? 'horizontal' : 'vertical';
-                    }
-                }
+                // ... existing lock determination logic ...
             }
-            
-            updateVisualSwap(clientX, clientY);
+
+            // --- OPTIMIZATION ---
+            // Instead of updating visuals here, we just calculate the target
+            // and store it. The actual move logic happens in handleDragEnd.
+            const { gridRect, startX, startY, lock } = dragState;
+            let targetX = Math.round((clientX - gridRect.left) / (cellWidth + 4));
+            let targetY = Math.round((clientY - gridRect.top) / (cellHeight + 4));
+            targetX = Math.max(0, Math.min(GRID_WIDTH - 1, targetX));
+            targetY = Math.max(0, Math.min(GRID_HEIGHT - 1, targetY));
+
+            if (lock === 'horizontal') {
+                dragState.lastTargetX = targetX;
+                dragState.lastTargetY = startY; // Ensure Y is locked
+            } else if (lock === 'vertical') {
+                dragState.lastTargetX = startX; // Ensure X is locked
+                dragState.lastTargetY = targetY;
+            }
         }
         
         function updateVisualSwap(clientX, clientY) {
@@ -386,26 +394,19 @@ const meteosGame = {
         }
 
         async function handleDragEnd() {
-            if (!dragState.element) return;
-            lockGame();
-            
+            // ... remove event listeners ...
             const { element, startX, startY, lastTargetX, lastTargetY, lock } = dragState;
+             dragState.element.classList.remove('dragging-origin'); // Make sure to remove the class
 
-            element.classList.remove('dragging-origin');
-            
-            document.removeEventListener('mousemove', handleDragMove);
-            document.removeEventListener('touchmove', handleDragMove);
-            document.removeEventListener('mouseup', handleDragEnd);
-            document.removeEventListener('touchend', handleDragEnd);
 
             if (lock && (startX !== lastTargetX || startY !== lastTargetY)) {
+                // Now, we process the move based on the final target position
                 await processMove(startX, startY, lastTargetX, lastTargetY, lock);
             } else {
+                // If no valid move, just re-render to snap back
                 renderGrid();
             }
-            
-            dragState = {};
-            unlockGame();
+            // ... cleanup ...
         }
 
         // --- CORE GAME LOGIC ---

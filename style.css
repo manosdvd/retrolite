@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght @400;700&display=swap');
 
 :root {
     --theme-color: #ef4444;
@@ -103,9 +103,9 @@ body {
 .light.is-selected { border-color: #fde047; transform: scale(1.1); box-shadow: 0 0 20px #fde047; }
 
 .light.is-mine { background-color: #ef4444; }
-.light.is-mine::after { content: '💣'; font-size: 1.2rem; }
+.light.is-mine::after { content: ''; font-size: 1.2rem; }
 .light.is-revealed { background-color: #4b5563; color: #fff; cursor: default; }
-.light.is-flagged::after { content: '🚩'; font-size: 1.2rem; }
+.light.is-flagged::after { content: ''; font-size: 1.2rem; }
 .light.is-hidden { background-color: #374151; }
 
 .light.line-dot::before { content: ''; display: block; width: 60%; height: 60%; border-radius: 50%; box-shadow: 0 0 10px #000; transition: transform 0.2s; }
@@ -183,12 +183,12 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     animation: confetti-fall 5s linear infinite;
 }
 
-@keyframes confetti-fall {
+ @keyframes confetti-fall {
     0% { transform: translateY(-10vh) rotateZ(0deg); }
     100% { transform: translateY(110vh) rotateZ(360deg); }
 }
 
-@keyframes pulse {
+ @keyframes pulse {
     to {
         transform: scale(1.1);
         box-shadow: 0 0 20px var(--theme-shadow-color);
@@ -281,7 +281,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     animation: draw-line 0.5s ease-out;
 }
 
-@keyframes draw-line {
+ @keyframes draw-line {
     from { width: 0; }
     to { width: 100%; }
 }
@@ -298,12 +298,12 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     transition: color 0.3s ease, text-shadow 0.3s ease;
 }
 
-@keyframes drop {
+ @keyframes drop {
     0% { transform: translateY(-100px); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
 }
 
-@keyframes shake {
+ @keyframes shake {
     10%, 90% { transform: translateX(-1px); }
     20%, 80% { transform: translateX(2px); }
     30%, 50%, 70% { transform: translateX(-4px); }
@@ -323,7 +323,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     animation: appear 0.3s ease-out;
 }
 
-@keyframes appear {
+ @keyframes appear {
     from {
         transform: scale(0.5);
         opacity: 0;
@@ -409,7 +409,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 }
 
 /* Confetti Animation */
-@keyframes confetti-fall {
+ @keyframes confetti-fall {
     0% { transform: translateY(-100vh) rotateZ(0deg); }
     100% { transform: translateY(100vh) rotateZ(360deg); }
 }
@@ -432,4 +432,129 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 #game-container.spelling-bee-active > #keyboard-container,
 #game-container.spelling-bee-active > #game-controls {
     flex-shrink: 0; /* Prevents these containers from shrinking */
+}
+
+/* --- Cryptogram Game Styles --- */
+#game-container.cryptogram-active > #game-board {
+    flex-grow: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    display: flex;
+    /* --- FIX: Align content to the top to prevent cutoff --- */
+    align-items: flex-start;
+    justify-content: center;
+    position: relative;
+}
+
+#game-container.cryptogram-active > #keyboard-container,
+#game-container.cryptogram-active > #game-controls {
+    flex-shrink: 0;
+}
+
+.scroll-indicator {
+    position: absolute;
+    bottom: 1rem;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 24px;
+    height: 24px;
+    display: none;
+    animation: bounce 2s infinite ease-in-out;
+    z-index: 10;
+}
+
+.scroll-indicator::before,
+.scroll-indicator::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 3px;
+    height: 12px;
+    background: #f59e0b;
+    border-radius: 3px;
+}
+
+.scroll-indicator::before {
+    transform: translate(-50%, -50%) rotate(45deg);
+}
+
+.scroll-indicator::after {
+    transform: translate(-50%, -50%) rotate(-45deg);
+}
+
+ @keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) translateY(-15px);
+    }
+    60% {
+        transform: translateX(-50%) translateY(-10px);
+    }
+}
+
+.cryptogram-puzzle-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    /* Sets a 1.5rem gap between rows and 1rem between words */
+    gap: 1.5rem 1rem; 
+    padding: 1rem;
+}
+
+.cryptogram-word {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.cryptogram-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 35px;
+    height: 70px;
+    margin: 0 2px;
+    border-bottom: 2px solid #6b7280;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.cryptogram-cell.punctuation {
+    border-bottom: none;
+    cursor: default;
+    font-size: 1.5rem;
+    width: auto;
+}
+
+.cipher-char {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #cbd5e1;
+    text-align: center;
+}
+
+.plain-char {
+    font-weight: bold;
+    font-size: 1.5rem;
+    color: #f59e0b; /* A bright color for solved letters */
+    text-align: center;
+    min-height: 2rem; /* Ensure space for the letter */
+}
+
+.cryptogram-cell.active {
+    background-color: #374151;
+    border-radius: 4px;
+}
+
+.cryptogram-cell.correct .plain-char {
+    color: #22c55e; /* Green for correctly solved puzzle */
+}
+
+#keyboard-container .key.used {
+    background-color: #1f2937;
+    color: #4b5563;
+    cursor: not-allowed;
 }

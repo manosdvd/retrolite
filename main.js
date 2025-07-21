@@ -70,8 +70,29 @@ const gameModes = {
 const gauntlet = {
     isActive: false,
     score: 0,
-    gameTimer: null,
+    timerInterval: null, // Add property to hold the interval ID
     availableGames: [],
+
+    startTimer: function(duration, onEnd) {
+        let timeLeft = duration;
+        const timerEl = document.getElementById('gauntlet-timer');
+
+        const updateTimer = () => {
+            if (timerEl) timerEl.textContent = `TIME: ${timeLeft}`;
+            if (timeLeft <= 0) {
+                clearInterval(this.timerInterval);
+                onEnd();
+            }
+            timeLeft--;
+        };
+        updateTimer();
+        this.timerInterval = setInterval(updateTimer, 1000);
+    },
+
+    clearTimer: function() {
+        clearInterval(this.timerInterval);
+    },
+
     start: function() {
         this.isActive = true;
         this.score = 0;
@@ -90,8 +111,7 @@ const gauntlet = {
     },
     onGameComplete: function(isSuccess) {
         if (!this.isActive) return;
-        clearTimeout(this.gameTimer);
-        this.gameTimer = null;
+        this.clearTimer();
         if (isSuccess) {
             this.score++;
             playSound('G5', '8n');
@@ -109,8 +129,7 @@ const gauntlet = {
         const finalScore = this.score;
         this.isActive = false;
         this.score = 0;
-        clearTimeout(this.gameTimer);
-        this.gameTimer = null;
+        this.clearTimer();
         const endModal = createModal('gauntlet-over-modal', 'Gauntlet Over', `<p class="text-2xl">Your final score is ${finalScore}.</p>`, 'Main Menu', () => {
             endModal.remove();
             document.getElementById('game-container').classList.add('hidden');
@@ -331,21 +350,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         mode.setup();
 
-        const timedGames = ['blackjack', 'sequence', 'lightMatch'];
-        if (gauntlet.isActive && timedGames.includes(mode.name)) {
-            let timeLeft = mode.name === 'lightMatch' ? 120 : 60;
-            const timerEl = document.getElementById('gauntlet-timer');
-            const updateTimer = () => {
-                if(timerEl) timerEl.textContent = `TIME: ${timeLeft}`;
-                if (timeLeft <= 0) {
-                    clearInterval(gauntlet.gameTimer);
-                    const isWin = mode.name === 'lightMatch' ? (gameState.score >= 1000) : true;
-                    gauntlet.onGameComplete(isWin);
-                }
-                timeLeft--;
+        if (gauntlet.isActive) {
+            gauntlet.clearTimer(); // Clear any existing timer first
+            const timedGames = {
+                'lightMatch': 120,
+                'sequence': 60,
+                'blackjack': 60
             };
-            updateTimer();
-            gauntlet.gameTimer = setInterval(updateTimer, 1000);
+            if (timedGames[mode.name]) {
+                const isWinCondition = () => mode.name === 'lightMatch' ? (gameState.score >= 1000) : true;
+                gauntlet.startTimer(timedGames[mode.name], () => gauntlet.onGameComplete(isWinCondition()));
+            }
         }
     }
 });

@@ -1,253 +1,294 @@
 const decryptGame = {
-    canvas: null,
-    ctx: null,
-    messageBox: null,
+    // UI Elements
+    puzzleContainer: null,
+    keyboardContainer: null,
     hintButton: null,
+    sourceHintButton: null,
     newGameButton: null,
-    puzzleTitleEl: null, // This can remain, but will not be used to display puzzle-specific titles
-    gameContainerEl: null,
+    scrollIndicator: null,
 
+    // Game State
     currentQuote: '',
     cipherMap: {},
     encryptedQuote: '',
     userMappings: {},
-    revealedKeys: new Set(),
     activeCipherChar: null,
     isSolved: false,
-
-    puzzleLayout: [],
-    keyboardLayout: {},
-    puzzleHeight: 0,
-    lineSpacing: 0,
     puzzles: decryptQuotes,
     puzzleDeck: [],
+    hintStep: 0,
+    sourceRevealed: false,
 
-    boundHandleCanvasClick: null,
+    // Event handlers
+    boundHandleInputClick: null,
+    boundHandleKeyboardClick: null,
+    boundHandlePhysicalKeyboard: null,
+    boundCheckScroll: null,
 
-    setupCanvas: function() {
-        decryptGame.canvas.width = decryptGame.gameContainerEl.offsetWidth;
-        decryptGame.canvas.height = 400;
+    setup: function() {
+        // Clear board and containers
+        gameBoard.innerHTML = '';
+        keyboardContainer.innerHTML = '';
+        gameTitle.textContent = 'CIPHER';
+        gameRules.textContent = 'Decode the quote. Click a cell to select a letter.';
+
+        document.getElementById('game-container').classList.add('cryptogram-active');
+
+        // Create puzzle container
+        this.puzzleContainer = document.createElement('div');
+        this.puzzleContainer.id = 'cryptogram-puzzle';
+        this.puzzleContainer.className = 'cryptogram-puzzle-container';
+        gameBoard.appendChild(this.puzzleContainer);
+
+        // Create scroll indicator
+        this.scrollIndicator = document.createElement('div');
+        this.scrollIndicator.className = 'scroll-indicator';
+        gameBoard.appendChild(this.scrollIndicator);
+
+        // Create keyboard
+        this.keyboardContainer = document.getElementById('keyboard-container');
+        this.createKeyboard();
+
+        // --- FIX: This button now calls the main startGame function ---
+        this.hintButton = createControlButton('Hint', 'btn-blue', this.giveHint.bind(this));
+        this.sourceHintButton = createControlButton('Source', 'btn-pink', this.giveSourceHint.bind(this));
+        this.newGameButton = createControlButton('New Puzzle', 'btn-green', () => startGame(gameModes.decryptGame));
+        buttonContainer.appendChild(this.hintButton);
+        buttonContainer.appendChild(this.sourceHintButton);
+        buttonContainer.appendChild(this.newGameButton);
+
+        // Bind event handlers
+        this.boundHandleInputClick = this.handleInputClick.bind(this);
+        this.boundHandleKeyboardClick = this.handleKeyboardClick.bind(this);
+        this.boundHandlePhysicalKeyboard = this.handlePhysicalKeyboard.bind(this);
+        this.boundCheckScroll = this.checkScroll.bind(this);
+
+        // Add event listeners
+        this.puzzleContainer.addEventListener('click', this.boundHandleInputClick);
+        this.keyboardContainer.addEventListener('click', this.boundHandleKeyboardClick);
+        window.addEventListener('keydown', this.boundHandlePhysicalKeyboard);
+        gameBoard.addEventListener('scroll', this.boundCheckScroll);
+        window.addEventListener('resize', this.boundCheckScroll);
+
+        this.newGame();
     },
 
-    resizeCanvas: function() {
-        decryptGame.setupCanvas();
-        decryptGame.calculateLayouts();
-        decryptGame.drawGame();
+    cleanup: function() {
+        // This function is called by main.js when switching games.
+        // It properly removes window-level listeners.
+        window.removeEventListener('keydown', this.boundHandlePhysicalKeyboard);
+        window.removeEventListener('resize', this.boundCheckScroll);
     },
 
     newGame: function() {
-        if (decryptGame.puzzleDeck.length === 0) {
-            decryptGame.puzzleDeck = [...decryptQuotes]; // Use decryptQuotes directly
-            // Shuffle the puzzles for random order
-            for (let i = decryptGame.puzzleDeck.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [decryptGame.puzzleDeck[i], decryptGame.puzzleDeck[j]] = [decryptGame.puzzleDeck[j], decryptGame.puzzleDeck[i]];
-            }
+        // This function now only sets up the puzzle state, without touching listeners.
+        if (this.puzzleDeck.length === 0) {
+            this.puzzleDeck = [...this.puzzles].sort(() => 0.5 - Math.random());
         }
-        const puzzle = decryptGame.puzzleDeck.pop();
+        const puzzle = this.puzzleDeck.pop();
 
-        decryptGame.currentQuote = puzzle.quote.toUpperCase();
-        // Removed: gameTitle.textContent = decryptGame.titleCase(puzzle.title);
-        // Removed: gameRules.textContent = puzzle.notes;
-        decryptGame.cipherMap = decryptGame.generateCipherMap();
-        decryptGame.encryptedQuote = decryptGame.encrypt(decryptGame.currentQuote, decryptGame.cipherMap);
-        decryptGame.userMappings = {};
-        decryptGame.revealedKeys.clear();
-        decryptGame.activeCipherChar = null;
-        decryptGame.isSolved = false;
-        decryptGame.displayMessage('New puzzle loaded.');
-        decryptGame.calculateLayouts();
-        decryptGame.drawGame();
-    },
+        this.currentQuote = puzzle.quote.toUpperCase();
+        this.cipherMap = this.generateCipherMap();
+        this.encryptedQuote = this.encrypt(this.currentQuote, this.cipherMap);
+        this.userMappings = {};
+        this.activeCipherChar = null;
+        this.isSolved = false;
+        this.hintStep = 0;
+        this.sourceRevealed = false;
 
-    titleCase: function(str) {
-        return str.toLowerCase().split(' ').map(function(word) {
-            return (word.charAt(0).toUpperCase() + word.slice(1));
-        }).join(' ');
-    },
+        this.renderPuzzle();
 
-    calculateLayouts: function() {
-        decryptGame.calculatePuzzleLayout();
-        decryptGame.calculateKeyboardLayout(decryptGame.puzzleHeight, decryptGame.lineSpacing);
-    },
+        for (let i = 0; i < 3; i++) {
+            this.giveLetterHint();
+        }
 
-    calculatePuzzleLayout: function() {
-        const maxWidth = decryptGame.canvas.width - 40;
-        decryptGame.ctx.font = '24px monospace';
-        const words = decryptGame.encryptedQuote.split(' ');
-        let lines = [];
-        let currentLine = '';
+        this.updateKeyboard();
+        gameStatus.textContent = "New puzzle loaded. 3 letters revealed.";
 
-        words.forEach(word => {
-            const testLine = currentLine + (currentLine === '' ? '' : ' ') + word;
-            const metrics = decryptGame.ctx.measureText(testLine);
-            if (metrics.width > maxWidth && currentLine !== '') {
-                lines.push(currentLine.trim());
-                currentLine = word;
-            } else {
-                currentLine = testLine;
-            }
-        });
-        lines.push(currentLine.trim());
-
-        decryptGame.puzzleLayout = [];
-        decryptGame.lineSpacing = 35;
-        let y = 60;
-        lines.forEach(line => {
-            const lineWidth = decryptGame.ctx.measureText(line).width;
-            const x = (decryptGame.canvas.width - lineWidth) / 2;
-            decryptGame.puzzleLayout.push({ text: line, x, y });
-            y += decryptGame.lineSpacing * 2;
-        });
-        decryptGame.puzzleHeight = y;
-    },
-
-    calculateKeyboardLayout: function(pHeight, lSpacing) {
-        const keyboardStartY = pHeight + lSpacing * 2;
-        const keyOrder = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        const keysPerRow = 10;
-        const keyDiameter = Math.min(35, (decryptGame.canvas.width - 60) / keysPerRow - 5);
-        const keyPadding = 5;
-        const rowWidth = (keyDiameter + keyPadding) * keysPerRow - keyPadding;
-
-        const startX = (decryptGame.canvas.width - rowWidth) / 2;
-
-        decryptGame.keyboardLayout = {};
-        for (let i = 0; i < keyOrder.length; i++) {
-            const char = keyOrder[i];
-            const row = Math.floor(i / keysPerRow);
-            const col = i % keysPerRow;
-            const x = startX + col * (keyDiameter + keyPadding);
-            const y = keyboardStartY + row * (keyDiameter + keyPadding);
-            decryptGame.keyboardLayout[char] = { x, y, size: keyDiameter };
+        // Select first open letter
+        const firstOpenCell = document.querySelector('.cryptogram-cell[data-cipher]:not(.has-mapping)');
+        if (firstOpenCell) {
+            this.setActiveCipherChar(firstOpenCell.dataset.cipher);
         }
     },
-
-    drawGame: function() {
-        decryptGame.drawBackground();
-        decryptGame.drawPuzzle();
-        decryptGame.drawKeyboard();
-    },
-
-    drawBackground: function() {
-        decryptGame.ctx.fillStyle = '#2a2a2a';
-        decryptGame.ctx.fillRect(0, 0, decryptGame.canvas.width, decryptGame.canvas.height);
-    },
-
-    drawPuzzle: function() {
-        decryptGame.ctx.font = '24px monospace';
-        decryptGame.puzzleLayout.forEach(line => {
-            let currentX = line.x;
-            for (const char of line.text) {
-                const userGuess = decryptGame.userMappings[char] || '';
-                const charWidth = decryptGame.ctx.measureText(char).width;
-
-                decryptGame.ctx.fillStyle = decryptGame.activeCipherChar === char ? '#f9a825' : '#e0e0e0';
-                decryptGame.ctx.fillText(char, currentX, line.y);
-
-                decryptGame.ctx.fillStyle = '#4caf50';
-                decryptGame.ctx.fillText(userGuess, currentX, line.y + decryptGame.lineSpacing * 0.7);
-
-                decryptGame.ctx.strokeStyle = '#606060';
-                decryptGame.ctx.beginPath();
-                decryptGame.ctx.moveTo(currentX, line.y + decryptGame.lineSpacing);
-                decryptGame.ctx.lineTo(currentX + charWidth, line.y + decryptGame.lineSpacing);
-                decryptGame.ctx.stroke();
-
-                currentX += charWidth;
-            }
-        });
-    },
-
-    drawKeyboard: function() {
-        decryptGame.ctx.font = '18px monospace';
-        for (const char in decryptGame.keyboardLayout) {
-            const key = decryptGame.keyboardLayout[char];
-            const centerX = key.x + key.size / 2;
-            const centerY = key.y + key.size / 2;
-            const radius = key.size / 2;
-
-            decryptGame.ctx.beginPath();
-            decryptGame.ctx.arc(centerX, centerY, radius, 0, Math.PI * 2, false);
-            decryptGame.ctx.fillStyle = '#4b5563';
-            decryptGame.ctx.fill();
-            decryptGame.ctx.strokeStyle = '#0f0c29';
-            decryptGame.ctx.lineWidth = 2;
-            decryptGame.ctx.stroke();
-
-            decryptGame.ctx.fillStyle = '#ffffff';
-            decryptGame.ctx.textAlign = 'center';
-            decryptGame.ctx.textBaseline = 'middle';
-            decryptGame.ctx.fillText(char, centerX, centerY);
-        }
-    },
-
-    handleCanvasClick: function(event) {
-        const rect = decryptGame.canvas.getBoundingClientRect();
-        const x = event.clientX - rect.left;
-        const y = event.clientY - rect.top;
-
-        let clickedOnPuzzle = false;
-        decryptGame.puzzleLayout.forEach(line => {
-            let currentX = line.x;
-            for (const char of line.text) {
-                const charWidth = decryptGame.ctx.measureText(char).width;
-                if (x >= currentX && x <= currentX + charWidth && y >= line.y - 20 && y <= line.y + decryptGame.lineSpacing + 10) {
-                    decryptGame.activeCipherChar = char;
-                    clickedOnPuzzle = true;
-                    decryptGame.drawGame();
-                    return;
-                }
-                currentX += charWidth;
-            }
-        });
-
-        if (!clickedOnPuzzle) {
-            for (const char in decryptGame.keyboardLayout) {
-                const key = decryptGame.keyboardLayout[char];
-                const distance = Math.sqrt(Math.pow(x - (key.x + key.size / 2), 2) + Math.pow(y - (key.y + key.size / 2), 2));
-                if (distance <= key.size / 2) {
-                    if (decryptGame.activeCipherChar) {
-                        decryptGame.userMappings[decryptGame.activeCipherChar] = char;
-                        decryptGame.checkSolution();
-                        decryptGame.drawGame();
-                    }
-                    return;
-                }
-            }
-        }
-    },
-
-    celebrate: function() {
-        decryptGame.displayMessage('Congratulations! You cracked the code!', 'success');
-    },
-
+    
+    // --- OPTIMIZATION: More robust cipher generation ---
     generateCipherMap: function() {
         const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('');
-        const shuffled = [...alphabet].sort(() => Math.random() - 0.5);
-        const map = {};
-        alphabet.forEach((char, i) => {
-            map[char] = shuffled[i];
-        });
-
-        let hasSelfMap = true;
-        let attempts = 0;
-        while(hasSelfMap && attempts < 100) {
-            hasSelfMap = false;
-            for (const char of alphabet) {
-                if (map[char] === char) {
-                    hasSelfMap = true;
-                    const newShuffled = [...alphabet].sort(() => Math.random() - 0.5);
-                    alphabet.forEach((c, i) => {
-                        map[c] = newShuffled[i];
-                    });
+        let shuffled;
+        while (true) {
+            shuffled = [...alphabet].sort(() => Math.random() - 0.5);
+            let isDerangement = true;
+            for (let i = 0; i < alphabet.length; i++) {
+                if (alphabet[i] === shuffled[i]) {
+                    isDerangement = false;
                     break;
                 }
             }
-            attempts++;
+            if (isDerangement) break;
         }
-        
+        const map = {};
+        alphabet.forEach((char, i) => { map[char] = shuffled[i]; });
         return map;
+    },
+    
+    renderPuzzle: function() {
+        this.puzzleContainer.innerHTML = '';
+        const words = this.encryptedQuote.split(' ');
+
+        words.forEach(word => {
+            const wordContainer = document.createElement('div');
+            wordContainer.className = 'cryptogram-word';
+            for (const char of word) {
+                const letterCell = this.createLetterCell(char);
+                wordContainer.appendChild(letterCell);
+            }
+            this.puzzleContainer.appendChild(wordContainer);
+        });
+        setTimeout(this.checkScroll.bind(this), 100);
+    },
+
+    createLetterCell: function(char) {
+        const cell = document.createElement('div');
+        cell.className = 'cryptogram-cell';
+
+        if (char.match(/[A-Z]/)) {
+            cell.dataset.cipher = char;
+            const cipherText = document.createElement('div');
+            cipherText.className = 'cipher-char';
+            cipherText.textContent = char;
+            const plainText = document.createElement('div');
+            plainText.className = 'plain-char';
+            plainText.dataset.plain = char;
+            cell.appendChild(cipherText);
+            cell.appendChild(plainText);
+        } else {
+            cell.textContent = char;
+            cell.classList.add('punctuation');
+        }
+        return cell;
+    },
+
+    handleInputClick: function(e) {
+        const cell = e.target.closest('.cryptogram-cell');
+        if (!cell || !cell.dataset.cipher) return;
+        this.setActiveCipherChar(cell.dataset.cipher);
+    },
+
+    setActiveCipherChar: function(cipherChar) {
+        this.activeCipherChar = cipherChar;
+        document.querySelectorAll('.cryptogram-cell').forEach(cell => {
+            cell.classList.toggle('active', cell.dataset.cipher === cipherChar);
+        });
+        this.updateKeyboard();
+    },
+
+    handleKeyboardClick: function(e) {
+        const key = e.target.closest('.key');
+        if (!key || !this.activeCipherChar) return;
+        const plainChar = key.dataset.key;
+        if (plainChar === 'Backspace') {
+            this.setUserMapping(this.activeCipherChar, '');
+        } else if (plainChar.match(/^[A-Z]$/)) {
+            this.setUserMapping(this.activeCipherChar, plainChar);
+        }
+    },
+
+    handlePhysicalKeyboard: function(e) {
+        if (!this.activeCipherChar) return;
+        if (e.key.match(/^[a-zA-Z]$/)) {
+            this.setUserMapping(this.activeCipherChar, e.key.toUpperCase());
+        } else if (e.key === 'Backspace' || e.key === 'Delete') {
+            this.setUserMapping(this.activeCipherChar, '');
+        }
+    },
+
+    setUserMapping: function(cipherChar, plainChar) {
+        if (!cipherChar) return;
+
+        for (const key in this.userMappings) {
+            if (this.userMappings[key] === plainChar) {
+                this.userMappings[key] = '';
+            }
+        }
+        this.userMappings[cipherChar] = plainChar;
+        this.updatePuzzleDisplay();
+        this.updateKeyboard();
+        this.checkSolution();
+
+        // Auto-progress
+        if (plainChar !== '') {
+            const allLetterCells = Array.from(document.querySelectorAll('.cryptogram-cell[data-cipher]'));
+            const currentCellIndex = allLetterCells.findIndex(cell => cell.dataset.cipher === cipherChar);
+            if (currentCellIndex !== -1) {
+                for (let i = 1; i <= allLetterCells.length; i++) {
+                    const nextCell = allLetterCells[(currentCellIndex + i) % allLetterCells.length];
+                    const nextCipher = nextCell.dataset.cipher;
+                    if (!this.userMappings[nextCipher]) {
+                        this.setActiveCipherChar(nextCipher);
+                        return;
+                    }
+                }
+            }
+            this.setActiveCipherChar(null); // All cells are filled
+        }
+    },
+
+    updatePuzzleDisplay: function() {
+        document.querySelectorAll('.plain-char').forEach(el => {
+            const cipher = el.dataset.plain;
+            const mappedChar = this.userMappings[cipher] || '';
+            el.textContent = mappedChar;
+            el.closest('.cryptogram-cell').classList.toggle('has-mapping', !!mappedChar);
+        });
+    },
+
+    checkScroll: function() {
+        const board = document.getElementById('game-board');
+        if (!this.scrollIndicator || !board) return;
+        const isScrollable = board.scrollHeight > board.clientHeight;
+        this.scrollIndicator.style.display = isScrollable ? 'block' : 'none';
+    },
+
+    createKeyboard: function() {
+        if (!this.keyboardContainer) return;
+        this.keyboardContainer.innerHTML = '';
+        const keys = [
+            ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+            ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+            ['Enter', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫']
+        ];
+        keys.forEach(row => {
+            const rowDiv = document.createElement('div');
+            rowDiv.className = 'keyboard-row';
+            row.forEach(key => {
+                const keyDiv = document.createElement('button');
+                keyDiv.className = 'key';
+                let dataKey = key;
+                if (key === '⌫') {
+                    dataKey = 'Backspace';
+                }
+                keyDiv.textContent = key;
+                keyDiv.dataset.key = dataKey;
+                 if (key.length > 1 || key === '⌫') keyDiv.classList.add('key-large');
+                rowDiv.appendChild(keyDiv);
+            });
+            this.keyboardContainer.appendChild(rowDiv);
+        });
+    },
+
+    updateKeyboard: function() {
+        const mappedPlainChars = Object.values(this.userMappings);
+        document.querySelectorAll('#keyboard-container .key').forEach(key => {
+            const plainChar = key.dataset.key;
+            if (mappedPlainChars.includes(plainChar)) {
+                key.classList.add('used');
+                key.disabled = true;
+            } else {
+                key.classList.remove('used');
+                key.disabled = false;
+            }
+        });
     },
 
     encrypt: function(text, map) {
@@ -255,88 +296,80 @@ const decryptGame = {
     },
 
     checkSolution: function() {
-        const decrypted = decryptGame.encryptedQuote.split('').map(char => {
-            if (!char.match(/[A-Z]/)) {
-                return char;
-            }
-            return decryptGame.userMappings[char] || ' ';
+        const decryptedQuote = this.encryptedQuote.split('').map(char => {
+            if (this.userMappings[char] === undefined || this.userMappings[char] === '') return ' ';
+            return this.userMappings[char];
         }).join('');
+    
+        if (decryptedQuote === this.currentQuote) {
+            this.isSolved = true;
+            this.activeCipherChar = null; // Deactivate selection
+            const puzzleInfo = this.puzzles.find(p => p.quote.toUpperCase() === this.currentQuote);
+            const title = puzzleInfo ? puzzleInfo.title : "You Cracked the Code!";
+            let message = `<p class="mb-2">The quote was:</p><p class="text-amber-300">"${this.currentQuote}"</p>`;
+            if (puzzleInfo && puzzleInfo.source) {
+                message += `<p class="mt-4 text-sm">Source: ${puzzleInfo.source}</p>`;
+            }
+    
+            gameStatus.textContent = "Congratulations! You solved the puzzle!";
+            showWinModal(title, message);
+    
+            document.querySelectorAll('.cryptogram-cell').forEach(cell => {
+                cell.classList.remove('active');
+                if (cell.dataset.cipher) {
+                    cell.classList.add('correct');
+                }
+            });
+        }
+    },
 
-        if (decrypted.replace(/\s/g, '') === decryptGame.currentQuote.replace(/\s/g, '')) {
-            decryptGame.isSolved = true;
-            decryptGame.celebrate();
+    giveSourceHint: function() {
+        gameRules.textContent = '';
+        if (this.sourceRevealed) return;
+
+        const puzzleInfo = this.puzzles.find(p => p.quote.toUpperCase() === this.currentQuote);
+        if (puzzleInfo && puzzleInfo.source) {
+            gameStatus.textContent = `Source: ${puzzleInfo.source}`;
+            this.sourceRevealed = true;
+            this.sourceHintButton.disabled = true;
+        } else {
+            gameStatus.textContent = "No source information is available for this puzzle.";
+        }
+    },
+
+    giveLetterHint: function() {
+        const allCipherChars = [...new Set(this.encryptedQuote.match(/[A-Z]/g))];
+        const unmappedCipherChars = allCipherChars.filter(char => !this.userMappings[char]);
+    
+        if (unmappedCipherChars.length === 0) {
+            gameStatus.textContent = "No more hints available!";
+            return;
+        }
+    
+        const cipherCharToReveal = unmappedCipherChars[Math.floor(Math.random() * unmappedCipherChars.length)];
+        const invertedCipherMap = Object.fromEntries(
+            Object.entries(this.cipherMap).map(([plain, cipher]) => [cipher, plain])
+        );
+        const correctPlainChar = invertedCipherMap[cipherCharToReveal];
+    
+        if (correctPlainChar) {
+            this.setUserMapping(cipherCharToReveal, correctPlainChar);
         }
     },
 
     giveHint: function() {
-        const unmappedOriginalChars = [...new Set(decryptGame.currentQuote.replace(/[^A-Z]/g, ''))].filter(originalChar => {
-            const encryptedChar = Object.keys(decryptGame.cipherMap).find(key => decryptGame.cipherMap[key] === originalChar);
-            return !decryptGame.userMappings[encryptedChar] || decryptGame.userMappings[encryptedChar] !== originalChar;
-        });
-
-        if (unmappedOriginalChars.length > 0) {
-            const hintOriginalChar = unmappedOriginalChars[Math.floor(Math.random() * unmappedOriginalChars.length)];
-            const encryptedHintChar = Object.keys(decryptGame.cipherMap).find(key => decryptGame.cipherMap[key] === hintOriginalChar);
-            
-            decryptGame.userMappings[encryptedHintChar] = hintOriginalChar;
-            decryptGame.revealedKeys.add(encryptedHintChar);
-            decryptGame.drawGame();
-            decryptGame.checkSolution();
+        gameRules.textContent = '';
+        if (this.hintStep === 0) {
+            const puzzleInfo = this.puzzles.find(p => p.quote.toUpperCase() === this.currentQuote);
+            if (puzzleInfo && puzzleInfo.notes) {
+                gameStatus.textContent = `Hint: ${puzzleInfo.notes}`;
+                this.hintStep = 1;
+            } else {
+                this.giveLetterHint();
+                this.hintStep = 2; // Skip to letter hints if no text hint
+            }
         } else {
-            decryptGame.displayMessage('No more hints available!', 'info');
-        }
-    },
-
-    setup: function() {
-        gameBoard.innerHTML = '';
-
-        // Clear global game title and rules specifically for Decrypt game
-        gameTitle.textContent = ''; // Clear the main game title
-        gameRules.textContent = ''; // Clear game rules/notes
-
-        decryptGame.canvas = document.createElement('canvas');
-        decryptGame.canvas.id = 'decrypt-canvas';
-        gameBoard.appendChild(decryptGame.canvas);
-        decryptGame.ctx = decryptGame.canvas.getContext('2d');
-
-        decryptGame.puzzleTitleEl = gameTitle;
-        decryptGame.gameContainerEl = document.getElementById('game-container');
-
-        decryptGame.setupCanvas();
-
-        decryptGame.boundHandleCanvasClick = decryptGame.handleCanvasClick.bind(decryptGame);
-
-        decryptGame.canvas.addEventListener('click', decryptGame.boundHandleCanvasClick);
-        decryptGame.canvas.addEventListener('touchstart', decryptGame.boundHandleCanvasClick, {passive: false});
-
-        // Updated button texts
-        decryptGame.hintButton = createControlButton('Hint', 'btn-blue', decryptGame.giveHint.bind(decryptGame));
-        decryptGame.newGameButton = createControlButton('New', 'btn-green', decryptGame.newGame.bind(decryptGame));
-        buttonContainer.appendChild(decryptGame.hintButton);
-        buttonContainer.appendChild(decryptGame.newGameButton);
-        
-        decryptGame.newGame();
-        decryptGame.resizeCanvas();
-    },
-
-    cleanup: function() {
-        if (decryptGame.canvas && decryptGame.boundHandleCanvasClick) {
-            decryptGame.canvas.removeEventListener('click', decryptGame.boundHandleCanvasClick);
-            decryptGame.canvas.removeEventListener('touchstart', decryptGame.boundHandleCanvasClick);
-        }
-        decryptGame.canvas = null;
-        decryptGame.ctx = null;
-    },
-
-    displayMessage: function(m, t = 'info') {
-        gameStatus.textContent = m;
-        gameStatus.className = 'text-center text-lg h-7 mb-2';
-        if (t === 'success') {
-            gameStatus.classList.add('text-green-400');
-        } else if (t === 'error') {
-            gameStatus.classList.add('text-red-400');
-        } else {
-            gameStatus.classList.add('text-yellow-300');
+            this.giveLetterHint();
         }
     }
 };
