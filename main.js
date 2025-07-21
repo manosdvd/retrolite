@@ -62,8 +62,8 @@ const gameModes = {
     fourInARow: { name: 'fourInARow', title: 'CONNECT 4', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6' },
     colorConnect: { name: 'colorConnect', title: 'COLOR LINK', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf' },
     meteos: { name: 'meteos', title: 'ANXIETY', rules: 'Match 3+ blocks to clear them.', setup: meteosGame.setup, handler: null, cleanup: meteosGame.cleanup, color: '#06b6d4', shadow: '#22d3ee' },
-    spellingBee: { name: 'spellingBee', title: 'SPELLING', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup.bind(spellingBeeGame), handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
-    decryptGame: { name: 'decryptGame', title: 'CIPHER', setup: decryptGame.setup.bind(decryptGame), handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
+    spellingBee: { name: 'spellingBee', title: 'SPELLING', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup.bind(spellingBeeGame), handler: null, cleanup: spellingBeeGame.cleanup.bind(spellingBeeGame), color: '#4f46e5', shadow: '#6366f1' },
+    decryptGame: { name: 'decryptGame', title: 'CIPHER', setup: decryptGame.setup.bind(decryptGame), handler: null, cleanup: decryptGame.cleanup.bind(decryptGame), color: '#3d342a', shadow: '#5c5248' },
     gauntlet: { name: 'gauntlet', title: 'GAUNTLET', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047'}
 };
 

@@ -33,7 +33,13 @@ const wordleGame = {
             row.forEach(key => {
                 const keyDiv = document.createElement('div');
                 keyDiv.className = 'key';
-                keyDiv.textContent = key;
+                let displayText = key;
+                if (key === 'Enter') {
+                    displayText = '⏎';
+                } else if (key === 'Backspace') {
+                    displayText = '⌫';
+                }
+                keyDiv.textContent = displayText;
                 keyDiv.dataset.key = key;
                 if (key === 'Enter' || key === 'Backspace') {
                     keyDiv.classList.add('key-large');
