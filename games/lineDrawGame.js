@@ -31,7 +31,7 @@ const lineDrawGame = {
                 grid[startCell] = color;
                 let currentCell = startCell;
                 while(true) {
-                    const neighbors = getSliderNeighbors(currentCell, size).filter(n => grid[n] === 0);
+                    const neighbors = utils.getSliderNeighbors(currentCell, size).filter(n => grid[n] === 0);
                     if (neighbors.length === 0) break;
                     const nextCell = neighbors[Math.floor(Math.random() * neighbors.length)];
                     grid[nextCell] = color;
@@ -90,7 +90,7 @@ const lineDrawGame = {
             lineDrawGame.updateBoard();
             return;
         }
-        const isAdjacent = getSliderNeighbors(lastIndex, gameState.size).includes(index);
+        const isAdjacent = utils.getSliderNeighbors(lastIndex, gameState.size).includes(index);
         const isEndpointOfCurrentColor = gameState.pairs.some(p => p.c === gameState.currentColor && (p.s === index || p.e === index));
         const isValidMove = isAdjacent && (gameState.board[index] === 0 || isEndpointOfCurrentColor);
         if (isValidMove) {

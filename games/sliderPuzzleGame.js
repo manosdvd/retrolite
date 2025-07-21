@@ -12,7 +12,7 @@ const sliderPuzzleGame = {
     },
     shuffle: () => {
         for (let i = 0; i < 300; i++) {
-            const neighbors = getSliderNeighbors(gameState.emptyIndex, 3);
+            const neighbors = utils.getSliderNeighbors(gameState.emptyIndex, 3);
             const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
             sliderPuzzleGame.swapTiles(randomNeighbor, gameState.emptyIndex, true);
         }
@@ -20,7 +20,7 @@ const sliderPuzzleGame = {
     },
     handler: (e) => {
         const index = parseInt(e.target.dataset.index);
-        const neighbors = getSliderNeighbors(gameState.emptyIndex, 3);
+        const neighbors = utils.getSliderNeighbors(gameState.emptyIndex, 3);
         if (neighbors.includes(index)) {
             playSound(notes[index % 9]);
             sliderPuzzleGame.swapTiles(index, gameState.emptyIndex);

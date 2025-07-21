@@ -1,366 +1,594 @@
-// retrogame/games/meteosGame.js
-
 const meteosGame = {
-    // --- CONSTANTS ---
-    GRAVITY: 0.4, // The force pulling launching blocks down
-    LAUNCH_MULTIPLIER: 6, // Determines the initial power of a launch
-
     setup: () => {
-        const width = 7;
-        const height = 10;
-        gameBoard.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
-        gameBoard.classList.add('large-grid');
+        // 1. Inject custom HTML for the game
+        gameBoard.innerHTML = `
+            <div id="game-wrapper">
+                <div id="game-info" class="w-full mx-auto flex flex-col items-center gap-2 p-2 pt-4">
+                    <div class="w-full flex justify-between items-center px-2">
+                        <div class="text-xl sm:text-2xl font-semibold">Score: <span id="score">0</span></div>
+                    </div>
+                    <div id="preview-bar" class="w-full mt-2"></div>
+                </div>
+                <div id="grid-container"></div>
+            </div>
+            <div id="animation-pool"></div>
+        `;
 
-        gameState = {
-            width: width,
-            height: height,
-            board: [],
-            numColors: 5,
-            score: 0,
-            isAnimating: false,
-            gameInterval: null,
-            timeUntilNextBlocks: 4000, 
-            lastBlockTime: Date.now(),
-        };
+        // The modal will be created and appended to the modalContainer, not the gameBoard
+        modalContainer.innerHTML = `
+            <div id="game-over-modal" class="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center opacity-0 pointer-events-none transform scale-95 p-4">
+                <div class="bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg text-center border-2 border-cyan-500">
+                    <h2 class="text-4xl sm:text-5xl font-bold mb-4 text-red-500">Game Over</h2>
+                    <p class="text-xl sm:text-2xl mb-2">Final Score: <span id="final-score">0</span></p>
+                    <button id="restart-button" class="mt-6 bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-lg text-lg sm:text-xl">
+                        Play Again
+                    </button>
+                </div>
+            </div>
+        `;
 
-        // Initialize board with enhanced Block objects
-        for (let i = 0; i < gameState.width * gameState.height; i++) {
-            gameState.board[i] = {
-                color: 0, // 0 is empty
-                isLaunching: false,
-                yOffset: 0,
-                velocityY: 0, // For launch physics
-                launchPower: 0,
-            };
-        }
 
-        // Create the lights (cells) for the board
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < gameState.width * gameState.height; i++) {
-            const light = document.createElement('div');
-            light.classList.add('light', 'is-off');
-            light.dataset.index = i;
-            const inner = document.createElement('div');
-            inner.classList.add('light-inner');
-            light.appendChild(inner);
-            fragment.appendChild(light);
-        }
-        gameBoard.appendChild(fragment);
-
-        // Add event listeners for dragging
-        gameBoard.addEventListener('mousedown', meteosGame.handleDragStart);
-        gameBoard.addEventListener('touchstart', meteosGame.handleDragStart, { passive: false });
-        
-        meteosGame.prepopulateBoard();
-        meteosGame.updateBoard();
-
-        gameState.gameInterval = setInterval(meteosGame.gameTick, 33); // ~30 FPS for smoother animations
-        updateStats(`Score: 0`);
-        gameStatus.textContent = "Match 3+ to launch blocks!";
-    },
-
-    prepopulateBoard: () => {
-        const { width, height, board, numColors } = gameState;
-        const startRows = 5;
-        for (let r = height - 1; r >= height - startRows; r--) {
-            for (let c = 0; c < width; c++) {
-                const index = r * width + c;
-                let newColor;
-                do {
-                    newColor = Math.floor(Math.random() * numColors) + 1;
-                } while (
-                    (c > 1 && board[index - 1].color === newColor && board[index - 2].color === newColor) ||
-                    (r < height - 2 && board[(r + 1) * width + c].color === newColor && board[(r + 2) * width + c].color === newColor)
-                );
-                board[index].color = newColor;
+        // 2. Inject custom CSS for the game
+        const style = document.createElement('style');
+        style.id = 'meteos-game-style'; // Add an ID to remove it on cleanup
+        style.innerHTML = `
+            #game-board {
+                display: block;
+                padding: 0;
+                background: transparent;
+                box-shadow: none;
+                flex-grow: 1;
+                min-height: 0;
             }
-        }
+            #game-wrapper {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                width: 100%;
+                margin: 0 auto;
+            }
+            #grid-container {
+                display: grid;
+                flex-grow: 1;
+                touch-action: none;
+                user-select: none;
+                border-radius: 12px;
+                background-color: #1a202c;
+                padding: 8px;
+                gap: 4px;
+                position: relative;
+            }
+            .block {
+                width: 100%;
+                height: 100%;
+                border-radius: 6px;
+                transition: transform 0.2s ease, opacity 0.25s ease, background-color 0.1s linear;
+                cursor: grab;
+                position: absolute;
+            }
+            .block.dragging-origin {
+                opacity: 0.5;
+                transform: scale(0.95);
+                z-index: 100;
+            }
+            .block.collapsing {
+                transform: scale(0);
+                opacity: 0;
+            }
+            .falling-block {
+                position: absolute;
+                transition: transform 0.4s cubic-bezier(0.5, 0, 1, 1); /* Gravity-like ease-in */
+            }
+            #game-over-modal {
+                transition: opacity 0.3s ease, transform 0.3s ease;
+            }
+            #preview-bar {
+                display: grid;
+                gap: 4px;
+                padding: 4px;
+                background-color: #2d3748;
+                border-radius: 8px;
+            }
+            .preview-block {
+                width: 100%;
+                aspect-ratio: 1/1;
+                border-radius: 4px;
+                background-color: #4a5568;
+                transition: background-color 0.3s;
+            }
+            #animation-pool {
+                display: none;
+                visibility: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 3. Run the game's script
+        meteosGame.runGameScript();
     },
 
     cleanup: () => {
-        if (gameState.gameInterval) {
-            clearInterval(gameState.gameInterval);
+        // Remove the custom style when the game is exited
+        const style = document.getElementById('meteos-game-style');
+        if (style) {
+            style.remove();
         }
-        window.removeEventListener('mouseup', meteosGame.handleDragEnd);
-        window.removeEventListener('touchend', meteosGame.handleDragEnd);
-        window.removeEventListener('mousemove', meteosGame.handleDragMove);
-        window.removeEventListener('touchmove', meteosGame.handleDragMove);
+        // Clear any intervals from the game
+        if (meteosGame.previewTimer) {
+            clearInterval(meteosGame.previewTimer);
+        }
+        // Clear the modal container
+        modalContainer.innerHTML = '';
     },
 
-    gameTick: async () => {
-        if (gameState.isAnimating) return;
-        gameState.isAnimating = true;
+    runGameScript: () => {
+        // --- GAME CONFIGURATION ---
+        const GRID_WIDTH = 8;
+        const GRID_HEIGHT = 12;
+        const INITIAL_PREVIEW_INTERVAL = 750;
+        const MIN_PREVIEW_INTERVAL = 250;
+        const INTERVAL_DECREMENT = 50;
+        const COLORS = ['#ef4444', '#3b82f6', '#16a34a', '#facc15', '#f97316', '#14b8a6'];
+        const ANIMATION_DELAY = 200;
+        const FALL_ANIMATION_DURATION = 400;
+        const DRAG_LOCK_THRESHOLD = 20; // Increased threshold
 
-        const now = Date.now();
-        if (now - gameState.lastBlockTime > gameState.timeUntilNextBlocks) {
-            meteosGame.spawnNewRow();
-            gameState.lastBlockTime = now;
+        // --- DOM ELEMENT CACHE ---
+        const gridContainer = document.getElementById('grid-container');
+        const scoreDisplay = document.getElementById('score');
+        const previewBar = document.getElementById('preview-bar');
+        const gameOverModal = document.getElementById('game-over-modal');
+        const finalScoreDisplay = document.getElementById('final-score');
+        const restartButton = document.getElementById('restart-button');
+        const animationPoolContainer = document.getElementById('animation-pool');
+
+        // --- GAME STATE ---
+        let grid = [];
+        let score = 0;
+        let isGameOver = false;
+        let isProcessing = false;
+        let previewRow = [];
+        let previewIndex = 0;
+        let previewTimer;
+        let previewBlockIntervalMs;
+        let dragState = {};
+        let animationPool = [];
+        let cellWidth, cellHeight;
+
+        // --- AUDIO SYNTHS ---
+        let matchSynth, slideSynth, gameOverSynth, dropSynth;
+
+        // --- UTILITY FUNCTIONS ---
+        const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+        const requestNextFrame = () => new Promise(resolve => requestAnimationFrame(resolve));
+        const lockGame = () => isProcessing = true;
+        const unlockGame = () => isProcessing = false;
+
+        // --- INITIALIZATION ---
+        function init() {
+            lockGame();
+            isGameOver = false;
+            score = 0;
+            previewBlockIntervalMs = INITIAL_PREVIEW_INTERVAL;
+            updateScore();
+            createInitialGrid();
+            renderGrid();
+            setupPreviewBar();
+            if (gameOverModal) {
+                gameOverModal.classList.add('opacity-0', 'pointer-events-none', 'scale-95');
+            }
+            startPreviewTimer();
+            unlockGame();
+        }
+
+        function setupAudio() {
+            if (typeof Tone === 'undefined') return;
+            if (Tone.context.state !== 'running') Tone.start();
+            matchSynth = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'fmsine' }, envelope: { attack: 0.01, decay: 0.2, release: 0.1 } }).toDestination();
+            slideSynth = new Tone.Synth({ oscillator: { type: 'sine' }, volume: -10, envelope: { attack: 0.01, decay: 0.1, release: 0.1 } }).toDestination();
+            gameOverSynth = new Tone.Synth({ oscillator: { type: 'fatsawtooth' }, envelope: { attack: 0.1, decay: 0.5, release: 1 } }).toDestination();
+            dropSynth = new Tone.MembraneSynth({ envelope: { attack: 0.01, decay: 0.3, release: 0.2 } }).toDestination();
+        }
+
+        function createInitialGrid() {
+            grid = [];
+            const startRow = Math.floor(GRID_HEIGHT * 2 / 3);
+            for (let y = 0; y < GRID_HEIGHT; y++) {
+                const row = [];
+                for (let x = 0; x < GRID_WIDTH; x++) {
+                    row.push(y >= startRow ? getRandomColor() : null);
+                }
+                grid.push(row);
+            }
+            while (true) {
+                const matches = findMatches();
+                if (matches.length === 0) break;
+                matches.forEach(({x, y}) => {
+                    let newColor;
+                    do { newColor = getRandomColor(); } while (newColor === grid[y][x]);
+                    grid[y][x] = newColor;
+                });
+            }
         }
         
-        // Order is important: handle launches, then apply gravity to settled blocks
-        await meteosGame.handleLaunches();
-        await meteosGame.applyGravity();
-        
-        meteosGame.updateBoard();
-
-        if (meteosGame.isGameOver()) {
-            clearInterval(gameState.gameInterval);
-            showWinModal("Game Over", `Final Score: ${gameState.score}`);
-            gameState.isAnimating = false;
-            return;
-        }
-        gameState.isAnimating = false;
-    },
-
-    spawnNewRow: () => {
-        const { width, board, numColors } = gameState;
-        for (let c = 0; c < width; c++) {
-            if (board[c].color === 0) {
-                board[c].color = Math.floor(Math.random() * numColors) + 1;
+        function createAnimationPool() {
+            if (!animationPoolContainer) return;
+            animationPoolContainer.innerHTML = '';
+            animationPool = [];
+            for (let i = 0; i < GRID_WIDTH; i++) {
+                const block = document.createElement('div');
+                block.className = 'block falling-block';
+                animationPoolContainer.appendChild(block);
+                animationPool.push(block);
             }
         }
-    },
 
-    handleDragStart: (e) => {
-        if (gameState.isAnimating) return;
-        e.preventDefault();
-        const target = e.target.closest('.light');
-        if (!target) return;
-
-        const index = parseInt(target.dataset.index);
-        if (gameState.board[index].color === 0) return;
-
-        gameState.dragStart = {
-            index: index,
-            x: e.clientX || e.touches[0].clientX,
-            y: e.clientY || e.touches[0].clientY,
-        };
-
-        window.addEventListener('mousemove', meteosGame.handleDragMove);
-        window.addEventListener('touchmove', meteosGame.handleDragMove, { passive: false });
-        window.addEventListener('mouseup', meteosGame.handleDragEnd, { once: true });
-        window.addEventListener('touchend', meteosGame.handleDragEnd, { once: true });
-    },
-
-    handleDragMove: (e) => {
-        if (!gameState.dragStart) return;
-        const x = e.clientX || e.touches[0].clientX;
-        const y = e.clientY || e.touches[0].clientY;
-        const dx = x - gameState.dragStart.x;
-        const dy = y - gameState.dragStart.y;
-        const threshold = gameBoard.querySelector('.light').offsetHeight * 0.5;
-
-        if (Math.abs(dx) > threshold || Math.abs(dy) > threshold) {
-            let direction;
-            if (Math.abs(dx) > Math.abs(dy)) {
-                direction = dx > 0 ? 'right' : 'left';
-            } else {
-                direction = dy > 0 ? 'down' : 'up';
-            }
-            meteosGame.slideBlock(gameState.dragStart.index, direction);
-            meteosGame.handleDragEnd();
-        }
-    },
-
-    handleDragEnd: () => {
-        window.removeEventListener('mousemove', meteosGame.handleDragMove);
-        window.removeEventListener('touchmove', meteosGame.handleDragMove);
-        gameState.dragStart = null;
-        meteosGame.findAndLaunch();
-    },
-
-    slideBlock: (index, direction) => {
-        const { width, height, board } = gameState;
-        let targetIndex;
-        const r = Math.floor(index / width);
-
-        switch (direction) {
-            case 'up': targetIndex = index - width; if (r === 0) return; break;
-            case 'down': targetIndex = index + width; if (r === height - 1) return; break;
-            case 'left': targetIndex = index - 1; if (index % width === 0) return; break;
-            case 'right': targetIndex = index + 1; if (index % width === width - 1) return; break;
+        function getRandomColor() {
+            return COLORS[Math.floor(Math.random() * COLORS.length)];
         }
 
-        if (targetIndex >= 0 && targetIndex < width * height) {
-            [board[index], board[targetIndex]] = [board[targetIndex], board[index]];
-            playSound('C3', '32n');
-            meteosGame.updateBoard();
-        }
-    },
-
-    findAndLaunch: async () => {
-        let matchedIndices = meteosGame.findMatches();
-        if (matchedIndices.size > 0) {
-            gameState.score += matchedIndices.size * 10;
-            updateStats(`Score: ${gameState.score}`);
-
-            meteosGame.initiateLaunch(matchedIndices);
-
-            for (const index of matchedIndices) {
-                gameState.board[index].color = 0;
-            }
-            // A small delay to let the visual update of removed blocks happen
-            await delay(50); 
-        }
-    },
-
-    findMatches: () => {
-        const { width, height, board } = gameState;
-        const matches = new Set();
-        const checkMatch = (indices) => {
-            const firstColor = board[indices[0]].color;
-            if (firstColor === 0) return;
-            if (indices.every(i => board[i].color === firstColor && !board[i].isLaunching)) {
-                indices.forEach(i => matches.add(i));
-            }
-        };
-
-        for (let r = 0; r < height; r++) {
-            for (let c = 0; c < width - 2; c++) {
-                checkMatch([r * width + c, r * width + c + 1, r * width + c + 2]);
-            }
-        }
-        for (let c = 0; c < width; c++) {
-            for (let r = 0; r < height - 2; r++) {
-                checkMatch([r * width + c, (r + 1) * width + c, (r + 2) * width + c]);
-            }
-        }
-        return matches;
-    },
-
-    initiateLaunch: (matchedIndices) => {
-        const { width, board } = gameState;
-        const columnsData = new Map();
-
-        for (const index of matchedIndices) {
-            const col = index % width;
-            const row = Math.floor(index / width);
-            if (!columnsData.has(col)) {
-                columnsData.set(col, { launchPower: 0, highestMatchRow: gameState.height });
-            }
-            columnsData.get(col).launchPower++;
-            columnsData.get(col).highestMatchRow = Math.min(columnsData.get(col).highestMatchRow, row);
-        }
-
-        for (const [col, data] of columnsData.entries()) {
-            const blocksToLaunch = [];
-            for (let r = data.highestMatchRow - 1; r >= 0; r--) {
-                const blockIndex = r * width + col;
-                if (board[blockIndex].color !== 0) {
-                    blocksToLaunch.push(board[blockIndex]);
-                }
-            }
-
-            const stackWeight = blocksToLaunch.length;
-            if (data.launchPower >= stackWeight && stackWeight > 0) {
-                playSound('A4', '8n');
-                for (const block of blocksToLaunch) {
-                    block.isLaunching = true;
-                    // Give a strong initial upward velocity
-                    block.velocityY = -data.launchPower * meteosGame.LAUNCH_MULTIPLIER;
-                }
-            } else if (stackWeight > 0) {
-                playSound('C2', '8n');
-            }
-        }
-    },
-    
-    applyGravity: async () => {
-        const { width, height, board } = gameState;
-        let boardChanged = false;
-
-        for (let c = 0; c < width; c++) {
-            let lowestEmptyRow = -1;
-            for (let r = height - 1; r >= 0; r--) {
-                const block = board[r * width + c];
-                if (block.color === 0 && !block.isLaunching) {
-                    lowestEmptyRow = r;
-                    break;
-                }
-            }
-
-            if (lowestEmptyRow === -1) continue;
-
-            for (let r = lowestEmptyRow - 1; r >= 0; r--) {
-                const currentIndex = r * width + c;
-                const currentBlock = board[currentIndex];
-
-                if (currentBlock.color !== 0 && !currentBlock.isLaunching) {
-                    const targetIndex = lowestEmptyRow * width + c;
-                    board[targetIndex] = currentBlock;
-                    board[currentIndex] = { color: 0, isLaunching: false, yOffset: 0, velocityY: 0, launchPower: 0 };
-                    boardChanged = true;
-                    lowestEmptyRow--;
-                }
-            }
-        }
-        if (boardChanged) {
-            await delay(50); // Short delay for animation
-            await meteosGame.applyGravity();
-        }
-    },
-
-    handleLaunches: async () => {
-        const { board, width, height } = gameState;
-        const blockHeight = gameBoard.querySelector('.light').offsetHeight;
-
-        for (let i = 0; i < board.length; i++) {
-            const block = board[i];
-            if (block.isLaunching) {
-                // Apply gravity to the block's velocity
-                block.velocityY += meteosGame.GRAVITY;
-                // Update the block's visual offset
-                block.yOffset += block.velocityY;
-
-                // If block flies off the top of the screen, remove it
-                if (block.yOffset < -blockHeight) {
-                    Object.assign(board[i], { color: 0, isLaunching: false, yOffset: 0, velocityY: 0, launchPower: 0 });
-                    gameState.score += 50;
-                    updateStats(`Score: ${gameState.score}`);
-                    playSound('A5', '16n');
-                }
-                // If the block is falling back down and hits the "floor" or another block
-                else if (block.velocityY > 0 && block.yOffset >= 0) {
-                    block.isLaunching = false;
-                    block.yOffset = 0;
-                    block.velocityY = 0;
-                    // The main applyGravity function will handle settling it into the grid.
-                }
-            }
-        }
-    },
-
-    updateBoard: () => {
-        const lights = gameBoard.querySelectorAll('.light');
-        lights.forEach((light, i) => {
-            const block = gameState.board[i];
-            const inner = light.querySelector('.light-inner');
+        // --- RENDERING & UI ---
+        function renderGrid() {
+            if (!gridContainer) return;
+            gridContainer.innerHTML = '';
+            const gridRect = gridContainer.getBoundingClientRect();
+            cellWidth = (gridRect.width - (GRID_WIDTH + 1) * 4) / GRID_WIDTH;
+            cellHeight = (gridRect.height - (GRID_HEIGHT + 1) * 4) / GRID_HEIGHT;
             
-            const newClassName = `light-inner color-${block.color}`;
-            if (inner.className !== newClassName) {
-                inner.className = newClassName;
-            }
+            grid.forEach((row, y) => {
+                row.forEach((color, x) => {
+                    if (color) {
+                        const block = document.createElement('div');
+                        block.classList.add('block');
+                        block.style.backgroundColor = color;
+                        block.style.width = `${cellWidth}px`;
+                        block.style.height = `${cellHeight}px`;
+                        block.style.transform = `translate(${x * (cellWidth + 4)}px, ${y * (cellHeight + 4)}px)`;
+                        block.dataset.x = x;
+                        block.dataset.y = y;
+                        block.addEventListener('mousedown', handleDragStart);
+                        block.addEventListener('touchstart', handleDragStart, { passive: false });
+                        gridContainer.appendChild(block);
+                    }
+                });
+            });
+        }
 
-            inner.style.transform = `translateY(${block.yOffset}px)`;
-        });
-    },
-
-    isGameOver: () => {
-        const { width, height, board } = gameState;
-        for (let c = 0; c < width; c++) {
-            let isColumnFull = true;
-            for (let r = 0; r < height; r++) {
-                const block = board[r * width + c];
-                // A column is only "full" if all blocks are settled
-                if (block.color === 0 || block.isLaunching) {
-                    isColumnFull = false;
-                    break;
-                }
-            }
-            if (isColumnFull) {
-                return true;
+        function setupPreviewBar() {
+            if (!previewBar) return;
+            previewBar.innerHTML = '';
+            previewBar.style.gridTemplateColumns = `repeat(${GRID_WIDTH}, 1fr)`;
+            previewRow = Array(GRID_WIDTH).fill(null);
+            previewIndex = 0;
+            for (let i = 0; i < GRID_WIDTH; i++) {
+                const block = document.createElement('div');
+                block.classList.add('preview-block');
+                previewBar.appendChild(block);
             }
         }
-        return false;
+
+        function updatePreviewBar() {
+            if (!previewBar) return;
+            const previewBlocks = previewBar.children;
+            for (let i = 0; i < GRID_WIDTH; i++) {
+                if(previewBlocks[i]) {
+                    previewBlocks[i].style.backgroundColor = previewRow[i] || '#4a5568';
+                }
+            }
+        }
+
+        // --- DRAG AND SLIDE LOGIC (TACTILE COLOR SWAP) ---
+        function handleDragStart(e) {
+            if (isProcessing || isGameOver) return;
+            e.preventDefault();
+            lockGame();
+
+            const element = e.target;
+            const startX = parseInt(element.dataset.x);
+            const startY = parseInt(element.dataset.y);
+            
+            const allBlocks = gridContainer.querySelectorAll('.block');
+            allBlocks.forEach(el => el.style.transition = 'transform 0.2s ease, opacity 0.25s ease');
+            
+            dragState = {
+                element,
+                startX,
+                startY,
+                gridRect: gridContainer.getBoundingClientRect(),
+                lock: null,
+                lastTargetX: startX,
+                lastTargetY: startY,
+            };
+
+            element.classList.add('dragging-origin');
+            document.addEventListener('mousemove', handleDragMove);
+            document.addEventListener('touchmove', handleDragMove, { passive: false });
+            document.addEventListener('mouseup', handleDragEnd);
+            document.addEventListener('touchend', handleDragEnd);
+        }
+
+        function handleDragMove(e) {
+            if (!dragState.element) return;
+            e.preventDefault();
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+
+            if (!dragState.lock) {
+                const startEl = gridContainer.querySelector(`[data-x='${dragState.startX}'][data-y='${dragState.startY}']`);
+                if(startEl) {
+                    const startRect = startEl.getBoundingClientRect();
+                    const dx = Math.abs(clientX - (startRect.left + startRect.width / 2));
+                    const dy = Math.abs(clientY - (startRect.top + startRect.height / 2));
+                    if (dx > DRAG_LOCK_THRESHOLD || dy > DRAG_LOCK_THRESHOLD) {
+                        dragState.lock = dx > dy ? 'horizontal' : 'vertical';
+                    }
+                }
+            }
+            
+            updateVisualSwap(clientX, clientY);
+        }
+        
+        function updateVisualSwap(clientX, clientY) {
+            const { gridRect, startX, startY, lock, lastTargetX, lastTargetY } = dragState;
+            
+            let targetX = Math.round((clientX - gridRect.left) / (cellWidth + 4));
+            let targetY = Math.round((clientY - gridRect.top) / (cellHeight + 4));
+            targetX = Math.max(0, Math.min(GRID_WIDTH - 1, targetX));
+            targetY = Math.max(0, Math.min(GRID_HEIGHT - 1, targetY));
+
+            if (lock === 'horizontal') {
+                targetY = startY;
+                let leftOfStack = 0;
+                while(grid[startY][leftOfStack] === null && leftOfStack < GRID_WIDTH -1) leftOfStack++;
+                let rightOfStack = GRID_WIDTH - 1;
+                while(grid[startY][rightOfStack] === null && rightOfStack > 0) rightOfStack--;
+                targetX = Math.max(leftOfStack, Math.min(targetX, rightOfStack));
+            } else if (lock === 'vertical') {
+                targetX = startX;
+                let topOfStack = 0;
+                while(grid[topOfStack][startX] === null && topOfStack < GRID_HEIGHT -1) topOfStack++;
+                let bottomOfStack = GRID_HEIGHT - 1;
+                while(grid[bottomOfStack][startX] === null && bottomOfStack > 0) bottomOfStack--;
+                targetY = Math.max(topOfStack, Math.min(targetY, bottomOfStack));
+            } else {
+                return;
+            }
+
+            if (targetX === lastTargetX && targetY === lastTargetY) return;
+            dragState.lastTargetX = targetX;
+            dragState.lastTargetY = targetY;
+
+            if (lock === 'horizontal') {
+                const rowElements = Array.from(gridContainer.querySelectorAll(`[data-y='${startY}']`))
+                    .sort((a,b) => parseInt(a.dataset.x) - parseInt(b.dataset.x));
+                const rowData = grid[startY].filter(Boolean);
+                const leftOfStack = parseInt(rowElements[0].dataset.x);
+
+                const tempColors = [...rowData];
+                const movedColor = tempColors.splice(startX - leftOfStack, 1)[0];
+                tempColors.splice(targetX - leftOfStack, 0, movedColor);
+                rowElements.forEach((el, index) => {
+                    el.style.backgroundColor = tempColors[index];
+                });
+            } else if (lock === 'vertical') {
+                const columnElements = Array.from(gridContainer.querySelectorAll(`[data-x='${startX}']`))
+                    .sort((a, b) => parseInt(a.dataset.y) - parseInt(b.dataset.y));
+                const columnData = grid.map(row => row[startX]).filter(Boolean);
+                const topOfStack = parseInt(columnElements[0].dataset.y);
+                
+                const tempColors = [...columnData];
+                const movedColor = tempColors.splice(startY - topOfStack, 1)[0];
+                tempColors.splice(targetY - topOfStack, 0, movedColor);
+                columnElements.forEach((el, index) => {
+                    el.style.backgroundColor = tempColors[index];
+                });
+            }
+        }
+
+        async function handleDragEnd() {
+            if (!dragState.element) return;
+            lockGame();
+            
+            const { element, startX, startY, lastTargetX, lastTargetY, lock } = dragState;
+
+            element.classList.remove('dragging-origin');
+            
+            document.removeEventListener('mousemove', handleDragMove);
+            document.removeEventListener('touchmove', handleDragMove);
+            document.removeEventListener('mouseup', handleDragEnd);
+            document.removeEventListener('touchend', handleDragEnd);
+
+            if (lock && (startX !== lastTargetX || startY !== lastTargetY)) {
+                await processMove(startX, startY, lastTargetX, lastTargetY, lock);
+            } else {
+                renderGrid();
+            }
+            
+            dragState = {};
+            unlockGame();
+        }
+
+        // --- CORE GAME LOGIC ---
+        async function processMove(x1, y1, x2, y2, lock) {
+            if (slideSynth) slideSynth.triggerAttackRelease('C4', '8n');
+
+            if (lock === 'horizontal') {
+                const movedColor = grid[y1][x1];
+                let rowData = grid[y1];
+                rowData.splice(x1, 1);
+                rowData.splice(x2, 0, movedColor);
+            } else if (lock === 'vertical') {
+                const movedColor = grid[y1][x1];
+                let columnData = grid.map(row => row[x1]);
+                columnData.splice(y1, 1);
+                columnData.splice(y2, 0, movedColor);
+                columnData.forEach((c, i) => grid[i][x1] = c);
+            }
+
+            renderGrid();
+            await requestNextFrame();
+            await handleMatches();
+        }
+
+        async function handleMatches() {
+            let chain = 0;
+            while (true) {
+                const matches = findMatches();
+                if (matches.length === 0) break;
+                
+                chain++;
+                score += matches.length * 10 * chain;
+                updateScore();
+                if (matchSynth) matchSynth.triggerAttackRelease(Tone.Frequency('C4').transpose(chain * 2).toNote(), '8n');
+
+                matches.forEach(({ x, y }) => {
+                    const blockEl = gridContainer.querySelector(`[data-x='${x}'][data-y='${y}']`);
+                    if (blockEl) blockEl.classList.add('collapsing');
+                    grid[y][x] = null;
+                });
+                
+                await wait(ANIMATION_DELAY);
+                applyGravity();
+                renderGrid();
+                await wait(ANIMATION_DELAY);
+            }
+        }
+
+        function findMatches() {
+            const toRemove = new Set();
+            for (let y = 0; y < GRID_HEIGHT; y++) for (let x = 0; x < GRID_WIDTH - 2; x++) {
+                const c = grid[y][x]; if (c && c === grid[y][x+1] && c === grid[y][x+2]) {
+                let i=x; while(i<GRID_WIDTH && grid[y][i]===c) toRemove.add(`${i++},${y}`); }}
+            for (let x = 0; x < GRID_WIDTH; x++) for (let y = 0; y < GRID_HEIGHT - 2; y++) {
+                const c = grid[y][x]; if (c && c === grid[y+1][x] && c === grid[y+2][x]) {
+                let i=y; while(i<GRID_HEIGHT && grid[i][x]===c) toRemove.add(`${x},${i++}`); }}
+            return Array.from(toRemove).map(s => ({ x: parseInt(s.split(',')[0]), y: parseInt(s.split(',')[1]) }));
+        }
+
+        function applyGravity() {
+            for (let x = 0; x < GRID_WIDTH; x++) {
+                const column = grid.map(row => row[x]).filter(Boolean);
+                for (let y = GRID_HEIGHT - 1; y >= 0; y--) {
+                    grid[y][x] = (GRID_HEIGHT - 1 - y < column.length) ? column[column.length - (GRID_HEIGHT - y)] : null;
+                }
+            }
+        }
+
+        // --- TIMERS AND BLOCK DROPPING ---
+        function startPreviewTimer() {
+            clearInterval(meteosGame.previewTimer);
+            meteosGame.previewTimer = setInterval(addBlockToPreview, previewBlockIntervalMs);
+        }
+
+        function addBlockToPreview() {
+            if (isGameOver || isProcessing) return;
+            if (previewIndex >= GRID_WIDTH) {
+                clearInterval(meteosGame.previewTimer);
+                requestAnimationFrame(dropPreviewRow);
+                return;
+            }
+            
+            previewRow[previewIndex] = getRandomColor();
+            updatePreviewBar();
+            previewIndex++;
+        }
+
+        async function dropPreviewRow() {
+            if (isProcessing || isGameOver) return;
+            lockGame();
+            
+            if (grid[0].some(cell => cell !== null)) {
+                endGame();
+                unlockGame();
+                return;
+            }
+            
+            if (dropSynth) dropSynth.triggerAttackRelease('G2', '8n');
+
+            const fallingBlocks = [];
+            
+            for (let x = 0; x < GRID_WIDTH; x++) {
+                if (!previewRow[x]) continue;
+
+                const block = animationPool[x];
+                if (!block || !gridContainer) continue;
+                gridContainer.appendChild(block);
+                
+                const initialX = x * (cellWidth + 4);
+                block.style.backgroundColor = previewRow[x];
+                block.style.width = `${cellWidth}px`;
+                block.style.height = `${cellHeight}px`;
+                block.style.transform = `translate(${initialX}px, -${cellHeight}px)`;
+                
+                let targetY = GRID_HEIGHT - 1;
+                while(grid[targetY][x] !== null && targetY > 0) {
+                    targetY--;
+                }
+                fallingBlocks.push({ element: block, targetX: initialX, targetY: targetY * (cellHeight + 4) });
+            }
+            
+            await requestNextFrame();
+
+            fallingBlocks.forEach(fb => {
+                fb.element.style.transform = `translate(${fb.targetX}px, ${fb.targetY}px)`;
+            });
+            
+            await wait(FALL_ANIMATION_DURATION);
+            
+            fallingBlocks.forEach(fb => animationPoolContainer.appendChild(fb.element));
+
+            for (let x = 0; x < GRID_WIDTH; x++) {
+                if (previewRow[x]) {
+                    let landingY = -1;
+                    for(let y = GRID_HEIGHT - 1; y >= 0; y--) {
+                        if(grid[y][x] === null) {
+                            landingY = y;
+                            break;
+                        }
+                    }
+                    if (landingY !== -1) {
+                        grid[landingY][x] = previewRow[x];
+                    }
+                }
+            }
+            
+            renderGrid();
+            setupPreviewBar();
+            
+            if (previewBlockIntervalMs > MIN_PREVIEW_INTERVAL) {
+                previewBlockIntervalMs -= INTERVAL_DECREMENT;
+            }
+
+            await handleMatches();
+            
+            if (!isGameOver) {
+                startPreviewTimer();
+            }
+            unlockGame();
+        }
+
+        // --- GAME STATE MANAGEMENT ---
+        function updateScore() { if(scoreDisplay) scoreDisplay.textContent = score; }
+
+        function endGame() {
+            if (isGameOver) return;
+            isGameOver = true;
+            if (gameOverSynth) gameOverSynth.triggerAttackRelease('C2', '1n');
+            clearInterval(meteosGame.previewTimer);
+            if(finalScoreDisplay) finalScoreDisplay.textContent = score;
+            if(gameOverModal) gameOverModal.classList.remove('opacity-0', 'pointer-events-none', 'scale-95');
+        }
+
+        if (restartButton) {
+            restartButton.addEventListener('click', () => {
+                if (typeof Tone !== 'undefined' && Tone.context.state !== 'running') Tone.context.resume();
+                init();
+            });
+        }
+        
+        // --- INITIAL LOAD ---
+        setupAudio();
+        createAnimationPool();
+        init();
     }
 };

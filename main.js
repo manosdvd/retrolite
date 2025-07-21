@@ -6,6 +6,48 @@ let synth;
 const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
 const P1 = 1, P2 = -1, EMPTY = 0, AI = -1, HUMAN = 1;
 
+const utils = {
+    shuffleArray: (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    },
+    getNeighbors: (i, rows, cols) => {
+        const neighbors = [];
+        const r = Math.floor(i / cols), c = i % cols;
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) neighbors.push(nr * cols + nc);
+        }
+        return neighbors;
+    },
+    getSliderNeighbors: (index, size) => {
+        const neighbors = [];
+        const row = Math.floor(index / size), col = index % size;
+        if (row > 0) neighbors.push(index - size);
+        if (row < size - 1) neighbors.push(index + size);
+        if (col > 0) neighbors.push(index - 1);
+        if (col < size - 1) neighbors.push(index + 1);
+        return neighbors;
+    },
+    isDraw: (board) => !board.includes(EMPTY),
+    checkWin: (board, player, winLines) => {
+        const line = winLines.find(line => line.every(index => board[index] === player));
+        return line ? { line } : null;
+    },
+    checkConnectWin: (board, player) => {
+        const W = 7, H = 6;
+        for (let r = 0; r < H; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[r*W+c+1]===player && board[r*W+c+2]===player && board[r*W+c+3]===player) return true;
+        for (let r = 0; r <= H - 4; r++) for (let c = 0; c < W; c++) if (board[r*W+c]===player && board[(r+1)*W+c]===player && board[(r+2)*W+c]===player && board[(r+3)*W+c]===player) return true;
+        for (let r = 0; r <= H - 4; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[(r+1)*W+c+1]===player && board[(r+2)*W+c+2]===player && board[(r+3)*W+c+3]===player) return true;
+        for (let r = 3; r < H; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[(r-1)*W+c+1]===player && board[(r-2)*W+c+2]===player && board[(r-3)*W+c+3]===player) return true;
+        return false;
+    }
+};
+
 const gameModes = {
     lightPuzzle: { name: 'lightPuzzle', title: 'LIGHTS OUT', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171' },
     magicSquare: { name: 'magicSquare', title: 'MAGIC SQUARE', rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa' },
@@ -19,7 +61,7 @@ const gameModes = {
     minefield: { name: 'minefield', title: 'MINEFIELD', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af' },
     fourInARow: { name: 'fourInARow', title: 'CONNECT 4', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6' },
     colorConnect: { name: 'colorConnect', title: 'COLOR LINK', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf' },
-    meteos: { name: 'meteos', title: 'METEOS', rules: 'Launch blocks by matching 3.', gridRows: 10, gridCols: 7, setup: meteosGame.setup, handler: null, cleanup: meteosGame.cleanup, color: '#f43f5e', shadow: '#fb7185' },
+    meteos: { name: 'meteos', title: 'ANXIETY', rules: 'Match 3+ blocks to clear them.', setup: meteosGame.setup, handler: null, cleanup: meteosGame.cleanup, color: '#06b6d4', shadow: '#22d3ee' },
     spellingBee: { name: 'spellingBee', title: 'SPELLING', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup.bind(spellingBeeGame), handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
     decryptGame: { name: 'decryptGame', title: 'CIPHER', setup: decryptGame.setup.bind(decryptGame), handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
     gauntlet: { name: 'gauntlet', title: 'GAUNTLET', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047'}
@@ -34,14 +76,11 @@ const gauntlet = {
         this.isActive = true;
         this.score = 0;
         this.availableGames = Object.keys(gameModes).filter(k => k !== 'musicMachine' && k !== 'gauntlet');
-        this.shuffleGames();
+        utils.shuffleArray(this.availableGames);
         this.nextGame();
     },
     shuffleGames: function() {
-        for (let i = this.availableGames.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [this.availableGames[i], this.availableGames[j]] = [this.availableGames[j], this.availableGames[i]];
-        }
+        utils.shuffleArray(this.availableGames);
     },
     nextGame: function() {
         if (!this.isActive) return;
@@ -110,6 +149,7 @@ function createModal(id, title, content, buttonText, onButtonClick) {
     modal.className = 'modal-backdrop';
     modal.innerHTML = `
         <div class="modal-content">
+            <div class="confetti-container"></div>
             <h2 class="text-4xl font-bold mb-4">${title}</h2>
             <div id="${id}-content" class="text-lg mb-6">${content}</div>
             <button id="${id}-button" class="control-button btn-red">${buttonText}</button>
@@ -124,31 +164,23 @@ function showWinModal(title, message) {
         winModal.remove();
         if (currentMode) startGame(currentMode);
     });
-    setTimeout(() => winModal.classList.add('is-visible'), 10);
-}
-function getNeighbors(i, rows, cols) {
-    const neighbors = [];
-    const r = Math.floor(i / cols), c = i % cols;
-    for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
-        if (dr === 0 && dc === 0) continue;
-        const nr = r + dr, nc = c + dc;
-        if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) neighbors.push(nr * cols + nc);
+    
+    if(title.toLowerCase().includes('win')) {
+        const confettiContainer = winModal.querySelector('.confetti-container');
+        for (let i = 0; i < 50; i++) {
+            const confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = `${Math.random() * 100}%`;
+            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+            confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+            confetti.style.animationDelay = `${Math.random() * 2}s`;
+            confettiContainer.appendChild(confetti);
+        }
+    } else {
+        winModal.querySelector('.modal-content').classList.add('shake');
     }
-    return neighbors;
-}
-function getSliderNeighbors(index, size) {
-    const neighbors = [];
-    const row = Math.floor(index / size), col = index % size;
-    if (row > 0) neighbors.push(index - size);
-    if (row < size - 1) neighbors.push(index + size);
-    if (col > 0) neighbors.push(index - 1);
-    if (col < size - 1) neighbors.push(index + 1);
-    return neighbors;
-}
-function isDraw(board) { return !board.includes(EMPTY); }
-function checkWin(board, player, winLines) {
-    const line = winLines.find(line => line.every(index => board[index] === player));
-    return line ? { line } : null;
+
+    setTimeout(() => winModal.classList.add('is-visible'), 10);
 }
 function getValidColumns(board) {
     const W = 7;
@@ -159,14 +191,6 @@ function getValidColumns(board) {
         }
     }
     return validCols;
-}
-function checkConnectWin(board, player) {
-    const W = 7, H = 6;
-    for (let r = 0; r < H; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[r*W+c+1]===player && board[r*W+c+2]===player && board[r*W+c+3]===player) return true;
-    for (let r = 0; r <= H - 4; r++) for (let c = 0; c < W; c++) if (board[r*W+c]===player && board[(r+1)*W+c]===player && board[(r+2)*W+c]===player && board[(r+3)*W+c]===player) return true;
-    for (let r = 0; r <= H - 4; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[(r+1)*W+c+1]===player && board[(r+2)*W+c+2]===player && board[(r+3)*W+c+3]===player) return true;
-    for (let r = 3; r < H; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[(r-1)*W+c+1]===player && board[(r-2)*W+c+2]===player && board[(r-3)*W+c+3]===player) return true;
-    return false;
 }
 
 // --- Main Application Logic ---
@@ -278,7 +302,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             gameBoard.classList.toggle('large-grid', cols > 5 || rows > 5);
         
-            if (mode.name !== 'minefield' && mode.name !== 'wordGuess' && mode.name !== 'lightMatch' && mode.name !== 'meteos') {
+            if (mode.name !== 'minefield' && mode.name !== 'wordGuess' && mode.name !== 'lightMatch' && mode.name !== 'meteos' && mode.name !== 'colorConnect' && mode.name !== 'decryptGame') {
                 const fragment = document.createDocumentFragment();
                 for (let i = 0; i < rows * cols; i++) {
                     const light = document.createElement('div');

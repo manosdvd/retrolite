@@ -31,7 +31,7 @@ const minefieldGame = {
         gameState.board = Array(width * height).fill(0);
         gameState.revealed = Array(width * height).fill(false);
         gameState.flagged = Array(width * height).fill(false);
-        const safeZone = [firstClickIndex, ...getNeighbors(firstClickIndex, height, width)];
+        const safeZone = [firstClickIndex, ...utils.getNeighbors(firstClickIndex, height, width)];
         let minesPlaced = 0;
         while (minesPlaced < mines) {
             const index = Math.floor(Math.random() * width * height);
@@ -42,7 +42,7 @@ const minefieldGame = {
         }
         for (let i = 0; i < width * height; i++) {
             if (gameState.board[i] !== 'M') {
-                gameState.board[i] = getNeighbors(i, height, width).filter(n => gameState.board[n] === 'M').length;
+                gameState.board[i] = utils.getNeighbors(i, height, width).filter(n => gameState.board[n] === 'M').length;
             }
         }
         gameState.firstClick = false;
@@ -73,7 +73,7 @@ const minefieldGame = {
         minefieldGame.checkWin();
     },
     chord: (index) => {
-        const neighbors = getNeighbors(index, gameState.height, gameState.width);
+        const neighbors = utils.getNeighbors(index, gameState.height, gameState.width);
         const flaggedNeighbors = neighbors.filter(n => gameState.flagged[n]).length;
         if (flaggedNeighbors === gameState.board[index]) {
             neighbors.forEach(n => {
@@ -91,7 +91,7 @@ const minefieldGame = {
             if (current < 0 || current >= height * width || gameState.revealed[current] || gameState.flagged[current]) continue;
             gameState.revealed[current] = true;
             if (gameState.board[current] === 0) {
-                stack.push(...getNeighbors(current, height, width));
+                stack.push(...utils.getNeighbors(current, height, width));
             }
         }
     },

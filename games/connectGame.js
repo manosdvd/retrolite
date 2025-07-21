@@ -46,11 +46,11 @@ const connectGame = {
         gameState.board[index] = player;
         playSound(player === HUMAN ? 'C4' : 'G3');
         connectGame.updateBoard();
-        if (checkConnectWin(gameState.board, player)) {
+        if (utils.checkConnectWin(gameState.board, player)) {
             gameState.gameOver = true;
             gameStatus.textContent = player === HUMAN ? "You Win!" : "AI Wins!";
             connectGame.addNewGameButton();
-        } else if (isDraw(gameState.board)) {
+        } else if (utils.isDraw(gameState.board)) {
             gameState.gameOver = true;
             gameStatus.textContent = "It's a Draw!";
             connectGame.addNewGameButton();

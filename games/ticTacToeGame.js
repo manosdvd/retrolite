@@ -36,10 +36,10 @@ const ticTacToeGame = {
         gameState.board[index] = player;
         playSound(player === HUMAN ? 'C4' : 'G3');
         ticTacToeGame.updateBoard();
-        const winInfo = checkWin(gameState.board, player, gameState.winLines);
+        const winInfo = utils.checkWin(gameState.board, player, gameState.winLines);
         if (winInfo) {
             ticTacToeGame.end(`${player === P1 ? 'Player 1' : 'CPU'} Wins!`, winInfo.line);
-        } else if (isDraw(gameState.board)) {
+        } else if (utils.isDraw(gameState.board)) {
             ticTacToeGame.end("It's a Draw!");
         } else {
             gameState.currentPlayer *= -1;
@@ -71,7 +71,7 @@ const ticTacToeGame = {
         const score = ticTacToeGame.evaluate(board);
         if (score === 10) return score - depth;
         if (score === -10) return score + depth;
-        if (isDraw(board)) return 0;
+        if (utils.isDraw(board)) return 0;
 
         if (isMax) {
             let best = -Infinity;

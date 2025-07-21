@@ -9,10 +9,7 @@ const blackjackGame = {
             gameState.deck.push(10, 10, 10); // J, Q, K
         }
         // Shuffle deck
-        for (let i = gameState.deck.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [gameState.deck[i], gameState.deck[j]] = [gameState.deck[j], gameState.deck[i]];
-        }
+        utils.shuffleArray(gameState.deck);
 
         const hitButton = createControlButton('Hit', 'btn-blue', blackjackGame.hit);
         const standButton = createControlButton('Stand', 'btn-yellow', blackjackGame.stand);
