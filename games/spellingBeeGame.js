@@ -21,10 +21,10 @@ const spellingBeeGame = {
 
     // Musical note mapping for keyboard input
     noteMap: {
-        'a': 'C4', 'b': 'D4', 'c': 'E4', 'd': 'F4', 'e': 'G4', 'f': 'A4', 'g': 'B4', 
-        'h': 'C5', 'i': 'D5', 'j': 'E5', 'k': 'F5', 'l': 'G5', 'm': 'A5', 'n': 'B5',
-        'o': 'C6', 'p': 'D6', 'q': 'E6', 'r': 'F6', 's': 'G6', 't': 'A6', 'u': 'B6',
-        'v': 'C7', 'w': 'D7', 'x': 'E7', 'y': 'F7', 'z': 'G7'
+        'a': 'C3', 'b': 'D3', 'c': 'E3', 'd': 'F3', 'e': 'G3', 'f': 'A3', 'g': 'B3', 
+        'h': 'C4', 'i': 'D4', 'j': 'E4', 'k': 'F4', 'l': 'G4', 'm': 'A4', 'n': 'B4',
+        'o': 'C4', 'p': 'D4', 'q': 'E4', 'r': 'F4', 's': 'G4', 't': 'A4', 'u': 'B4',
+        'v': 'C4', 'w': 'D4', 'x': 'E4', 'y': 'F4', 'z': 'G4'
     },
 
     // Event handler for physical keyboard input
@@ -208,6 +208,12 @@ const spellingBeeGame = {
     handleKeyboardInput: function(key) {
         if (spellingBeeGame.wordInput.readOnly) return;
         let currentValue = spellingBeeGame.wordInput.value;
+
+        // Add haptic feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(50); // Vibrate for 50ms
+        }
+
         if (key === 'Backspace') {
             spellingBeeGame.wordInput.value = currentValue.slice(0, -1);
             playSound('C3', '8n'); // Play a low tone for backspace
@@ -226,6 +232,7 @@ const spellingBeeGame = {
 
     createKeyboard: function() {
         keyboardContainer.innerHTML = ''; 
+        keyboardContainer.classList.add('keyboard'); // Add the keyboard class
         const keys = [
             ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
             ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],

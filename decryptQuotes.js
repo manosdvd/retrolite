@@ -1063,13 +1063,7 @@ const decryptQuotes = [
         source: "Jack Torrance, from The Shining (Stephen King)",
         notes: "A chilling ad-libbed line from a classic horror movie."
     },
-    {
-        id: 148,
-        quote: "COOL COOL COOL",
-        title: "Abed's Catchphrase",
-        source: "Abed Nadir, from Community (Dan Harmon)",
-        notes: "The go-to phrase of a pop-culture obsessed character."
-    },
+    
     {
         id: 149,
         quote: "WE HAVE DONE THE IMPOSSIBLE AND THAT MAKES US MIGHTY",

@@ -4,6 +4,19 @@ const lineDrawGame = {
         const puzzle = lineDrawGame.generatePuzzle(size);
         gameState = { size, board: Array(size * size).fill(0), pairs: puzzle.pairs, paths: {}, isDrawing: false, currentColor: 0, startNode: -1 };
         puzzle.pairs.forEach(p => { gameState.paths[p.c] = []; });
+
+        // --- FIX: Dynamically create the grid elements ---
+        gameBoard.innerHTML = ''; // Clear existing content
+        gameBoard.className = 'game-grid'; // Ensure base grid styling
+        gameBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        for (let i = 0; i < size * size; i++) {
+            const light = document.createElement('div');
+            light.classList.add('light');
+            light.dataset.index = i;
+            gameBoard.appendChild(light);
+        }
+        // --- END FIX ---
+
         lineDrawGame.updateBoard();
         gameBoard.addEventListener('mousedown', lineDrawGame.handleMouseDown);
         window.addEventListener('mousemove', lineDrawGame.handleMouseMove);
@@ -122,7 +135,7 @@ const lineDrawGame = {
     updateBoard: () => {
         const lights = gameBoard.querySelectorAll('.light');
         lights.forEach((light, i) => {
-            light.className = 'light';
+            light.className = 'light'; // Reset classes
             const pair = gameState.pairs.find(p => p.s === i || p.e === i);
             const pathColor = gameState.board[i];
             if (pair) light.classList.add(`color-${pair.c}`, 'line-dot');

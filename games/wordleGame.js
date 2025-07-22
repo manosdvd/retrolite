@@ -22,6 +22,7 @@ const wordleGame = {
         setTimeout(wordleGame.scrollActiveRowIntoView, 100);
     },
     createKeyboard: () => {
+        keyboardContainer.classList.add('keyboard'); // Add the keyboard class
         const keys = [
             ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
             ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
@@ -53,6 +54,12 @@ const wordleGame = {
     handler: (e) => {
         if (gameState.gameOver) return;
         const { key } = e;
+
+        // Add haptic feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(50); // Vibrate for 50ms
+        }
+
         if (key === 'Enter') {
             wordleGame.submitGuess();
         } else if (key === 'Backspace' || key === 'del') {

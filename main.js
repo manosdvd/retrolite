@@ -64,6 +64,26 @@ const gameModes = {
     meteos: { name: 'meteos', title: 'ANXIETY', rules: 'Match 3+ blocks to clear them.', setup: meteosGame.setup, handler: null, cleanup: meteosGame.cleanup, color: '#06b6d4', shadow: '#22d3ee' },
     spellingBee: { name: 'spellingBee', title: 'SPELLING', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup.bind(spellingBeeGame), handler: null, cleanup: spellingBeeGame.cleanup.bind(spellingBeeGame), color: '#4f46e5', shadow: '#6366f1' },
     decryptGame: { name: 'decryptGame', title: 'CIPHER', setup: decryptGame.setup.bind(decryptGame), handler: null, cleanup: decryptGame.cleanup.bind(decryptGame), color: '#3d342a', shadow: '#5c5248' },
+    numberCrunch: { 
+        name: 'numberCrunch', 
+        title: 'NUMBER CRUNCH', 
+        rules: 'Use the numbers and operators to hit the target number.', 
+        gridSize: 4, 
+        setup: numberCrunchGame.setup, 
+        handler: numberCrunchGame.handler, 
+        color: '#fde047', 
+        shadow: '#facc15' 
+    },
+    fractionFlipper: { 
+        name: 'fractionFlipper', 
+        title: 'FRACTION FLIPPER', 
+        rules: 'Add fractions to match the target value.', 
+        setup: fractionFlipperGame.setup.bind(fractionFlipperGame), 
+        handler: null, 
+        color: '#10b981', 
+        shadow: '#34d399' 
+    },
+    
     gauntlet: { name: 'gauntlet', title: 'GAUNTLET', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047'}
 };
 
@@ -275,6 +295,12 @@ document.addEventListener('DOMContentLoaded', () => {
     window.startGame = function(mode) {
         if (currentMode && typeof currentMode.cleanup === 'function') {
             currentMode.cleanup();
+        }
+        
+        // Explicitly remove global gameBoard listeners before replacing the board
+        if (gameBoard) {
+            gameBoard.removeEventListener('click', handleBoardClick);
+            gameBoard.removeEventListener('contextmenu', handleBoardContextMenu);
         }
         
         const newGameBoard = gameBoard.cloneNode(false);

@@ -170,6 +170,12 @@ const decryptGame = {
         const key = e.target.closest('.key');
         if (!key || !this.activeCipherChar) return;
         const plainChar = key.dataset.key;
+
+        // Add haptic feedback
+        if (navigator.vibrate) {
+            navigator.vibrate(50); // Vibrate for 50ms
+        }
+
         if (plainChar === 'Backspace') {
             this.setUserMapping(this.activeCipherChar, '');
         } else if (plainChar.match(/^[A-Z]$/)) {
@@ -224,6 +230,7 @@ const decryptGame = {
 
     createKeyboard: function() {
         this.keyboardContainer.innerHTML = '';
+        this.keyboardContainer.classList.add('keyboard'); // Add the keyboard class
         const keys = [
             ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
             ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
