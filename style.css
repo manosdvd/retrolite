@@ -105,7 +105,7 @@ body {
 .light.is-mine { background-color: #ef4444; }
 .light.is-mine::after { content: ''; font-size: 1.2rem; }
 .light.is-revealed { background-color: #4b5563; color: #fff; cursor: default; }
-.light.is-flagged::after { content: ''; font-size: 1.2rem; }
+.light.is-flagged::after { content: '\01F6A9'; font-size: 1.2rem; }
 .light.is-hidden { background-color: #374151; }
 
 .light.line-dot::before { content: ''; display: block; width: 60%; height: 60%; border-radius: 50%; box-shadow: 0 0 10px #000; transition: transform 0.2s; }
