@@ -22,7 +22,7 @@ const lightMatchGame = {
             for (let i = 0; i < size * size; i++) {
                 gameState.board[i] = Math.floor(Math.random() * numColors) + 1;
             }
-        } while (lightMatchGame.findMatchesInBoard(gameState.board).length > 0);
+        } while (lightMatchGame.findMatchData(gameState.board, []).cellsToClear.size > 0);
 
         lightMatchGame.updateBoard();
         updateStats(`Score: 0`);
@@ -58,24 +58,21 @@ const lightMatchGame = {
 
         const dx = endX - gameState.touchStartX;
         const dy = endY - gameState.touchStartY;
-        const threshold = 20; // Min distance for a swipe
+        const threshold = 20;
 
         if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) {
-            // It's a click, not a swipe
             lightMatchGame.handleClick(gameState.touchStartIndex);
         } else {
-            // It's a swipe
             let targetIndex = -1;
             const startIndex = gameState.touchStartIndex;
             const { size } = gameState;
 
-            if (Math.abs(dx) > Math.abs(dy)) { // Horizontal swipe
+            if (Math.abs(dx) > Math.abs(dy)) {
                 targetIndex = (dx > 0) ? startIndex + 1 : startIndex - 1;
-                // Prevent wrapping rows
                 if (Math.floor(startIndex / size) !== Math.floor(targetIndex / size)) {
                     targetIndex = -1;
                 }
-            } else { // Vertical swipe
+            } else {
                 targetIndex = (dy > 0) ? startIndex + size : startIndex - size;
             }
 
@@ -112,34 +109,60 @@ const lightMatchGame = {
         }
     },
 
-    attemptSwap: async (index1, index2) => {
+    attemptSwap: async function(index1, index2) {
         if (gameState.isAnimating) return;
         gameState.isAnimating = true;
 
-        await lightMatchGame.animateSwap(index1, index2, true);
-        
-        const tempBoard = [...gameState.board];
-        [tempBoard[index1], tempBoard[index2]] = [tempBoard[index2], tempBoard[index1]];
-        
-        const matches = lightMatchGame.findMatchesInBoard(tempBoard);
-        if (matches.length > 0) {
-            gameState.board = tempBoard;
-            await lightMatchGame.resolveBoard();
-        } else {
-            await delay(150);
-            await lightMatchGame.animateSwap(index1, index2, false); // Swap back
-        }
-        gameState.isAnimating = false;
+        await this.animateSwap(index1, index2, true);
 
-        if (!lightMatchGame.hasPossibleMoves()) {
-            if (gauntlet.isActive) {
-                gauntlet.onGameComplete(gameState.score >= 1000);
+        const board = gameState.board;
+        const originalType1 = board[index1];
+        const originalType2 = board[index2];
+        const BOMB = 7;
+
+        [board[index1], board[index2]] = [board[index2], board[index1]];
+
+        let bombExploded = false;
+        if (originalType1 === BOMB) {
+            await this.handleBombExplosion(index2);
+            bombExploded = true;
+        } else if (originalType2 === BOMB) {
+            await this.handleBombExplosion(index1);
+            bombExploded = true;
+        }
+
+        if (bombExploded) {
+            await this.resolveBoard();
+        } else {
+            const matches = this.findMatchData(board, [index1, index2]).cellsToClear;
+            if (matches.size > 0) {
+                await this.resolveBoard([index1, index2]);
             } else {
-                showWinModal("No More Moves!", `Final Score: ${gameState.score}`);
+                await delay(150);
+                await this.animateSwap(index1, index2, false);
+                [board[index1], board[index2]] = [board[index2], board[index1]];
             }
+        }
+
+        gameState.isAnimating = false;
+        if (!this.hasPossibleMoves()) {
+            showWinModal("No More Moves!", `Final Score: ${gameState.score}`);
         }
     },
     
+    handleBombExplosion: async function(bombIndex) {
+        playSound('G5', '2n');
+        const cellsToClear = new Set([bombIndex]);
+        utils.getNeighbors(bombIndex, gameState.size, gameState.size).forEach(n => cellsToClear.add(n));
+
+        gameState.score += cellsToClear.size * 10;
+        updateStats(`Score: ${gameState.score}`);
+
+        await this.animateRemoval([...cellsToClear]);
+        await this.animateDrop();
+        await this.animateRefill();
+    },
+
     animateSwap: async (index1, index2, forward) => {
         if(forward) playSound('C4', '16n');
         else playSound('C3', '16n');
@@ -161,68 +184,105 @@ const lightMatchGame = {
         el2.style.transform = 'scale(1)';
     },
 
-    resolveBoard: async () => {
+    resolveBoard: async function(swappedIndices = []) {
         let chain = 1;
         while (true) {
-            const matches = lightMatchGame.findMatchesInBoard(gameState.board);
-            if (matches.length === 0) break;
+            let matchData = this.findMatchData(gameState.board, swappedIndices);
+            let cellsToClear = matchData.cellsToClear;
+            
+            if (cellsToClear.size === 0) break;
             
             playSound(notes[chain % notes.length], '8n');
-            gameState.score += matches.length * 10 * chain;
+            gameState.score += cellsToClear.size * 10 * chain;
             updateStats(`Score: ${gameState.score}`);
 
-            await lightMatchGame.animateRemoval(matches);
-            await lightMatchGame.animateDrop();
-            await lightMatchGame.animateRefill();
-            chain++;
+            const bombsToCreate = matchData.bombsToCreate;
 
-            if(gauntlet.isActive && gameState.score >= 1000){
-                gauntlet.onGameComplete(true);
-                return;
-            }
+            await this.animateRemoval([...cellsToClear]);
+
+            bombsToCreate.forEach(index => {
+                if (cellsToClear.has(index)) {
+                    gameState.board[index] = 7;
+                }
+            });
+            
+            await this.animateDrop();
+            await this.animateRefill();
+            
+            swappedIndices = [];
+            chain++;
         }
     },
 
-    findMatchesInBoard: (board) => {
-        const matches = new Set();
+    findMatchData: (board, swappedIndices) => {
         const { size } = gameState;
-        // Horizontal matches
+        const cellsToClear = new Set();
+        const bombsToCreate = [];
+        const runs = [];
+        const BOMB = 7;
+
+        const checkRun = (indices, type) => {
+            if (indices.some(i => board[i] === 0)) return;
+            const nonBombs = indices.map(i => board[i]).filter(c => c !== BOMB);
+            if (nonBombs.length === 0) return; // All bombs, no match
+            const dominantColor = nonBombs[0];
+            if (nonBombs.every(c => c === dominantColor)) {
+                runs.push({ indices, type });
+            }
+        };
+
         for (let r = 0; r < size; r++) {
-            for (let c = 0; c < size - 2; c++) {
-                const i = r * size + c;
-                if (board[i] && board[i] === board[i+1] && board[i] === board[i+2]) {
-                    matches.add(i); matches.add(i+1); matches.add(i+2);
-                }
+            for (let c = 0; c < size; c++) {
+                if (c <= size - 3) checkRun([r*size+c, r*size+c+1, r*size+c+2], 'h');
+                if (c <= size - 4) checkRun([r*size+c, r*size+c+1, r*size+c+2, r*size+c+3], 'h');
+                if (c <= size - 5) checkRun([r*size+c, r*size+c+1, r*size+c+2, r*size+c+3, r*size+c+4], 'h');
+                if (r <= size - 3) checkRun([r*size+c, (r+1)*size+c, (r+2)*size+c], 'v');
+                if (r <= size - 4) checkRun([r*size+c, (r+1)*size+c, (r+2)*size+c, (r+3)*size+c], 'v');
+                if (r <= size - 5) checkRun([r*size+c, (r+1)*size+c, (r+2)*size+c, (r+3)*size+c, (r+4)*size+c], 'v');
             }
         }
-        // Vertical matches
-        for (let c = 0; c < size; c++) {
-            for (let r = 0; r < size - 2; r++) {
-                const i = r * size + c;
-                if (board[i] && board[i] === board[i + size] && board[i] === board[i + 2 * size]) {
-                    matches.add(i); matches.add(i + size); matches.add(i + 2 * size);
-                }
+        
+        if (runs.length === 0) return { cellsToClear, bombsToCreate };
+
+        const bombCandidates = new Set();
+        runs.forEach(run => {
+            run.indices.forEach(i => cellsToClear.add(i));
+            if (run.indices.length >= 4) {
+                run.indices.forEach(i => bombCandidates.add(i));
+            }
+        });
+
+        for (let i = 0; i < runs.length; i++) {
+            for (let j = i + 1; j < runs.length; j++) {
+                if (runs[i].type === runs[j].type) continue;
+                const intersection = runs[i].indices.find(idx => runs[j].indices.includes(idx));
+                if (intersection) bombCandidates.add(intersection);
             }
         }
-        return [...matches];
+        
+        const preferredBombLoc = swappedIndices.find(idx => bombCandidates.has(idx) && cellsToClear.has(idx));
+        if (preferredBombLoc) {
+            bombsToCreate.push(preferredBombLoc);
+        } else if (bombCandidates.size > 0) {
+            const potentialSpots = [...bombCandidates].filter(idx => cellsToClear.has(idx));
+            if(potentialSpots.length > 0) bombsToCreate.push(potentialSpots[0]);
+        }
+
+        return { cellsToClear, bombsToCreate };
     },
 
     animateRemoval: async (matches) => {
         matches.forEach(index => {
             const el = gameBoard.querySelector(`[data-index='${index}']`);
             if (el) el.classList.add('is-removing');
+            gameState.board[index] = 0;
         });
         await delay(200);
-        
-        matches.forEach(index => {
-            gameState.board[index] = 0; // Mark as empty in the state
-        });
-        lightMatchGame.updateBoard(); // Visually remove them
+        lightMatchGame.updateBoard();
     },
 
     animateDrop: async () => {
-        const { size } = gameState;
-        const board = gameState.board;
+        const { size, board } = gameState;
         for (let c = 0; c < size; c++) {
             let emptyRow = size - 1;
             for (let r = size - 1; r >= 0; r--) {
@@ -241,12 +301,12 @@ const lightMatchGame = {
     },
 
     animateRefill: async () => {
-        const { size, numColors } = gameState;
+        const { size, numColors, board } = gameState;
         let changed = false;
         for (let i = 0; i < size * size; i++) {
-            if (gameState.board[i] === 0) {
+            if (board[i] === 0) {
                 changed = true;
-                gameState.board[i] = Math.floor(Math.random() * numColors) + 1;
+                board[i] = Math.floor(Math.random() * numColors) + 1;
                 const el = gameBoard.querySelector(`[data-index='${i}']`);
                 if(el) el.classList.add('is-appearing');
             }
@@ -262,18 +322,17 @@ const lightMatchGame = {
         lights.forEach(light => {
             const index = parseInt(light.dataset.index);
             const color = gameState.board[index];
-            const currentClasses = `light color-${color}`;
+            const isBomb = color === 7;
+            const currentClasses = `light color-${color} ${isBomb ? 'bomb' : ''}`;
             
-            // Only update class if it's different to avoid interrupting animations
             if (light.className !== currentClasses) {
-                light.className = 'light'; // Reset
+                light.className = 'light';
                 if (color > 0) {
                     light.classList.add(`color-${color}`);
                 } else {
                     light.classList.add('is-off');
                 }
             }
-            // Ensure selection highlight is correct
             if (gameState.selected === index) {
                 light.classList.add('is-selected');
             } else {
@@ -284,29 +343,22 @@ const lightMatchGame = {
 
     hasPossibleMoves: () => {
         const { size, board } = gameState;
-        const tempBoard = [...board];
-        // Check for horizontal swaps
         for (let r = 0; r < size; r++) {
             for (let c = 0; c < size - 1; c++) {
                 const i1 = r * size + c;
                 const i2 = r * size + c + 1;
-                [tempBoard[i1], tempBoard[i2]] = [tempBoard[i2], tempBoard[i1]]; // Swap
-                if (lightMatchGame.findMatchesInBoard(tempBoard).length > 0) {
-                    return true; // Found a move
-                }
-                [tempBoard[i1], tempBoard[i2]] = [tempBoard[i2], tempBoard[i1]]; // Swap back
+                const tempBoard = [...board];
+                [tempBoard[i1], tempBoard[i2]] = [tempBoard[i2], tempBoard[i1]];
+                if (lightMatchGame.findMatchData(tempBoard, []).cellsToClear.size > 0) return true;
             }
         }
-        // Check for vertical swaps
         for (let c = 0; c < size; c++) {
             for (let r = 0; r < size - 1; r++) {
                 const i1 = r * size + c;
                 const i2 = (r + 1) * size + c;
-                [tempBoard[i1], tempBoard[i2]] = [tempBoard[i2], tempBoard[i1]]; // Swap
-                if (lightMatchGame.findMatchesInBoard(tempBoard).length > 0) {
-                    return true; // Found a move
-                }
-                [tempBoard[i1], tempBoard[i2]] = [tempBoard[i2], tempBoard[i1]]; // Swap back
+                const tempBoard = [...board];
+                [tempBoard[i1], tempBoard[i2]] = [tempBoard[i2], tempBoard[i1]];
+                if (lightMatchGame.findMatchData(tempBoard, []).cellsToClear.size > 0) return true;
             }
         }
         return false;

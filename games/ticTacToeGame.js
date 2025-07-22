@@ -41,15 +41,30 @@ const ticTacToeGame = {
             ticTacToeGame.end(`${player === P1 ? 'Player 1' : 'CPU'} Wins!`, winInfo.line);
         } else if (utils.isDraw(gameState.board)) {
             ticTacToeGame.end("It's a Draw!");
-        } else {
+        }
+        else {
             gameState.currentPlayer *= -1;
             gameStatus.textContent = `Player ${gameState.currentPlayer === P1 ? 1 : 2}'s Turn`;
         }
     },
     aiMove: () => {
         if (gameState.gameOver) return;
-        const bestMove = ticTacToeGame.findBestMove(gameState.board);
-        ticTacToeGame.makeMove(bestMove, AI);
+
+        const board = gameState.board;
+        const emptyCells = [];
+        board.forEach((cell, index) => {
+            if (cell === EMPTY) {
+                emptyCells.push(index);
+            }
+        });
+
+        if (emptyCells.length === 8) {
+            const randomMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
+            ticTacToeGame.makeMove(randomMove, AI);
+        } else {
+            const bestMove = ticTacToeGame.findBestMove(board);
+            ticTacToeGame.makeMove(bestMove, AI);
+        }
     },
     findBestMove: (board) => {
         let bestVal = -Infinity;

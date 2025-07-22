@@ -122,6 +122,13 @@ body {
 .light.echo-8 { background-color: var(--color-8); }
 .light.echo-9 { background-color: var(--color-9); }
 
+/* Add this new rule for the bomb */
+.light.color-7 {
+    background-color: #ffffff; /* White color */
+    box-shadow: 0 0 15px #ffffff, 0 0 25px #ffffff;
+    animation: pulse 1s infinite; /* Pulsating animation */
+}
+
 .light.is-feedback { background-color: #fde047; box-shadow: 0 0 20px #fde047, 0 0 30px #fde047; transform: scale(1.1); border-color: #fde047; }
 .light.is-center-inactive { background-color: #111; cursor: not-allowed; }
 
