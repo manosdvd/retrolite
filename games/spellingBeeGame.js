@@ -64,9 +64,9 @@ const spellingBeeGame = {
         spellingBeeGame.wordInput = document.createElement('input');
         spellingBeeGame.wordInput.type = 'text';
         spellingBeeGame.wordInput.id = 'wordInput';
+        spellingBeeGame.wordInput.inputMode = 'none';
         spellingBeeGame.wordInput.placeholder = 'Type the word here...';
         spellingBeeGame.wordInput.classList.add('bg-gray-800', 'border', 'border-gray-600', 'rounded-md', 'p-3', 'w-full', 'max-w-sm', 'text-center', 'text-2xl', 'font-bold', 'text-white', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500');
-        spellingBeeGame.wordInput.readOnly = true;
         gameBoard.appendChild(spellingBeeGame.wordInput);
 
         spellingBeeGame.messageBox = document.createElement('div');
@@ -113,7 +113,7 @@ const spellingBeeGame = {
         spellingBeeGame.updateStats();
         spellingBeeGame.hideMessage();
         spellingBeeGame.wordInput.value = '';
-        spellingBeeGame.wordInput.readOnly = true;
+
         spellingBeeGame.enableKeyboard(false);
         spellingBeeGame.startGame();
     },
@@ -125,7 +125,7 @@ const spellingBeeGame = {
         }
         spellingBeeGame.currentWord = spellingBeeGame.words[Math.floor(Math.random() * spellingBeeGame.words.length)];
         spellingBeeGame.wordInput.value = '';
-        spellingBeeGame.wordInput.readOnly = true;
+
 
         spellingBeeGame.actionButton.textContent = 'Submit';
         spellingBeeGame.actionButton.disabled = true;
@@ -140,7 +140,7 @@ const spellingBeeGame = {
     endGame: function() {
         spellingBeeGame.showMessage(`Game Over! You scored ${spellingBeeGame.score} out of ${spellingBeeGame.totalWordsToPlay}.`, 'info');
         spellingBeeGame.speakWordBtn.disabled = true;
-        spellingBeeGame.wordInput.readOnly = true;
+
         
         spellingBeeGame.actionButton.textContent = 'Play Again';
         spellingBeeGame.actionButton.className = 'control-button btn-yellow'; // Change color
@@ -185,7 +185,7 @@ const spellingBeeGame = {
         spellingBeeGame.showMessage(messageText, messageType);
         spellingBeeGame.updateStats();
 
-        spellingBeeGame.wordInput.readOnly = true;
+
         spellingBeeGame.enableKeyboard(false);
         spellingBeeGame.actionButton.disabled = false;
         spellingBeeGame.speakWordBtn.disabled = true;

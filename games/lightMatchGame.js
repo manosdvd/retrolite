@@ -121,50 +121,53 @@ const lightMatchGame = {
     },
 
     attemptSwap: async function(index1, index2) {
-        if (gameState.isAnimating) return;
-        gameState.isAnimating = true;
+    if (gameState.isAnimating) return;
+    gameState.isAnimating = true;
 
-        try {
-            await this.animateSwap(index1, index2, true);
+    // --- THIS IS THE FIX ---
+    try {
+        // All the logic for swapping, checking matches, and resolving the board
+        await this.animateSwap(index1, index2, true);
 
-            const board = gameState.board;
-            const originalType1 = board[index1];
-            const originalType2 = board[index2];
-            const BOMB = 7;
+        const board = gameState.board;
+        const originalType1 = board[index1];
+        const originalType2 = board[index2];
+        const BOMB = 7;
 
-            [board[index1], board[index2]] = [board[index2], board[index1]];
+        [board[index1], board[index2]] = [board[index2], board[index1]];
 
-            let bombExploded = false;
-            if (originalType1 === BOMB) {
-                await this.handleBombExplosion(index2);
-                bombExploded = true;
-            } else if (originalType2 === BOMB) {
-                await this.handleBombExplosion(index1);
-                bombExploded = true;
-            }
+        let bombExploded = false;
+        if (originalType1 === BOMB) {
+            await this.handleBombExplosion(index2);
+            bombExploded = true;
+        } else if (originalType2 === BOMB) {
+            await this.handleBombExplosion(index1);
+            bombExploded = true;
+        }
 
-            if (bombExploded) {
-                await this.resolveBoard();
+        if (bombExploded) {
+            await this.resolveBoard();
+        } else {
+            const matches = this.findMatchData(board, [index1, index2]).cellsToClear;
+            if (matches.size > 0) {
+                await this.resolveBoard([index1, index2]);
             } else {
-                const matches = this.findMatchData(board, [index1, index2]).cellsToClear;
-                if (matches.size > 0) {
-                    await this.resolveBoard([index1, index2]);
-                } else {
-                    await delay(150);
-                    await this.animateSwap(index1, index2, false);
-                    [board[index1], board[index2]] = [board[index2], board[index1]];
-                }
+                await delay(150);
+                await this.animateSwap(index1, index2, false);
+                [board[index1], board[index2]] = [board[index2], board[index1]];
             }
-        } finally {
-            // This 'finally' block ensures the game always unlocks, fixing the issue.
-            gameState.isAnimating = false;
         }
 
-        // Check for possible moves after the animation is complete and controls are unlocked.
-        if (!this.hasPossibleMoves()) {
-            showWinModal("No More Moves!", `Final Score: ${gameState.score}`);
-        }
-    },
+    } finally {
+        // This 'finally' block ensures the game always unlocks, fixing the issue.
+        gameState.isAnimating = false;
+    }
+    // --- END OF FIX ---
+
+    if (!this.hasPossibleMoves()) {
+        showWinModal("No More Moves!", `Final Score: ${gameState.score}`);
+    }
+},
     
     handleBombExplosion: async function(bombIndex) {
         playSound('G5', '2n');

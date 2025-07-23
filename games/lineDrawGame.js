@@ -12,7 +12,7 @@ const lineDrawGame = {
             currentColor: 0, 
             startNode: -1,
             gameOver: false,
-            completedPaths: new Set() // Add this line
+            completedPaths: new Set() 
         };
         puzzle.pairs.forEach(p => { gameState.paths[p.c] = []; });
 

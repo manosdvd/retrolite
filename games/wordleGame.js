@@ -59,10 +59,8 @@ const wordleGame = {
     },
 
     handler: (e) => {
-    // --- THIS IS THE CRITICAL FIX ---
     // This check ensures we only process keyboard events and ignore mouse clicks.
     if (!e.key) return; 
-    // --- END OF FIX ---
 
     if (gameState.gameOver) return;
     const { key } = e;

@@ -124,21 +124,18 @@ const fractionFlipperGame = {
         });
     },
 
-    /**
-     * --- FIX: Corrected logic for selecting and unselecting a fraction tile. ---
-     */
     handleFractionClick: function(fraction, button) {
         const index = this.selectedFractions.findIndex(f => f.num === fraction.num && f.den === fraction.den);
 
         if (index > -1) {
             // Fraction is already selected, so UNSELECT it.
             this.selectedFractions.splice(index, 1);
-            button.classList.remove('opacity-50'); // Make it look active
-            playSound('C3', '8n');
+            button.classList.remove('opacity-50'); // Make it look active again
+            playSound('C3', '8n'); // Sound for removal
         } else {
             // Fraction is not selected, so SELECT it.
             this.selectedFractions.push(fraction);
-            button.classList.add('opacity-50'); // Make it look inactive
+            button.classList.add('opacity-50'); // Make it look selected
             playSound('C4', '8n');
         }
 

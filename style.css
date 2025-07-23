@@ -423,3 +423,4 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     background-color: var(--color-6); /* Orange */
     color: white;
 }
+
