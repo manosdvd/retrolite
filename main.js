@@ -462,6 +462,7 @@ window.startGame = function(mode) {
         gameBoard.innerHTML = ''; // Also clear the game board itself
         // --- END OF FIX ---
 
+        gameContainer.classList.remove('keyboard-active'); // ADD THIS LINE TO RESET THE CONTAINER'S LAYOUT
         gameContainer.classList.add('hidden');
         mainMenu.classList.remove('hidden');
         currentMode = null;
