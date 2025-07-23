@@ -30,5 +30,8 @@ const musicMachineGame = {
         }
         gameState.isPlaying = false;
     },
-    updateBoard: () => {}
+    updateBoard: () => {},
+    cleanup: () => {
+        // No specific cleanup needed as event listeners are managed by main.js
+    }
 };

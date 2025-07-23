@@ -81,7 +81,19 @@ const spellingBeeGame = {
         spellingBeeGame.messageBox.className = 'message-box hidden h-24';
         gameBoard.appendChild(spellingBeeGame.messageBox);
 
-        spellingBeeGame.createKeyboard();
+        const keyLayout = [
+            ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
+            ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
+            ['Enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace']
+        ];
+
+        keyboard = new Keyboard(keyLayout, (key) => {
+            if (key === 'Enter') {
+                spellingBeeGame.handleSubmitWord();
+            } else {
+                spellingBeeGame.handleKeyboardInput(key);
+            }
+        });
 
         spellingBeeGame.speakWordBtn = createControlButton('Hear Word', 'btn-blue', () => spellingBeeGame.handleSpeakWord());
         spellingBeeGame.submitWordBtn = createControlButton('Submit', 'btn-green', () => spellingBeeGame.handleSubmitWord());
@@ -230,44 +242,14 @@ const spellingBeeGame = {
         updateStats(`Score: ${spellingBeeGame.score} / ${spellingBeeGame.wordsAttempted} of ${spellingBeeGame.totalWordsToPlay}`);
     },
 
-    createKeyboard: function() {
-        keyboardContainer.innerHTML = ''; 
-        keyboardContainer.classList.add('keyboard'); // Add the keyboard class
-        const keys = [
-            ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
-            ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-            ['Enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace']
-        ];
-        keys.forEach(row => {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'keyboard-row';
-            row.forEach(key => {
-                const keyDiv = document.createElement('div');
-                keyDiv.className = 'key';
-                let displayText = key;
-                if (key === 'Enter') {
-                    displayText = '⏎';
-                } else if (key === 'Backspace') {
-                    displayText = '⌫';
-                }
-                keyDiv.textContent = displayText;
-                keyDiv.dataset.key = key;
-                if (key === 'Enter' || key === 'Backspace') {
-                    keyDiv.classList.add('key-large');
-                }
-                if (key === 'Enter') {
-                    keyDiv.addEventListener('click', () => spellingBeeGame.handleSubmitWord());
-                } else {
-                    keyDiv.addEventListener('click', () => spellingBeeGame.handleKeyboardInput(key));
-                }
-                rowDiv.appendChild(keyDiv);
-            });
-            keyboardContainer.appendChild(rowDiv);
-        });
-    },
+    
 
     enableKeyboard: function(enable) {
-        keyboardContainer.querySelectorAll('.key').forEach(b => b.disabled = !enable);
+        for (const row of keyboard.keyLayout) {
+            for (const key of row) {
+                keyboard.enableKey(key, enable);
+            }
+        }
     },
 
     // --- NEW AND UPDATED TTS FUNCTIONS ---

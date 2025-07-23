@@ -153,5 +153,13 @@ const lineDrawGame = {
         if (allPaired && !gameState.board.includes(0)) {
             showWinModal('You Win!', 'You connected all the dots!');
         }
+    },
+    cleanup: () => {
+        gameBoard.removeEventListener('mousedown', lineDrawGame.handleMouseDown);
+        window.removeEventListener('mousemove', lineDrawGame.handleMouseMove);
+        window.removeEventListener('mouseup', lineDrawGame.handleMouseUp);
+        gameBoard.removeEventListener('touchstart', lineDrawGame.handleMouseDown);
+        window.removeEventListener('touchmove', lineDrawGame.handleMouseMove);
+        window.removeEventListener('touchend', lineDrawGame.handleMouseUp);
     }
 };

@@ -158,5 +158,8 @@ const ticTacToeGame = {
         lineEl.style.transform = `rotate(${angle}deg)`;
         
         gameBoard.appendChild(lineEl);
+    },
+    cleanup: () => {
+        // No specific cleanup needed as event listeners are managed by main.js
     }
 };

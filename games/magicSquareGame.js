@@ -39,5 +39,8 @@ const magicSquareGame = {
         if (gameState.board.every((val, i) => val === winState[i])) {
             showWinModal('You Win!', `You solved Merlin's puzzle in ${gameState.moves} moves!`);
         }
+    },
+    cleanup: () => {
+        // No specific cleanup needed as event listeners are managed by main.js
     }
 };

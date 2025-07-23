@@ -1,8 +1,9 @@
 // --- Globally Scoped Variables, Constants, and Game Objects ---
-let gameBoard, buttonContainer, statsContainer, gameStatus, keyboardContainer, modalContainer, gameTitle, gameRules, root;
+let gameBoard, buttonContainer, statsContainer, gameStatus, keyboardContainer, modalContainer, gameTitle, gameRules, root, mainMenu, gameContainer;
 let gameState = {};
 let currentMode = null;
 let synth;
+let keyboard; // New global keyboard variable
 const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
 const P1 = 1, P2 = -1, EMPTY = 0, AI = -1, HUMAN = 1;
 
@@ -40,30 +41,66 @@ const utils = {
     },
     checkConnectWin: (board, player) => {
         const W = 7, H = 6;
-        for (let r = 0; r < H; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[r*W+c+1]===player && board[r*W+c+2]===player && board[r*W+c+3]===player) return true;
-        for (let r = 0; r <= H - 4; r++) for (let c = 0; c < W; c++) if (board[r*W+c]===player && board[(r+1)*W+c]===player && board[(r+2)*W+c]===player && board[(r+3)*W+c]===player) return true;
-        for (let r = 0; r <= H - 4; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[(r+1)*W+c+1]===player && board[(r+2)*W+c+2]===player && board[(r+3)*W+c+3]===player) return true;
-        for (let r = 3; r < H; r++) for (let c = 0; c <= W - 4; c++) if (board[r*W+c]===player && board[(r-1)*W+c+1]===player && board[(r-2)*W+c+2]===player && board[(r-3)*W+c+3]===player) return true;
-        return false;
+        // Check horizontal
+        for (let r = 0; r < H; r++) {
+            for (let c = 0; c <= W - 4; c++) {
+                const line = [r*W+c, r*W+c+1, r*W+c+2, r*W+c+3];
+                if (line.every(index => board[index] === player)) return line;
+            }
+        }
+        // Check vertical
+        for (let r = 0; r <= H - 4; r++) {
+            for (let c = 0; c < W; c++) {
+                const line = [r*W+c, (r+1)*W+c, (r+2)*W+c, (r+3)*W+c];
+                if (line.every(index => board[index] === player)) return line;
+            }
+        }
+        // Check diagonal (positive slope)
+        for (let r = 0; r <= H - 4; r++) {
+            for (let c = 0; c <= W - 4; c++) {
+                const line = [r*W+c, (r+1)*W+c+1, (r+2)*W+c+2, (r+3)*W+c+3];
+                if (line.every(index => board[index] === player)) return line;
+            }
+        }
+        // Check diagonal (negative slope)
+        for (let r = 3; r < H; r++) {
+            for (let c = 0; c <= W - 4; c++) {
+                const line = [r*W+c, (r-1)*W+c+1, (r-2)*W+c+2, (r-3)*W+c+3];
+                if (line.every(index => board[index] === player)) return line;
+            }
+        }
+        return null;
     }
 };
 
 const gameModes = {
-    lightPuzzle: { name: 'lightPuzzle', title: 'LIGHTS OUT', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171' },
-    magicSquare: { name: 'magicSquare', title: 'MAGIC SQUARE', rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa' },
-    ticTacToe: { name: 'ticTacToe', title: 'TIC-TAC-TOE', rules: 'Get three in a row.', gridSize: 3, setup: ticTacToeGame.setup, handler: ticTacToeGame.handler, color: '#3b82f6', shadow: '#60a5fa' },
-    sequence: { name: 'sequence', title: 'ECHO', rules: 'Repeat the sequence. Survive for 1 minute!', gridSize: 3, setup: echoGame.setup, handler: echoGame.handler, color: '#22c55e', shadow: '#4ade80' },
-    wordGuess: { name: 'wordGuess', title: 'WORDLE', rules: 'Guess the 5-letter word.', gridRows: 6, gridCols: 5, setup: wordleGame.setup, handler: wordleGame.handler, color: '#f97316', shadow: '#fb923c' },
-    blackjack: { name: 'blackjack', title: '21', rules: 'Get 21, or survive for 1 minute!', gridRows: 4, gridCols: 4, setup: blackjackGame.setup, handler: null, color: '#06b6d4', shadow: '#22d3ee' },
-    lightMatch: { name: 'lightMatch', title: 'LIGHT MATCH', rules: 'Match 3+ lights. Form special combos for bombs!', gridSize: 8, setup: lightMatchGame.setup, handler: null, color: '#f43f5e', shadow: '#fb7185' },
-    musicMachine: { name: 'musicMachine', title: 'MUSIC BOX', rules: 'Compose a tune.', gridSize: 3, setup: musicMachineGame.setup, handler: musicMachineGame.handler, color: '#d946ef', shadow: '#e879f9' },
-    sliderPuzzle: { name: 'sliderPuzzle', title: 'SLIDER', rules: 'Order the tiles from 1 to 8.', gridSize: 3, setup: sliderPuzzleGame.setup, handler: sliderPuzzleGame.handler, color: '#ec4899', shadow: '#f472b6' },
-    minefield: { name: 'minefield', title: 'MINEFIELD', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af' },
-    fourInARow: { name: 'fourInARow', title: 'CONNECT 4', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6' },
-    colorConnect: { name: 'colorConnect', title: 'COLOR LINK', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf' },
+    lightPuzzle: { name: 'lightPuzzle', title: 'LIGHTS OUT', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171', cleanup: lightsOutGame.cleanup },
+    magicSquare: { name: 'magicSquare', title: 'MAGIC SQUARE', rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa', cleanup: magicSquareGame.cleanup },
+    ticTacToe: { name: 'ticTacToe', title: 'TIC-TAC-TOE', rules: 'Get three in a row.', gridSize: 3, setup: ticTacToeGame.setup, handler: ticTacToeGame.handler, color: '#3b82f6', shadow: '#60a5fa', cleanup: ticTacToeGame.cleanup },
+    sequence: { name: 'sequence', title: 'ECHO', rules: 'Repeat the sequence. Survive for 1 minute!', gridSize: 3, setup: echoGame.setup, handler: echoGame.handler, color: '#22c55e', shadow: '#4ade80', cleanup: echoGame.cleanup },
+    wordGuess: { 
+        name: 'wordGuess', 
+        title: 'WORDLE', 
+        rules: 'Guess the 5-letter word.', 
+        gridRows: 6, 
+        gridCols: 5, 
+        setup: wordleGame.setup, 
+        handler: wordleGame.handler, 
+        color: '#f97316', 
+        shadow: '#fb923c', 
+        cleanup: wordleGame.cleanup, 
+        createCell: wordleGame.createCell 
+    },
+    blackjack: { name: 'blackjack', title: '21', rules: 'Get 21, or survive for 1 minute!', gridRows: 4, gridCols: 4, setup: blackjackGame.setup, handler: null, color: '#06b6d4', shadow: '#22d3ee', cleanup: blackjackGame.cleanup },
+    lightMatch: { name: 'lightMatch', title: 'LIGHT MATCH', rules: 'Match 3+ lights. Form special combos for bombs!', gridSize: 8, setup: lightMatchGame.setup, handler: null, color: '#f43f5e', shadow: '#fb7185', cleanup: lightMatchGame.cleanup },
+    musicMachine: { name: 'musicMachine', title: 'MUSIC BOX', rules: 'Compose a tune.', gridSize: 3, setup: musicMachineGame.setup, handler: musicMachineGame.handler, color: '#d946ef', shadow: '#e879f9', cleanup: musicMachineGame.cleanup },
+    sliderPuzzle: { name: 'sliderPuzzle', title: 'SLIDER', rules: 'Order the tiles from 1 to 8.', gridSize: 3, setup: sliderPuzzleGame.setup, handler: sliderPuzzleGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: sliderPuzzleGame.cleanup },
+    minefield: { name: 'minefield', title: 'MINEFIELD', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af', cleanup: minefieldGame.cleanup },
+    fourInARow: { name: 'fourInARow', title: 'CONNECT 4', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: connectGame.cleanup },
+    colorConnect: { name: 'colorConnect', title: 'COLOR LINK', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf', cleanup: lineDrawGame.cleanup },
     meteos: { name: 'meteos', title: 'ANXIETY', rules: 'Match 3+ blocks to clear them.', setup: meteosGame.setup, handler: null, cleanup: meteosGame.cleanup, color: '#06b6d4', shadow: '#22d3ee' },
-    spellingBee: { name: 'spellingBee', title: 'SPELLING', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup.bind(spellingBeeGame), handler: null, cleanup: spellingBeeGame.cleanup.bind(spellingBeeGame), color: '#4f46e5', shadow: '#6366f1' },
-    decryptGame: { name: 'decryptGame', title: 'CIPHER', setup: decryptGame.setup.bind(decryptGame), handler: null, cleanup: decryptGame.cleanup.bind(decryptGame), color: '#3d342a', shadow: '#5c5248' },
+    spellingBee: { name: 'spellingBee', title: 'SPELLING', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup, handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
+    decryptGame: { name: 'decryptGame', title: 'CIPHER', setup: decryptGame.setup, handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
     numberCrunch: { 
         name: 'numberCrunch', 
         title: 'NUMBER CRUNCH', 
@@ -72,25 +109,27 @@ const gameModes = {
         setup: numberCrunchGame.setup, 
         handler: numberCrunchGame.handler, 
         color: '#fde047', 
-        shadow: '#facc15' 
+        shadow: '#facc15', 
+        cleanup: numberCrunchGame.cleanup
     },
     fractionFlipper: { 
         name: 'fractionFlipper', 
         title: 'FRACTION FLIPPER', 
         rules: 'Add fractions to match the target value.', 
-        setup: fractionFlipperGame.setup.bind(fractionFlipperGame), 
+        setup: fractionFlipperGame.setup, 
         handler: null, 
         color: '#10b981', 
-        shadow: '#34d399' 
+        shadow: '#34d399', 
+        cleanup: fractionFlipperGame.cleanup
     },
     
-    gauntlet: { name: 'gauntlet', title: 'GAUNTLET', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047'}
+    gauntlet: { name: 'gauntlet', title: 'GAUNTLET', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047', cleanup: () => gauntlet.end() }
 };
 
 const gauntlet = {
     isActive: false,
     score: 0,
-    timerInterval: null, // Add property to hold the interval ID
+    timerInterval: null, 
     availableGames: [],
 
     startTimer: function(duration, onEnd) {
@@ -160,8 +199,6 @@ const gauntlet = {
     }
 };
 
-// --- Utility Functions (Global Scope) ---
-// ... (utility functions are unchanged)
 function updateStats(text) { if (statsContainer) statsContainer.textContent = text; }
 function playSound(note, duration = '8n') {
     try {
@@ -182,6 +219,7 @@ function createControlButton(text, colorClass, onClick) {
     button.addEventListener('click', onClick);
     return button;
 }
+
 function createModal(id, title, content, buttonText, onButtonClick) {
     const modal = document.createElement('div');
     modal.id = id;
@@ -232,11 +270,21 @@ function getValidColumns(board) {
     return validCols;
 }
 
-// --- Main Application Logic ---
+function handleBoardClick(e) {
+    if (e.target.matches('.light') && currentMode && currentMode.handler) {
+        currentMode.handler(e, 'click');
+    }
+}
+function handleBoardContextMenu(e) {
+    e.preventDefault();
+    if (e.target.matches('.light') && currentMode && currentMode.handler) {
+        currentMode.handler(e, 'contextmenu');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // --- Assign DOM Elements to Global Variables ---
-    const mainMenu = document.getElementById('main-menu');
-    const gameContainer = document.getElementById('game-container');
+    mainMenu = document.getElementById('main-menu');
+    gameContainer = document.getElementById('game-container');
     gameBoard = document.getElementById('game-board');
     gameTitle = document.getElementById('game-title');
     gameStatus = document.getElementById('game-status');
@@ -247,7 +295,6 @@ document.addEventListener('DOMContentLoaded', () => {
     keyboardContainer = document.getElementById('keyboard-container');
     root = document.documentElement;
 
-    // --- Clock ---
     const clockElement = document.getElementById('digital-clock');
     function updateClock() {
         if (!clockElement) return;
@@ -260,7 +307,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock();
     setInterval(updateClock, 1000);
 
-    // --- Main Menu Logic ---
     mainMenu.addEventListener('click', (e) => {
         if (e.target.matches('[data-mode]')) {
             playSound('C4', '16n');
@@ -277,116 +323,68 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+});
 
-    // --- Event Handlers for the Game Board ---
-    function handleBoardClick(e) {
-        if (e.target.matches('.light') && currentMode && currentMode.handler) {
-            currentMode.handler(e, 'click');
-        }
+window.startGame = function(mode) {
+    if (currentMode && typeof currentMode.cleanup === 'function') {
+        currentMode.cleanup();
     }
-    function handleBoardContextMenu(e) {
-        e.preventDefault();
-        if (e.target.matches('.light') && currentMode && currentMode.handler) {
-            currentMode.handler(e, 'contextmenu');
+    gameBoard.innerHTML = '';
+    currentMode = mode;
+
+    const keyboardGames = ['wordGuess', 'spellingBee', 'decryptGame'];
+    if (keyboardGames.includes(mode.name)) {
+        gameContainer.classList.add('keyboard-active');
+    } else {
+        gameContainer.classList.remove('keyboard-active');
+    }
+
+    gameTitle.textContent = mode.title;
+    gameRules.textContent = mode.rules;
+    root.style.setProperty('--theme-color', mode.color);
+    root.style.setProperty('--theme-shadow-color', mode.shadow);
+    gameTitle.style.color = mode.color;
+    gameTitle.style.textShadow = `0 0 10px ${mode.shadow}`;
+
+    keyboardContainer.innerHTML = '';
+    buttonContainer.innerHTML = '';
+    statsContainer.innerHTML = '';
+    modalContainer.innerHTML = '';
+    gameStatus.textContent = '';
+    gameBoard.className = 'game-grid mb-2';
+
+    if (mode.gridSize || (mode.gridRows && mode.gridCols)) {
+        const rows = mode.gridRows || mode.gridSize;
+        const cols = mode.gridCols || mode.gridSize;
+        gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+        
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < rows * cols; i++) {
+            let cell;
+            if (typeof mode.createCell === 'function') {
+                cell = mode.createCell(i);
+            } else {
+                cell = document.createElement('div');
+                cell.className = 'light';
+            }
+            cell.dataset.index = i;
+            fragment.appendChild(cell);
         }
+        gameBoard.appendChild(fragment);
     }
     
-    // --- Main Game Function ---
-    window.startGame = function(mode) {
+    const backButton = createControlButton('Menu', 'btn-red', () => {
         if (currentMode && typeof currentMode.cleanup === 'function') {
             currentMode.cleanup();
         }
-        
-        // Explicitly remove global gameBoard listeners before replacing the board
-        if (gameBoard) {
-            gameBoard.removeEventListener('click', handleBoardClick);
-            gameBoard.removeEventListener('contextmenu', handleBoardContextMenu);
-        }
-        
-        const newGameBoard = gameBoard.cloneNode(false);
-        gameBoard.parentNode.replaceChild(newGameBoard, gameBoard);
-        gameBoard = newGameBoard;
-        
-        if (mode.handler) {
-            gameBoard.addEventListener('click', handleBoardClick);
-            gameBoard.addEventListener('contextmenu', handleBoardContextMenu);
-        }
-        
-        currentMode = mode;
-        gameTitle.textContent = mode.title;
-        gameRules.textContent = mode.rules;
-        root.style.setProperty('--theme-color', mode.color);
-        root.style.setProperty('--theme-shadow-color', mode.shadow);
-        gameTitle.style.color = mode.color;
-        gameTitle.style.textShadow = `0 0 10px ${mode.shadow}`;
-        
-        gameContainer.classList.toggle('wordle-active', mode.name === 'wordGuess');
-        gameContainer.classList.toggle('meteos-active', mode.name === 'meteos');
-        gameContainer.classList.toggle('spelling-bee-active', mode.name === 'spellingBee');
+        gameContainer.classList.add('hidden');
+        mainMenu.classList.remove('hidden');
+        currentMode = null;
+    });
+    buttonContainer.appendChild(backButton);
 
-        gameBoard.innerHTML = '';
-        gameBoard.className = 'game-grid mb-2';
-        keyboardContainer.innerHTML = '';
-        buttonContainer.innerHTML = '';
-        statsContainer.innerHTML = '';
-        modalContainer.innerHTML = '';
-        
-        if (gauntlet.isActive) {
-            gameStatus.innerHTML = `GAUNTLET SCORE: ${gauntlet.score} <span id="gauntlet-timer" class="ml-4 text-cyan-400"></span>`;
-        } else {
-            gameStatus.textContent = '';
-        }
-        
-        const cols = mode.gridCols || mode.gridSize;
-        const rows = mode.gridRows || mode.gridSize;
-        
-        if (cols || rows) {
-            gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
-            if (rows) {
-                gameBoard.style.gridTemplateRows = `repeat(${rows}, 1fr)`;
-            }
-            gameBoard.classList.toggle('large-grid', cols > 5 || rows > 5);
-        
-            if (mode.name !== 'minefield' && mode.name !== 'wordGuess' && mode.name !== 'lightMatch' && mode.name !== 'meteos' && mode.name !== 'colorConnect' && mode.name !== 'decryptGame') {
-                const fragment = document.createDocumentFragment();
-                for (let i = 0; i < rows * cols; i++) {
-                    const light = document.createElement('div');
-                    light.classList.add('light');
-                    light.dataset.index = i;
-                    fragment.appendChild(light);
-                }
-                gameBoard.appendChild(fragment);
-            }
-        }
-        
-        const backButtonText = gauntlet.isActive ? 'Quit Gauntlet' : 'Menu';
-        const backButton = createControlButton(backButtonText, 'btn-red', () => {
-            if (gauntlet.isActive) {
-                gauntlet.end();
-            } else {
-                gameContainer.classList.add('hidden');
-                mainMenu.classList.remove('hidden');
-                if (currentMode && typeof currentMode.cleanup === 'function') {
-                    currentMode.cleanup();
-                }
-                currentMode = null;
-            }
-        });
-        buttonContainer.appendChild(backButton);
+    mode.setup();
 
-        mode.setup();
-
-        if (gauntlet.isActive) {
-            gauntlet.clearTimer(); // Clear any existing timer first
-            const timedGames = {
-                'lightMatch': 120,
-                'sequence': 60,
-                'blackjack': 60
-            };
-            if (timedGames[mode.name]) {
-                const isWinCondition = () => mode.name === 'lightMatch' ? (gameState.score >= 1000) : true;
-                gauntlet.startTimer(timedGames[mode.name], () => gauntlet.onGameComplete(isWinCondition()));
-            }
-        }
-    }
-});
+    gameBoard.addEventListener('click', handleBoardClick);
+    gameBoard.addEventListener('contextmenu', handleBoardContextMenu);
+}

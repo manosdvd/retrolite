@@ -152,7 +152,7 @@ const fractionFlipperGame = {
     render: function() {
         // Render the main displays first
         document.getElementById('target-fraction-text').textContent = `${this.targetFraction.num} / ${this.targetFraction.den}`;
-        this.drawPieChart(document.getElementById('target-fraction-canvas'), this.targetFraction.num, this.targetFraction.den, '#06b6d4');
+        this.drawPieChart(document.getElementById('target-fraction-canvas'), this.targetFraction.num, this.targetFraction.den, 'var(--color-7)');
         this.updateCurrentSumDisplay();
 
         // Render the fraction options
@@ -229,10 +229,10 @@ const fractionFlipperGame = {
         } else {
             textEl.textContent = `${simpleSum.num} / ${simpleSum.den}`;
         }
-        this.drawPieChart(canvasEl, simpleSum.num, simpleSum.den, '#f59e0b');
+        this.drawPieChart(canvasEl, simpleSum.num, simpleSum.den, 'var(--color-6)');
     },
 
-    drawPieChart: function(canvas, num, den, color = '#22c55e') {
+    drawPieChart: function(canvas, num, den, color = 'var(--color-3)') {
         if (!canvas) return;
         const ctx = canvas.getContext('2d');
         const centerX = canvas.width / 2;
@@ -243,7 +243,7 @@ const fractionFlipperGame = {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.beginPath();
         ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#374151';
+        ctx.fillStyle = 'var(--color-8)';
         ctx.fill();
 
         if (num > 0 && den > 0) {
@@ -281,5 +281,9 @@ const fractionFlipperGame = {
         const newNum = f1.num * f2.den - f2.num * f1.den;
         const newDen = f1.den * f2.den;
         return this.simplifyFraction(newNum, newDen);
+    },
+
+    cleanup: function() {
+        // No specific cleanup needed as event listeners are managed by main.js
     }
 };

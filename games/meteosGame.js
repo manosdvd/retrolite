@@ -28,80 +28,7 @@ const meteosGame = {
         `;
 
 
-        // 2. Inject custom CSS for the game
-        const style = document.createElement('style');
-        style.id = 'meteos-game-style'; // Add an ID to remove it on cleanup
-        style.innerHTML = `
-            #game-board {
-                display: block;
-                padding: 0;
-                background: transparent;
-                box-shadow: none;
-                flex-grow: 1;
-                min-height: 0;
-            }
-            #game-wrapper {
-                display: flex;
-                flex-direction: column;
-                height: 100%;
-                width: 100%;
-                margin: 0 auto;
-            }
-            #grid-container {
-                display: grid;
-                flex-grow: 1;
-                touch-action: none;
-                user-select: none;
-                border-radius: 12px;
-                background-color: #1a202c;
-                padding: 8px;
-                gap: 4px;
-                position: relative;
-            }
-            .block {
-                width: 100%;
-                height: 100%;
-                border-radius: 6px;
-                transition: transform 0.2s ease, opacity 0.25s ease, background-color 0.1s linear;
-                cursor: grab;
-                position: absolute;
-            }
-            .block.dragging-origin {
-                opacity: 0.5;
-                transform: scale(0.95);
-                z-index: 100;
-            }
-            .block.collapsing {
-                transform: scale(0);
-                opacity: 0;
-            }
-            .falling-block {
-                position: absolute;
-                transition: transform 0.4s cubic-bezier(0.5, 0, 1, 1); /* Gravity-like ease-in */
-            }
-            #game-over-modal {
-                transition: opacity 0.3s ease, transform 0.3s ease;
-            }
-            #preview-bar {
-                display: grid;
-                gap: 4px;
-                padding: 4px;
-                background-color: #2d3748;
-                border-radius: 8px;
-            }
-            .preview-block {
-                width: 100%;
-                aspect-ratio: 1/1;
-                border-radius: 4px;
-                background-color: #4a5568;
-                transition: background-color 0.3s;
-            }
-            #animation-pool {
-                display: none;
-                visibility: hidden;
-            }
-        `;
-        document.head.appendChild(style);
+        
 
         // 3. Run the game's script
         meteosGame.runGameScript();
@@ -128,7 +55,10 @@ const meteosGame = {
         const INITIAL_PREVIEW_INTERVAL = 750;
         const MIN_PREVIEW_INTERVAL = 250;
         const INTERVAL_DECREMENT = 50;
-        const COLORS = ['#ef4444', '#3b82f6', '#16a34a', '#facc15', '#f97316', '#14b8a6'];
+        const COLORS = [
+            'var(--color-1)', 'var(--color-2)', 'var(--color-3)',
+            'var(--color-4)', 'var(--color-5)', 'var(--color-6)'
+        ];
         const ANIMATION_DELAY = 200;
         const FALL_ANIMATION_DURATION = 400;
         const DRAG_LOCK_THRESHOLD = 20; // Increased threshold

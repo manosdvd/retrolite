@@ -67,5 +67,8 @@ const echoGame = {
             gameState.state = 'WATCH';
             setTimeout(echoGame.nextSequence, 1000);
         }
+    },
+    cleanup: () => {
+        // No specific cleanup needed as event listeners are managed by main.js
     }
 };

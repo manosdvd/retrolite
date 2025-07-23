@@ -8,16 +8,17 @@ const blackjackGame = {
             for (let i = 1; i <= 10; i++) gameState.deck.push(i);
             gameState.deck.push(10, 10, 10); // J, Q, K
         }
-        // Shuffle deck
         utils.shuffleArray(gameState.deck);
 
         const hitButton = createControlButton('Hit', 'btn-blue', blackjackGame.hit);
         const standButton = createControlButton('Stand', 'btn-yellow', blackjackGame.stand);
-        gameState.hitButton = hitButton; // Store button in gameState
+        gameState.hitButton = hitButton;
         gameState.standButton = standButton;
         buttonContainer.prepend(standButton);
         buttonContainer.prepend(hitButton);
         hitButton.disabled = true; standButton.disabled = true;
+
+        blackjackGame.updateBoardAndScores(); // Initial empty board render
 
         const deal = async () => {
             await blackjackGame.dealCard(HUMAN); await delay(400);
@@ -34,29 +35,75 @@ const blackjackGame = {
             }
         };
         deal();
-        updateStats(`Your Score: 0`);
     },
     calculateHandValue: (hand) => {
         let score = hand.reduce((sum, card) => sum + card, 0);
         let aceCount = hand.filter(card => card === 1).length;
         while (score <= 11 && aceCount > 0) {
-            score += 10; // Treat an Ace as 11 if it doesn't bust the hand
+            score += 10;
             aceCount--;
         }
         return score;
     },
     dealCard: async (player, isHidden = false) => {
-        if (gameState.deck.length === 0) return Promise.resolve();
+        if (gameState.deck.length === 0) return;
         const card = gameState.deck.pop();
         
-        if (player === HUMAN) gameState.playerHand.push(card);
-        else gameState.cpuHand.push({ card, hidden: isHidden });
+        if (player === HUMAN) {
+            gameState.playerHand.push(card);
+        } else {
+            gameState.cpuHand.push({ card, hidden: isHidden });
+        }
         
         playSound(notes[card] || 'C4');
-        blackjackGame.updateBoardAndScores();
-        return Promise.resolve();
+        await blackjackGame.updateBoardAndScores();
     },
-    updateBoardAndScores: () => {
+    updateBoardAndScores: async () => {
+        const lights = gameBoard.querySelectorAll('.light');
+        
+        const updateCard = (cardEl, cardValue, playerClass, isHidden) => {
+            if (!cardEl.querySelector('.blackjack-card-inner')) {
+                cardEl.innerHTML = `
+                    <div class="blackjack-card-inner">
+                        <div class="blackjack-card-front"></div>
+                        <div class="blackjack-card-back"></div>
+                    </div>
+                `;
+            }
+            
+            const cardBack = cardEl.querySelector('.blackjack-card-back');
+            cardBack.textContent = cardValue === 1 ? 'A' : cardValue;
+            
+            // Apply playerClass to the main card element (cardEl)
+            if (!cardEl.classList.contains(playerClass)) {
+                cardEl.classList.add(playerClass);
+            }
+            cardBack.classList.add('blackjack-card-back'); // Ensure this class is always present
+            
+            if (!isHidden && !cardEl.classList.contains('is-flipped')) {
+                cardEl.classList.add('is-flipped');
+            }
+        };
+
+        // Update CPU hand
+        gameState.cpuHand.forEach((c, index) => {
+            const cardEl = lights[index];
+            if (cardEl) {
+                cardEl.classList.add('blackjack-card');
+                updateCard(cardEl, c.card, 'is-player-2', c.hidden);
+            }
+        });
+
+        // Update Player hand
+        gameState.playerHand.forEach((card, index) => {
+            const playerGridIndex = 8 + index;
+            const cardEl = lights[playerGridIndex];
+            if (cardEl) {
+                cardEl.classList.add('blackjack-card');
+                updateCard(cardEl, card, 'is-player-1', false);
+            }
+        });
+
         const playerScore = blackjackGame.calculateHandValue(gameState.playerHand);
         const cpuVisibleScore = blackjackGame.calculateHandValue(gameState.cpuHand.filter(c => !c.hidden).map(c => c.card));
         
@@ -66,25 +113,6 @@ const blackjackGame = {
             const finalCpuScore = blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card));
             updateStats(`Your Score: ${playerScore} | CPU: ${finalCpuScore}`);
         }
-
-        const lights = gameBoard.querySelectorAll('.light');
-        lights.forEach(light => { light.textContent = ''; light.className = 'light is-off'; });
-        
-        gameState.cpuHand.forEach((c, index) => {
-            if (lights[index]) {
-                lights[index].textContent = c.hidden ? '?' : (c.card === 1 ? 'A' : c.card);
-                lights[index].classList.remove('is-off');
-                lights[index].classList.add('is-player-2');
-            }
-        });
-        gameState.playerHand.forEach((card, index) => {
-            const playerGridIndex = 8 + index;
-            if (lights[playerGridIndex]) {
-                lights[playerGridIndex].textContent = card === 1 ? 'A' : card;
-                lights[playerGridIndex].classList.remove('is-off');
-                lights[playerGridIndex].classList.add('is-player-1');
-            }
-        });
     },
     hit: async () => {
         if (gameState.gameOver || !gameState.playerTurn) return;
@@ -109,7 +137,7 @@ const blackjackGame = {
             playSound('E4', '4n');
         }
         
-        blackjackGame.updateBoardAndScores();
+        await blackjackGame.updateBoardAndScores();
         await delay(1000);
 
         while (blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card)) < 17 && gameState.deck.length > 0) {
@@ -140,5 +168,8 @@ const blackjackGame = {
         const finalPlayerScore = blackjackGame.calculateHandValue(gameState.playerHand);
         const finalCpuScore = blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card));
         showWinModal(message, `Final Scores - You: ${finalPlayerScore}, CPU: ${finalCpuScore}`);
+    },
+    cleanup: () => {
+        // No specific cleanup needed
     }
 };

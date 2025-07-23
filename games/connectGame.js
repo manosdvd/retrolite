@@ -46,9 +46,16 @@ const connectGame = {
         gameState.board[index] = player;
         playSound(player === HUMAN ? 'C4' : 'G3');
         connectGame.updateBoard();
-        if (utils.checkConnectWin(gameState.board, player)) {
+        const winLine = utils.checkConnectWin(gameState.board, player);
+        if (winLine) {
             gameState.gameOver = true;
             gameStatus.textContent = player === HUMAN ? "You Win!" : "AI Wins!";
+            winLine.forEach(index => {
+                const light = gameBoard.querySelector(`[data-index="${index}"]`);
+                if (light) {
+                    light.classList.add('is-win-light');
+                }
+            });
             connectGame.addNewGameButton();
         } else if (utils.isDraw(gameState.board)) {
             gameState.gameOver = true;
@@ -109,5 +116,8 @@ const connectGame = {
             else if (gameState.board[i] === AI) light.classList.add('is-player-2');
             else light.classList.add('is-empty');
         });
+    },
+    cleanup: () => {
+        // No specific cleanup needed as event listeners are managed by main.js
     }
 };

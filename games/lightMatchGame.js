@@ -1,22 +1,19 @@
 const lightMatchGame = {
+    controller: null,
+
     setup: () => {
+        if (lightMatchGame.controller) lightMatchGame.controller.abort();
+        lightMatchGame.controller = new AbortController();
+        const { signal } = lightMatchGame.controller;
+
         const size = 8;
         const numColors = 6;
         gameState = {
             size, numColors, board: [], selected: null, isAnimating: false, score: 0,
             touchStartIndex: null, touchStartX: 0, touchStartY: 0,
         };
-        gameBoard.style.gridTemplateColumns = `repeat(${size}, 1fr)`;
+        
         gameBoard.classList.add('large-grid');
-
-        const fragment = document.createDocumentFragment();
-        for (let i = 0; i < size * size; i++) {
-            const light = document.createElement('div');
-            light.classList.add('light');
-            light.dataset.index = i;
-            fragment.appendChild(light);
-        }
-        gameBoard.appendChild(fragment);
 
         do {
             for (let i = 0; i < size * size; i++) {
@@ -27,13 +24,14 @@ const lightMatchGame = {
         lightMatchGame.updateBoard();
         updateStats(`Score: 0`);
 
-        gameBoard.addEventListener('mousedown', lightMatchGame.handleInteractionStart);
-        gameBoard.addEventListener('touchstart', lightMatchGame.handleInteractionStart, { passive: false });
+        gameBoard.addEventListener('mousedown', lightMatchGame.handleInteractionStart, { signal });
+        gameBoard.addEventListener('touchstart', lightMatchGame.handleInteractionStart, { passive: false, signal });
     },
 
     cleanup: () => {
-        window.removeEventListener('mouseup', lightMatchGame.handleInteractionEnd);
-        window.removeEventListener('touchend', lightMatchGame.handleInteractionEnd);
+        if (lightMatchGame.controller) {
+            lightMatchGame.controller.abort();
+        }
     },
 
     handleInteractionStart: (e) => {
@@ -46,8 +44,9 @@ const lightMatchGame = {
         gameState.touchStartX = e.clientX || e.touches[0].clientX;
         gameState.touchStartY = e.clientY || e.touches[0].clientY;
 
-        window.addEventListener('mouseup', lightMatchGame.handleInteractionEnd);
-        window.addEventListener('touchend', lightMatchGame.handleInteractionEnd);
+        const { signal } = lightMatchGame.controller;
+        window.addEventListener('mouseup', lightMatchGame.handleInteractionEnd, { signal });
+        window.addEventListener('touchend', lightMatchGame.handleInteractionEnd, { signal });
     },
 
     handleInteractionEnd: (e) => {

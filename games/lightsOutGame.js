@@ -92,5 +92,8 @@ const lightsOutGame = {
         gameState.isSolving = false;
         document.querySelector('.btn-yellow').disabled = false;
         gameStatus.textContent = "Solved!";
+    },
+    cleanup: () => {
+        // No specific cleanup needed as event listeners are managed by main.js
     }
 };

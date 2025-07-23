@@ -48,5 +48,8 @@ const sliderPuzzleGame = {
         if (gameState.board.every((val, i) => val === winState[i])) {
             showWinModal('You Win!', `Solved in ${gameState.moves} moves!`);
         }
+    },
+    cleanup: () => {
+        // No specific cleanup needed as event listeners are managed by main.js
     }
 };

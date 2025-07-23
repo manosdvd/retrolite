@@ -38,7 +38,20 @@ const decryptGame = {
         gameBoard.appendChild(this.puzzleContainer);
 
         this.keyboardContainer = document.getElementById('keyboard-container');
-        this.createKeyboard();
+        
+        const keyLayout = [
+            ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+            ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
+            ['Enter', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', 'Backspace']
+        ];
+
+        keyboard = new Keyboard(keyLayout, (key) => {
+            if (key === 'Backspace') {
+                this.setUserMapping(this.activeCipherChar, '');
+            } else if (key.match(/^[a-zA-Z]$/)) {
+                this.setUserMapping(this.activeCipherChar, key.toUpperCase());
+            }
+        });
         
         buttonContainer.appendChild(createControlButton('Hint', 'btn-blue', this.giveHint.bind(this)));
         buttonContainer.appendChild(createControlButton('Source', 'btn-pink', this.giveSourceHint.bind(this)));
@@ -50,7 +63,6 @@ const decryptGame = {
         // 3. Add all event listeners using the controller's signal.
         // When the controller aborts, these are all removed automatically.
         this.puzzleContainer.addEventListener('click', this.handleInputClick.bind(this), { signal });
-        this.keyboardContainer.addEventListener('click', this.handleKeyboardClick.bind(this), { signal });
         window.addEventListener('keydown', this.handlePhysicalKeyboard.bind(this), { signal });
 
         // 4. Start the first puzzle
@@ -166,23 +178,6 @@ const decryptGame = {
         });
     },
 
-    handleKeyboardClick: function(e) {
-        const key = e.target.closest('.key');
-        if (!key || !this.activeCipherChar) return;
-        const plainChar = key.dataset.key;
-
-        // Add haptic feedback
-        if (navigator.vibrate) {
-            navigator.vibrate(50); // Vibrate for 50ms
-        }
-
-        if (plainChar === 'Backspace') {
-            this.setUserMapping(this.activeCipherChar, '');
-        } else if (plainChar.match(/^[A-Z]$/)) {
-            this.setUserMapping(this.activeCipherChar, plainChar);
-        }
-    },
-
     handlePhysicalKeyboard: function(e) {
         if (!this.activeCipherChar || this.isSolved) return;
         if (e.key.match(/^[a-zA-Z]$/)) {
@@ -228,48 +223,19 @@ const decryptGame = {
         });
     },
 
-    createKeyboard: function() {
-        this.keyboardContainer.innerHTML = '';
-        this.keyboardContainer.classList.add('keyboard'); // Add the keyboard class
-        const keys = [
-            ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
-            ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-            ['Enter', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫']
-        ];
-        keys.forEach(row => {
-            const rowDiv = document.createElement('div');
-            rowDiv.className = 'keyboard-row';
-            row.forEach(key => {
-                const keyDiv = document.createElement('button');
-                keyDiv.className = 'key';
-                let dataKey = key;
-                let displayText = key;
-
-                if (key === '⌫') {
-                    dataKey = 'Backspace';
-                } else if (key === 'Enter') {
-                    displayText = '⏎';
-                }
-                
-                keyDiv.textContent = displayText;
-                keyDiv.dataset.key = dataKey;
-                if (key === 'Enter' || key === '⌫') {
-                    keyDiv.classList.add('key-large');
-                }
-                rowDiv.appendChild(keyDiv);
-            });
-            this.keyboardContainer.appendChild(rowDiv);
-        });
-    },
+    
 
     updateKeyboard: function() {
         const mappedPlainChars = Object.values(this.userMappings);
-        document.querySelectorAll('#keyboard-container .key').forEach(key => {
-            const plainChar = key.dataset.key;
-            const isDisabled = mappedPlainChars.includes(plainChar);
-            key.disabled = isDisabled;
-            key.classList.toggle('used', isDisabled);
-        });
+        for (const row of keyboard.keyLayout) {
+            for (const key of row) {
+                const isUsed = mappedPlainChars.includes(key);
+                keyboard.enableKey(key, !isUsed);
+                if (isUsed) {
+                    keyboard.updateKey(key, 'used');
+                }
+            }
+        }
     },
 
     generateCipherMap: function() {

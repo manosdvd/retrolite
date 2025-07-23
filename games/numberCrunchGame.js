@@ -110,4 +110,7 @@ const numberCrunchGame = {
     },
 
     // checkWin is now integrated into the handler to check after each calculation
+    cleanup: () => {
+        // No specific cleanup needed as event listeners are managed by main.js
+    }
 };
