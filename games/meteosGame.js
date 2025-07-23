@@ -245,7 +245,13 @@ const meteosGame = {
 
             // Determine lock if not already set
             if (!dragState.lock) {
-                // ... existing lock determination logic ...
+                // Calculate initial direction and set lock
+                const dx = clientX - (dragState.gridRect.left + (dragState.startX + 0.5) * (cellWidth + 4));
+                const dy = clientY - (dragState.gridRect.top + (dragState.startY + 0.5) * (cellHeight + 4));
+
+                if (Math.abs(dx) > DRAG_LOCK_THRESHOLD || Math.abs(dy) > DRAG_LOCK_THRESHOLD) {
+                    dragState.lock = Math.abs(dx) > Math.abs(dy) ? 'horizontal' : 'vertical';
+                }
             }
 
             // --- OPTIMIZATION ---
@@ -264,6 +270,7 @@ const meteosGame = {
                 dragState.lastTargetX = startX; // Ensure X is locked
                 dragState.lastTargetY = targetY;
             }
+            updateVisualSwap(clientX, clientY);
         }
         
         function updateVisualSwap(clientX, clientY) {
@@ -324,19 +331,21 @@ const meteosGame = {
         }
 
         async function handleDragEnd() {
-            // ... remove event listeners ...
-            const { element, startX, startY, lastTargetX, lastTargetY, lock } = dragState;
-             dragState.element.classList.remove('dragging-origin'); // Make sure to remove the class
+            document.removeEventListener('mousemove', handleDragMove);
+            document.removeEventListener('touchmove', handleDragMove);
+            document.removeEventListener('mouseup', handleDragEnd);
+            document.removeEventListener('touchend', handleDragEnd);
 
+            const { element, startX, startY, lastTargetX, lastTargetY, lock } = dragState;
+            if (element) element.classList.remove('dragging-origin');
 
             if (lock && (startX !== lastTargetX || startY !== lastTargetY)) {
-                // Now, we process the move based on the final target position
                 await processMove(startX, startY, lastTargetX, lastTargetY, lock);
             } else {
-                // If no valid move, just re-render to snap back
                 renderGrid();
             }
-            // ... cleanup ...
+            unlockGame();
+            dragState = {}; // Clear drag state
         }
 
         // --- CORE GAME LOGIC ---

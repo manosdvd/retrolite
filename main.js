@@ -323,6 +323,13 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
+
+    // Global keyboard event listener
+    document.addEventListener('keydown', (e) => {
+        if (currentMode && currentMode.handler) {
+            currentMode.handler(e, 'keydown');
+        }
+    });
 });
 
 window.startGame = function(mode) {

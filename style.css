@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght @400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap');
 
 :root {
     --theme-color: #ef4444;
@@ -214,25 +214,140 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     flex-shrink: 0; /* Prevent the keyboard and controls from shrinking */
 }
 
-
 /* Other Game-Specific Layouts */
 #game-container.meteos-active > #game-board { flex-grow: 1; min-height: 0; }
 
-/* Cryptogram Styles */
-.cryptogram-puzzle-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 1.5rem 1rem; padding: 1rem; }
-.cryptogram-word { display: flex; flex-wrap: nowrap; }
-.cryptogram-cell { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 35px; height: 70px; margin: 0 2px; border-bottom: 2px solid #6b7280; cursor: pointer; transition: background-color 0.2s; }
-.cryptogram-cell.punctuation { border-bottom: none; cursor: default; font-size: 1.5rem; width: auto; }
-.cipher-char { font-weight: bold; font-size: 1.5rem; color: #cbd5e1; text-align: center; }
-.plain-char { font-weight: bold; font-size: 1.5rem; color: #f59e0b; text-align: center; min-height: 2rem; }
-.cryptogram-cell.active { background-color: #374151; border-radius: 4px; }
-.cryptogram-cell.correct .plain-char { color: #22c55e; }
-#keyboard-container .key.used { background-color: #1f2937; color: #4b5563; cursor: not-allowed; }
+/* --- Scroll Indicator for Cryptogram (with Arrow) --- */
+.scroll-indicator-wrapper {
+    position: relative;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+}
+.scroll-indicator-wrapper::-webkit-scrollbar {
+    display: none;
+}
+
+/* Gradient Fade */
+.scroll-indicator-wrapper::after {
+    content: '';
+    position: sticky; /* Stick to the bottom of the viewport */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 40px;
+    background: linear-gradient(to top, #1a1a2e 70%, transparent);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease-in-out;
+    z-index: 10;
+}
+
+/* Arrow Indicator */
+.scroll-indicator-wrapper::before {
+    content: '';
+    position: sticky;
+    bottom: 5px;
+    left: 50%;
+    transform: translateX(-50%) rotate(45deg);
+    width: 12px;
+    height: 12px;
+    border-bottom: 3px solid var(--theme-color);
+    border-right: 3px solid var(--theme-color);
+    pointer-events: none;
+    opacity: 0;
+    z-index: 11;
+    animation: bounce-arrow 1.5s infinite;
+}
+
+.scroll-indicator-wrapper.has-overflow::after,
+.scroll-indicator-wrapper.has-overflow::before {
+    opacity: 1;
+}
+
+/* Cryptogram Styles for Word Wrapping and Readability */
+.cryptogram-puzzle-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.75rem 1rem; /* Increased row gap */
+    padding: 1.5rem;
+    line-height: 1.5; /* Improved line height */
+}
+
+.cryptogram-word {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.cryptogram-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-end; /* Align to bottom */
+    width: 38px; /* Slightly wider */
+    height: 75px;
+    margin: 0 2px;
+    border-bottom: 3px solid #6b7280;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.cryptogram-cell.punctuation {
+    border-bottom: none;
+    cursor: default;
+    font-size: 1.75rem;
+    width: auto;
+    padding-bottom: 5px;
+}
+
+.cipher-char {
+    font-weight: bold;
+    font-size: 1.75rem;
+    color: #cbd5e1;
+    text-align: center;
+    letter-spacing: 0.05em; /* Kerning */
+}
+
+.plain-char {
+    font-weight: bold;
+    font-size: 1.75rem;
+    color: #f59e0b;
+    text-align: center;
+    min-height: 2.2rem;
+    letter-spacing: 0.05em; /* Kerning */
+}
+
+.cryptogram-cell.active {
+    background-color: #374151;
+    border-radius: 4px;
+}
+
+.cryptogram-cell.correct .plain-char {
+    color: #22c55e;
+}
+
+#keyboard-container .key.used {
+    background-color: #1f2937;
+    color: #4b5563;
+    cursor: not-allowed;
+}
 
 /* Keyframes */
  @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotateZ(0deg); } 100% { transform: translateY(110vh) rotateZ(360deg); } }
  @keyframes pulse { to { transform: scale(1.1); box-shadow: 0 0 20px var(--theme-shadow-color); } }
  @keyframes draw-line { from { width: 0; } to { width: 100%; } }
  @keyframes drop { 0% { transform: translateY(-100px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
- @keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { translateX(-4px); } 40%, 60% { translateX(4px); } }
+ @keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
  @keyframes appear { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+ @keyframes bounce-arrow {
+    0%, 20%, 50%, 80%, 100% {
+        transform: translateX(-50%) rotate(45deg) translateY(0);
+    }
+    40% {
+        transform: translateX(-50%) rotate(45deg) translateY(-8px);
+    }
+    60% {
+        transform: translateX(-50%) rotate(45deg) translateY(-4px);
+    }
+ }
