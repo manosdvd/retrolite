@@ -108,8 +108,8 @@ const gameModes = {
         gridSize: 4, 
         setup: numberCrunchGame.setup, 
         handler: numberCrunchGame.handler, 
-        color: '#fde047', 
-        shadow: '#facc15', 
+        color: '#9C27B0', /* Changed from yellow */
+        shadow: '#c039d9', /* Changed from yellow */ 
         cleanup: numberCrunchGame.cleanup
     },
     fractionFlipper: { 
