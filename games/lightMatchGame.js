@@ -44,12 +44,17 @@ const lightMatchGame = {
         gameState.touchStartX = e.clientX || e.touches[0].clientX;
         gameState.touchStartY = e.clientY || e.touches[0].clientY;
 
+        // Use the AbortController's signal to manage these listeners
         const { signal } = lightMatchGame.controller;
         window.addEventListener('mouseup', lightMatchGame.handleInteractionEnd, { signal });
         window.addEventListener('touchend', lightMatchGame.handleInteractionEnd, { signal });
     },
 
-    handleInteractionEnd: (e) => {
+    handleInteractionEnd: async (e) => {
+        // Immediately remove the "end" listeners so they don't fire multiple times
+        window.removeEventListener('mouseup', lightMatchGame.handleInteractionEnd);
+        window.removeEventListener('touchend', lightMatchGame.handleInteractionEnd);
+
         if (gameState.touchStartIndex === null) return;
         
         const endX = e.clientX || e.changedTouches[0].clientX;
@@ -57,31 +62,34 @@ const lightMatchGame = {
 
         const dx = endX - gameState.touchStartX;
         const dy = endY - gameState.touchStartY;
-        const threshold = 20;
+        const threshold = 20; // Drag distance threshold
 
         if (Math.abs(dx) < threshold && Math.abs(dy) < threshold) {
+            // This was a click, not a drag
             lightMatchGame.handleClick(gameState.touchStartIndex);
         } else {
+            // This was a drag/swipe
             let targetIndex = -1;
             const startIndex = gameState.touchStartIndex;
             const { size } = gameState;
 
-            if (Math.abs(dx) > Math.abs(dy)) {
+            if (Math.abs(dx) > Math.abs(dy)) { // Horizontal swipe
                 targetIndex = (dx > 0) ? startIndex + 1 : startIndex - 1;
                 if (Math.floor(startIndex / size) !== Math.floor(targetIndex / size)) {
-                    targetIndex = -1;
+                    targetIndex = -1; // Invalid swipe across rows
                 }
-            } else {
+            } else { // Vertical swipe
                 targetIndex = (dy > 0) ? startIndex + size : startIndex - size;
             }
 
             if (targetIndex >= 0 && targetIndex < size * size) {
-                lightMatchGame.attemptSwap(startIndex, targetIndex);
+                // This 'await' is crucial. The function will pause here until the swap is fully done.
+                await lightMatchGame.attemptSwap(startIndex, targetIndex);
             }
         }
         
+        // Reset the starting touch index after the action is complete
         gameState.touchStartIndex = null;
-        lightMatchGame.cleanup();
     },
 
     handleClick: (index) => {
@@ -89,20 +97,24 @@ const lightMatchGame = {
         if (!target) return;
 
         if (gameState.selected === null) {
+            // Nothing is selected, so select this piece
             gameState.selected = index;
             target.classList.add('is-selected');
         } else {
             const first = gameState.selected;
             const second = index;
             
+            // Remove the highlight from the previously selected piece
             const firstEl = gameBoard.querySelector(`[data-index='${first}']`);
             if(firstEl) firstEl.classList.remove('is-selected');
             
             gameState.selected = null;
 
-            const isAdjacent = Math.abs(first % 8 - second % 8) + Math.abs(Math.floor(first / 8) - Math.floor(second / 8)) === 1;
+            // Check if the second click is adjacent to the first
+            const isAdjacent = Math.abs(first % gameState.size - second % gameState.size) + Math.abs(Math.floor(first / gameState.size) - Math.floor(second / gameState.size)) === 1;
 
             if (isAdjacent && first !== second) {
+                // If adjacent, attempt the swap
                 lightMatchGame.attemptSwap(first, second);
             }
         }
@@ -112,38 +124,43 @@ const lightMatchGame = {
         if (gameState.isAnimating) return;
         gameState.isAnimating = true;
 
-        await this.animateSwap(index1, index2, true);
+        try {
+            await this.animateSwap(index1, index2, true);
 
-        const board = gameState.board;
-        const originalType1 = board[index1];
-        const originalType2 = board[index2];
-        const BOMB = 7;
+            const board = gameState.board;
+            const originalType1 = board[index1];
+            const originalType2 = board[index2];
+            const BOMB = 7;
 
-        [board[index1], board[index2]] = [board[index2], board[index1]];
+            [board[index1], board[index2]] = [board[index2], board[index1]];
 
-        let bombExploded = false;
-        if (originalType1 === BOMB) {
-            await this.handleBombExplosion(index2);
-            bombExploded = true;
-        } else if (originalType2 === BOMB) {
-            await this.handleBombExplosion(index1);
-            bombExploded = true;
-        }
-
-        if (bombExploded) {
-            await this.resolveBoard();
-        } else {
-            const matches = this.findMatchData(board, [index1, index2]).cellsToClear;
-            if (matches.size > 0) {
-                await this.resolveBoard([index1, index2]);
-            } else {
-                await delay(150);
-                await this.animateSwap(index1, index2, false);
-                [board[index1], board[index2]] = [board[index2], board[index1]];
+            let bombExploded = false;
+            if (originalType1 === BOMB) {
+                await this.handleBombExplosion(index2);
+                bombExploded = true;
+            } else if (originalType2 === BOMB) {
+                await this.handleBombExplosion(index1);
+                bombExploded = true;
             }
+
+            if (bombExploded) {
+                await this.resolveBoard();
+            } else {
+                const matches = this.findMatchData(board, [index1, index2]).cellsToClear;
+                if (matches.size > 0) {
+                    await this.resolveBoard([index1, index2]);
+                } else {
+                    await delay(150);
+                    await this.animateSwap(index1, index2, false);
+                    [board[index1], board[index2]] = [board[index2], board[index1]];
+                }
+            }
+        } finally {
+            // This 'finally' block ensures the game always unlocks, fixing the issue.
+            gameState.isAnimating = false;
         }
 
-        gameState.isAnimating = false;
+        // Check for possible moves after the animation is complete and controls are unlocked.
         if (!this.hasPossibleMoves()) {
             showWinModal("No More Moves!", `Final Score: ${gameState.score}`);
         }

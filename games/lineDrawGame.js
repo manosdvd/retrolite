@@ -2,7 +2,18 @@ const lineDrawGame = {
     setup: () => {
         const size = currentMode.gridSize;
         const puzzle = lineDrawGame.generatePuzzle(size);
-        gameState = { size, board: Array(size * size).fill(0), pairs: puzzle.pairs, paths: {}, isDrawing: false, currentColor: 0, startNode: -1 };
+        // Add completedPaths to the gameState object to track completed lines
+        gameState = { 
+            size, 
+            board: Array(size * size).fill(0), 
+            pairs: puzzle.pairs, 
+            paths: {}, 
+            isDrawing: false, 
+            currentColor: 0, 
+            startNode: -1,
+            gameOver: false,
+            completedPaths: new Set() // Add this line
+        };
         puzzle.pairs.forEach(p => { gameState.paths[p.c] = []; });
 
         // --- FIX: Dynamically create the grid elements ---
@@ -65,25 +76,33 @@ const lineDrawGame = {
         return lineDrawGame.generatePuzzle(size);
     },
     handleMouseDown: (e) => {
+        if (gameState.gameOver) return; // Add this line
         e.preventDefault();
         const target = e.target.closest('.light');
         if (!target) return;
         const index = parseInt(target.dataset.index);
         const pair = gameState.pairs.find(p => p.s === index || p.e === index);
         if (pair) {
+            // If this path was completed, remove it from the set before redrawing
+            if (gameState.completedPaths.has(pair.c)) {
+                gameState.completedPaths.delete(pair.c);
+            }
+            
             const oldPath = gameState.paths[pair.c];
             if (oldPath) oldPath.forEach(i => { if (!gameState.pairs.some(p => p.s === i || p.e === i)) gameState.board[i] = 0; });
+            
             gameState.isDrawing = true;
             gameState.currentColor = pair.c;
             gameState.startNode = index;
             gameState.paths[pair.c] = [index];
             gameState.board[index] = pair.c;
+            
             playSound(notes[(pair.c - 1) % notes.length]);
             lineDrawGame.updateBoard();
         }
     },
     handleMouseMove: (e) => {
-        if (!gameState.isDrawing) return;
+        if (gameState.gameOver || !gameState.isDrawing) return; // Add gameOver check
         e.preventDefault();
         const x = e.clientX || e.touches[0].clientX;
         const y = e.clientY || e.touches[0].clientY;
@@ -115,22 +134,28 @@ const lineDrawGame = {
     },
     handleMouseUp: (e) => {
         if (!gameState.isDrawing) return;
+        
         const color = gameState.currentColor;
         const path = gameState.paths[color];
         const pair = gameState.pairs.find(p => p.c === color);
         const startNode = gameState.startNode;
         const endNode = path[path.length - 1];
         const targetEndNode = (pair.s === startNode) ? pair.e : pair.s;
+
         if (endNode !== targetEndNode) {
+            // Path is invalid, so erase it
             path.forEach(i => { if (!gameState.pairs.some(p => p.s === i || p.e === i)) gameState.board[i] = 0; });
             gameState.paths[color] = [];
             playSound('C3');
         } else {
-                 playSound('G4');
+            // Path is valid! Add its color to the completed set.
+            gameState.completedPaths.add(color);
+            playSound('G4');
         }
+
         gameState.isDrawing = false;
-        lineDrawGame.updateBoard();
-        lineDrawGame.checkWin();
+        lineDrawGame.updateBoard(); // Update the board to show the new glow
+        lineDrawGame.checkWin();    // Check if the whole puzzle is solved
     },
     updateBoard: () => {
         const lights = gameBoard.querySelectorAll('.light');
@@ -138,19 +163,34 @@ const lineDrawGame = {
             light.className = 'light'; // Reset classes
             const pair = gameState.pairs.find(p => p.s === i || p.e === i);
             const pathColor = gameState.board[i];
+            
             if (pair) light.classList.add(`color-${pair.c}`, 'line-dot');
-            if (pathColor) light.classList.add(`path-${pathColor}`);
+            
+            if (pathColor) {
+                light.classList.add(`path-${pathColor}`);
+                // If this path's color is in the completed set, make it glow
+                if (gameState.completedPaths.has(pathColor)) {
+                    light.classList.add('is-highlight');
+                }
+            }
         });
     },
     checkWin: () => {
+        if (gameState.gameOver) return; // Prevent re-checking if already won
+
         const allPaired = gameState.pairs.every(p => {
             const path = gameState.paths[p.c];
             if (!path || path.length < 2) return false;
-            const ends = [path[0], path[path.length-1]].sort((a,b)=>a-b);
-            const pairEnds = [p.s, p.e].sort((a,b)=>a-b);
+            const ends = [path[0], path[path.length - 1]].sort((a, b) => a - b);
+            const pairEnds = [p.s, p.e].sort((a, b) => a - b);
             return ends[0] === pairEnds[0] && ends[1] === pairEnds[1];
         });
-        if (allPaired && !gameState.board.includes(0)) {
+
+        const isBoardFull = !gameState.board.includes(0);
+
+        if (allPaired && isBoardFull) {
+            gameState.gameOver = true;    // Set the win state
+            lineDrawGame.updateBoard();   // Redraw the board immediately with the glow
             showWinModal('You Win!', 'You connected all the dots!');
         }
     },
