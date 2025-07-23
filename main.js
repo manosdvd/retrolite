@@ -74,30 +74,30 @@ const utils = {
 };
 
 const gameModes = {
-    lightPuzzle: { name: 'lightPuzzle', title: 'LIGHTS OUT', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171', cleanup: lightsOutGame.cleanup },
-    magicSquare: { name: 'magicSquare', title: 'MAGIC SQUARE', rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa', cleanup: magicSquareGame.cleanup },
-    ticTacToe: { name: 'ticTacToe', title: 'TIC-TAC-TOE', rules: 'Get three in a row.', gridSize: 3, setup: ticTacToeGame.setup, handler: ticTacToeGame.handler, color: '#3b82f6', shadow: '#60a5fa', cleanup: ticTacToeGame.cleanup },
-    sequence: { name: 'sequence', title: 'ECHO', rules: 'Repeat the sequence. Survive for 1 minute!', gridSize: 3, setup: echoGame.setup, handler: echoGame.handler, color: '#22c55e', shadow: '#4ade80', cleanup: echoGame.cleanup },
-    wordGuess: { 
-        name: 'wordGuess', 
-        title: 'WORDLE', 
-        rules: 'Guess the 5-letter word.', 
-        gridRows: 6, 
-        gridCols: 5, 
-        setup: wordleGame.setup, 
-        handler: wordleGame.handler, 
-        color: '#f97316', 
-        shadow: '#fb923c', 
-        cleanup: wordleGame.cleanup, 
-        createCell: wordleGame.createCell 
+    lightPuzzle: { name: 'lightPuzzle', title: 'DOPAMINE SWITCH', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171', cleanup: lightsOutGame.cleanup },
+    magicSquare: { name: 'magicSquare', title: 'HYPER FOCUS', rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa', cleanup: magicSquareGame.cleanup },
+    ticTacToe: { name: 'ticTacToe', title: 'PARALLEL PLAY', rules: 'Get three in a row.', gridSize: 3, setup: ticTacToeGame.setup, handler: ticTacToeGame.handler, color: '#3b82f6', shadow: '#60a5fa', cleanup: ticTacToeGame.cleanup },
+    sequence: { name: 'sequence', title: 'WORKING MEMORY', rules: 'Repeat the sequence. Survive for 1 minute!', gridSize: 3, setup: echoGame.setup, handler: echoGame.handler, color: '#22c55e', shadow: '#4ade80', cleanup: echoGame.cleanup },
+    wordGuess: {
+        name: 'wordGuess',
+        title: 'REJECTION SENSITIVITY',
+        rules: 'Guess the 5-letter word.',
+        gridRows: 6,
+        gridCols: 5,
+        setup: wordleGame.setup,
+        handler: wordleGame.handler,
+        color: '#f97316',
+        shadow: '#fb923c',
+        cleanup: wordleGame.cleanup,
+        createCell: wordleGame.createCell
     },
-    blackjack: { name: 'blackjack', title: '21', rules: 'Get 21, or survive for 1 minute!', gridRows: 4, gridCols: 4, setup: blackjackGame.setup, handler: null, color: '#06b6d4', shadow: '#22d3ee', cleanup: blackjackGame.cleanup },
-    lightMatch: { name: 'lightMatch', title: 'LIGHT MATCH', rules: 'Match 3+ lights. Form special combos for bombs!', gridSize: 8, setup: lightMatchGame.setup, handler: null, color: '#f43f5e', shadow: '#fb7185', cleanup: lightMatchGame.cleanup },
-    musicMachine: { name: 'musicMachine', title: 'MUSIC BOX', rules: 'Compose a tune.', gridSize: 3, setup: musicMachineGame.setup, handler: musicMachineGame.handler, color: '#d946ef', shadow: '#e879f9', cleanup: musicMachineGame.cleanup },
-    sliderPuzzle: { name: 'sliderPuzzle', title: 'SLIDER', rules: 'Order the tiles from 1 to 8.', gridSize: 3, setup: sliderPuzzleGame.setup, handler: sliderPuzzleGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: sliderPuzzleGame.cleanup },
-    minefield: { name: 'minefield', title: 'MINEFIELD', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af', cleanup: minefieldGame.cleanup },
-    fourInARow: { name: 'fourInARow', title: 'CONNECT 4', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: connectGame.cleanup },
-    colorConnect: { name: 'colorConnect', title: 'COLOR LINK', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf', cleanup: lineDrawGame.cleanup },
+    blackjack: { name: 'blackjack', title: 'DOPAMINE CHASE', rules: 'Get 21, or survive for 1 minute!', gridRows: 4, gridCols: 4, setup: blackjackGame.setup, handler: null, color: '#06b6d4', shadow: '#22d3ee', cleanup: blackjackGame.cleanup },
+    lightMatch: { name: 'lightMatch', title: 'DOPAMINE HIT', rules: 'Match 3+ lights. Form special combos for bombs!', gridSize: 8, setup: lightMatchGame.setup, handler: null, color: '#f43f5e', shadow: '#fb7185', cleanup: lightMatchGame.cleanup },
+    musicMachine: { name: 'musicMachine', title: 'AUDIO STIM', rules: 'Compose a tune.', gridSize: 3, setup: musicMachineGame.setup, handler: musicMachineGame.handler, color: '#d946ef', shadow: '#e879f9', cleanup: musicMachineGame.cleanup },
+    sliderPuzzle: { name: 'sliderPuzzle', title: 'TASK SWITCH', rules: 'Order the tiles from 1 to 8.', gridSize: 3, setup: sliderPuzzleGame.setup, handler: sliderPuzzleGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: sliderPuzzleGame.cleanup },
+    minefield: { name: 'minefield', title: 'ANXIETY GRID', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af', cleanup: minefieldGame.cleanup },
+    fourInARow: { name: 'fourInARow', title: 'BODY DOUBLE', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: connectGame.cleanup },
+    colorConnect: { name: 'colorConnect', title: 'FLOW STATE', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf', cleanup: lineDrawGame.cleanup },
     anxiety: {
     name: 'anxiety',
     title: 'ANXIETY',
@@ -153,31 +153,31 @@ const gameModes = {
     color: '#FF4136',
     shadow: '#FF851B'
 },
-    spellingBee: { name: 'spellingBee', title: 'SPELLING', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup, handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
-    decryptGame: { name: 'decryptGame', title: 'CIPHER', setup: decryptGame.setup, handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
-    numberCrunch: { 
-        name: 'numberCrunch', 
-        title: 'NUMBER CRUNCH', 
-        rules: 'Use the numbers and operators to hit the target number.', 
-        gridSize: 4, 
-        setup: numberCrunchGame.setup, 
-        handler: numberCrunchGame.handler, 
+    spellingBee: { name: 'spellingBee', title: 'AUDITORY PROCESS', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup, handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
+    decryptGame: { name: 'decryptGame', title: 'UNMASK', setup: decryptGame.setup, handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
+    numberCrunch: {
+        name: 'numberCrunch',
+        title: 'EXECUTIVE FUNCTION',
+        rules: 'Use the numbers and operators to hit the target number.',
+        gridSize: 4,
+        setup: numberCrunchGame.setup,
+        handler: numberCrunchGame.handler,
         color: '#9C27B0', /* Changed from yellow */
-        shadow: '#c039d9', /* Changed from yellow */ 
+        shadow: '#c039d9', /* Changed from yellow */
         cleanup: numberCrunchGame.cleanup
     },
-    fractionFlipper: { 
-        name: 'fractionFlipper', 
-        title: 'FRACTION FLIPPER', 
-        rules: 'Add fractions to match the target value.', 
-        setup: fractionFlipperGame.setup, 
-        handler: null, 
-        color: '#10b981', 
-        shadow: '#34d399', 
+    fractionFlipper: {
+        name: 'fractionFlipper',
+        title: 'TASK INITIATION',
+        rules: 'Add fractions to match the target value.',
+        setup: fractionFlipperGame.setup,
+        handler: null,
+        color: '#10b981',
+        shadow: '#34d399',
         cleanup: fractionFlipperGame.cleanup
     },
     
-    gauntlet: { name: 'gauntlet', title: 'GAUNTLET', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047', cleanup: () => gauntlet.end() }
+    gauntlet: { name: 'gauntlet', title: 'SURVIVAL MODE', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047', cleanup: () => gauntlet.end() }
 };
 
 const gauntlet = {
