@@ -98,7 +98,61 @@ const gameModes = {
     minefield: { name: 'minefield', title: 'MINEFIELD', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af', cleanup: minefieldGame.cleanup },
     fourInARow: { name: 'fourInARow', title: 'CONNECT 4', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: connectGame.cleanup },
     colorConnect: { name: 'colorConnect', title: 'COLOR LINK', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf', cleanup: lineDrawGame.cleanup },
-    meteos: { name: 'meteos', title: 'ANXIETY', rules: 'Match 3+ blocks to clear them.', setup: meteosGame.setup, handler: null, cleanup: meteosGame.cleanup, color: '#06b6d4', shadow: '#22d3ee' },
+    anxiety: {
+    name: 'anxiety',
+    title: 'ANXIETY',
+    rules: 'Slide blocks to match 3 or more. Dont let the stack reach the top!',
+    setup: function() {
+        // Create a container for the game canvas and start button
+        // This structure uses absolute positioning to ensure perfect centering
+        gameBoard.innerHTML = `
+            <div id="anxiety-container" style="position: relative; width: 500px; height: 600px; margin: auto;">
+                <canvas id="anxietyCanvas" width="500" height="600" style="position: absolute; top: 0; left: 0; z-index: 1;"></canvas>
+                <div id="anxiety-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 2;">
+                    <button id="anxiety-start-button" class="control-button btn-green">Start Game</button>
+                </div>
+            </div>
+        `;
+
+        const canvas = document.getElementById('anxietyCanvas');
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('anxiety-start-button');
+        const overlay = document.getElementById('anxiety-overlay');
+
+        const audioManager = new AudioManager();
+        const game = new AnxietyGame(ctx, canvas, audioManager);
+
+        // 1. Initialize the game logic (creates blocks)
+        game.init();
+        
+        // 2. Draw the initial state of the board so it appears behind the button
+        game.draw();
+
+        // 3. Set up the click event for the start button
+        startButton.addEventListener('click', () => {
+            // Initialize the audio on user interaction
+            audioManager.init();
+
+            // Start the game's animation and logic loop
+            game.start();
+
+            // Remove the overlay containing the button
+            overlay.remove();
+
+        }, { once: true }); // { once: true } is a safeguard to prevent multiple clicks
+
+        // Store the game instance for later cleanup
+        gameState.currentGameInstance = game;
+    },
+    // The cleanup function now correctly calls our new stop method
+    cleanup: function() {
+        if (gameState.currentGameInstance) {
+            gameState.currentGameInstance.stop();
+        }
+    },
+    color: '#FF4136',
+    shadow: '#FF851B'
+},
     spellingBee: { name: 'spellingBee', title: 'SPELLING', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup, handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
     decryptGame: { name: 'decryptGame', title: 'CIPHER', setup: decryptGame.setup, handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
     numberCrunch: { 
