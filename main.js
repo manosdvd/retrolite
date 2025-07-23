@@ -106,8 +106,8 @@ const gameModes = {
         // Create a container for the game canvas and start button
         // This structure uses absolute positioning to ensure perfect centering
         gameBoard.innerHTML = `
-            <div id="anxiety-container" style="position: relative; width: 500px; height: 600px; margin: auto;">
-                <canvas id="anxietyCanvas" width="500" height="600" style="position: absolute; top: 0; left: 0; z-index: 1;"></canvas>
+            <div id="anxiety-container" style="position: relative; width: 100%; max-width: 500px; aspect-ratio: 500 / 600; margin: auto;">
+                <canvas id="anxietyCanvas" width="500" height="600" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1;"></canvas>
                 <div id="anxiety-overlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: 2;">
                     <button id="anxiety-start-button" class="control-button btn-green">Start Game</button>
                 </div>

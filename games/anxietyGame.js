@@ -49,8 +49,12 @@ class AnxietyGame {
         this.ctx = ctx;
         this.canvas = canvas;
         this.audioManager = audioManager;
-        this.canvasWidth = canvas.width;
-        this.canvasHeight = canvas.height;
+        // Dynamic properties will be set by resize()
+        this.canvasWidth = 0;
+        this.canvasHeight = 0;
+        this.BLOCK_SIZE = 0;
+        this.gridX = 0;
+        this.gridY = 0;
 
         // Game constants
         this.GRID_WIDTH = 10;
@@ -70,6 +74,7 @@ class AnxietyGame {
         this.handleDragStart = this.handleDragStart.bind(this);
         this.handleDragMove = this.handleDragMove.bind(this);
         this.handleDragEnd = this.handleDragEnd.bind(this);
+        this.resize = this.resize.bind(this);
         this.gameLoopId = null;
     }
 
@@ -96,6 +101,7 @@ class AnxietyGame {
 
         this.processMatchesAndGravity(true);
         this.addEventListeners();
+        this.resize(); // Call resize after initializing the grid and adding event listeners
     }
 
     stop() {
@@ -137,6 +143,7 @@ class AnxietyGame {
         this.canvas.addEventListener('touchmove', this.handleDragMove, { passive: false });
         this.canvas.addEventListener('touchend', this.handleDragEnd);
         this.canvas.addEventListener('touchcancel', this.handleDragEnd);
+        window.addEventListener('resize', this.resize);
     }
 
     removeEventListeners() {
@@ -148,7 +155,26 @@ class AnxietyGame {
         this.canvas.removeEventListener('touchmove', this.handleDragMove);
         this.canvas.removeEventListener('touchend', this.handleDragEnd);
         this.canvas.removeEventListener('touchcancel', this.handleDragEnd);
+        window.removeEventListener('resize', this.resize);
     }
+
+    resize() {
+        this.canvasWidth = this.canvas.width;
+        this.canvasHeight = this.canvas.height;
+
+        // Reserve top 60px for score text, use the rest for the game grid
+        const availableHeight = this.canvasHeight - 60;
+        // The +1 in height is for the pusher row preview area
+        this.BLOCK_SIZE = Math.floor(Math.min(this.canvasWidth / this.GRID_WIDTH, availableHeight / (this.GRID_HEIGHT + 1)));
+
+        const gridWidthPixels = this.GRID_WIDTH * this.BLOCK_SIZE;
+        const gridHeightPixels = this.GRID_HEIGHT * this.BLOCK_SIZE;
+
+        this.gridX = (this.canvasWidth - gridWidthPixels) / 2;
+        // Center the grid vertically in the available space below the score area
+        this.gridY = 60 + (availableHeight - (gridHeightPixels + this.BLOCK_SIZE)) / 2;
+    }
+
 
     resetDragState() {
         this.isDragging = false;
