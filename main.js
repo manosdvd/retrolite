@@ -387,19 +387,34 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.startGame = function(mode) {
+    // --- THIS IS THE FIX ---
+    // Perform a COMPLETE cleanup of the previous game state and UI first.
     if (currentMode && typeof currentMode.cleanup === 'function') {
         currentMode.cleanup();
     }
+
+    // 1. Reset the main game board completely. This is the most critical step.
     gameBoard.innerHTML = '';
+    gameBoard.className = ''; // Wipes all old classes like 'game-grid'
+    gameBoard.style.cssText = ''; // Wipes any inline styles
+
+    // 2. Clear all other shared containers.
+    keyboardContainer.innerHTML = '';
+    buttonContainer.innerHTML = '';
+    statsContainer.innerHTML = '';
+    modalContainer.innerHTML = '';
+    gameStatus.textContent = '';
+    
+    // Now that everything is clean, set the new mode.
     currentMode = mode;
+    // --- END OF FIX ---
 
+
+    // Set up classes for keyboard-based games
     const keyboardGames = ['wordGuess', 'spellingBee', 'decryptGame'];
-    if (keyboardGames.includes(mode.name)) {
-        gameContainer.classList.add('keyboard-active');
-    } else {
-        gameContainer.classList.remove('keyboard-active');
-    }
+    gameContainer.classList.toggle('keyboard-active', keyboardGames.includes(mode.name));
 
+    // Set title and theme colors
     gameTitle.textContent = mode.title;
     gameRules.textContent = mode.rules;
     root.style.setProperty('--theme-color', mode.color);
@@ -407,12 +422,10 @@ window.startGame = function(mode) {
     gameTitle.style.color = mode.color;
     gameTitle.style.textShadow = `0 0 10px ${mode.shadow}`;
 
-    keyboardContainer.innerHTML = '';
-    buttonContainer.innerHTML = '';
-    statsContainer.innerHTML = '';
-    modalContainer.innerHTML = '';
-    gameStatus.textContent = '';
-    gameBoard.className = 'game-grid mb-2';
+    // Add base class for grid games (but NOT for anxiety)
+    if (mode.name !== 'anxiety') {
+        gameBoard.classList.add('game-grid', 'mb-2');
+    } // --- THIS IS THE FIX: Reset all classes first ---
 
     if (mode.gridSize || (mode.gridRows && mode.gridCols)) {
         const rows = mode.gridRows || mode.gridSize;
@@ -435,9 +448,20 @@ window.startGame = function(mode) {
     }
     
     const backButton = createControlButton('Menu', 'btn-red', () => {
+        // Run the game's specific cleanup function
         if (currentMode && typeof currentMode.cleanup === 'function') {
             currentMode.cleanup();
         }
+        
+        // --- THIS IS THE FIX ---
+        // Manually clear all shared containers before going back to the menu
+        keyboardContainer.innerHTML = '';
+        buttonContainer.innerHTML = '';
+        statsContainer.innerHTML = '';
+        gameStatus.textContent = '';
+        gameBoard.innerHTML = ''; // Also clear the game board itself
+        // --- END OF FIX ---
+
         gameContainer.classList.add('hidden');
         mainMenu.classList.remove('hidden');
         currentMode = null;
