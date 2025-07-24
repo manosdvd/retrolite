@@ -1,11 +1,556 @@
 const decryptQuotes = [
-    // --- Original Quotes ---
+    {
+        id: 119,
+        quote: "THATLL DO PIG THATLL DO",
+        title: "The Farmer's Approval",
+        source: "Farmer Hoggett, from Babe",
+        notes: "A farmer's quiet words of praise to his sheep-herding pig."
+    },
+    {
+        id: 17,
+        quote: "ROADS WHERE WERE GOING WE DONT NEED ROADS",
+        title: "The Future of Travel",
+        source: "Doc Brown, from Back to the Future",
+        notes: "A confident statement before traveling through time."
+    },
+    {
+        id: 181,
+        quote: "THE INTERNET IS JUST A WORLD PASSING NOTES IN A CLASSROOM",
+        title: "The Digital Schoolhouse",
+        source: "Jon Stewart",
+        notes: "A simple, funny, and accurate description of the internet's social dynamics."
+    },
+    {
+        id: 11,
+        quote: "I HAVE A FEELING WERE NOT IN KANSAS ANYMORE",
+        title: "Entering a New World",
+        source: "Dorothy Gale, from The Wizard of Oz",
+        notes: "An observation made upon arriving in a strange, colorful land."
+    },
+    {
+        id: 191,
+        quote: "THE TROUBLE WITH HAVING AN OPEN MIND OF COURSE IS THAT PEOPLE WILL INSIST ON COMING ALONG AND TRYING TO PUT THINGS IN IT",
+        title: "The Open Mind Problem",
+        source: "Terry Pratchett",
+        notes: "A cynical yet funny observation from the 'Discworld' series."
+    },
+    {
+        id: 206,
+        quote: "DOH",
+        title: "The Annoyed Grunt",
+        source: "Homer Simpson, from The Simpsons",
+        notes: "A versatile expression of frustration, pain, or realization of a mistake."
+    },
+    {
+        id: 104,
+        quote: "WE WILL WE WILL ROCK YOU",
+        title: "The Stadium Anthem",
+        source: "Queen (song)",
+        notes: "A simple but powerful chant designed for audience participation."
+    },
+    {
+        id: 121,
+        quote: "MY MONEY DONT JIGGLE JIGGLE IT FOLDS",
+        title: "The Jiggle Jiggle Rap",
+        source: "Louis Theroux (viral sound)",
+        notes: "A rap that went viral from a documentarian's old interview."
+    },
+    {
+        id: 13,
+        quote: "JUST KEEP SWIMMING",
+        title: "The Optimist's Motto",
+        source: "Dory, from Finding Nemo",
+        notes: "A piece of advice from a very forgetful blue fish."
+    },
+    {
+        id: 177,
+        quote: "TAKE ON ME TAKE ME ON",
+        title: "The Sketchbook Serenade",
+        source: "A-ha (song)",
+        notes: "The catchy chorus from a song famous for its groundbreaking pencil-sketch animation music video."
+    },
+    {
+        id: 190,
+        quote: "I LOVE DEADLINES I LOVE THE WHOOSHING NOISE THEY MAKE AS THEY GO BY",
+        title: "The Procrastinator's Anthem",
+        source: "Douglas Adams",
+        notes: "A witty and relatable take on the pressure of deadlines."
+    },
+    {
+        id: 187,
+        quote: "I CAN RESIST EVERYTHING EXCEPT TEMPTATION",
+        title: "The Wildean Paradox",
+        source: "Oscar Wilde",
+        notes: "A classic epigram on the nature of desire from the play 'Lady Windermere's Fan'."
+    },
+    {
+        id: 10,
+        quote: "THERES NO PLACE LIKE HOME",
+        title: "The Ruby Slipper Mantra",
+        source: "Dorothy Gale, from The Wizard of Oz",
+        notes: "A heartfelt realization from a journey to a magical land."
+    },
+    {
+        id: 139,
+        quote: "I CAN DO THIS ALL DAY",
+        title: "The Super Soldier's Resolve",
+        source: "Steve Rogers, from Captain America: The First Avenger",
+        notes: "A defiant statement in the face of overwhelming odds."
+    },
+    {
+        id: 143,
+        quote: "SIX SEASONS AND A MOVIE",
+        title: "The Community Rallying Cry",
+        source: "Abed Nadir, from Community (Dan Harmon)",
+        notes: "A meta-joke from a TV show that became a fan campaign."
+    },
+    {
+        id: 162,
+        quote: "NOBODY PUTS BABY IN A CORNER",
+        title: "The Final Dance",
+        source: "Johnny Castle, from Dirty Dancing",
+        notes: "A defiant declaration before the triumphant final dance number."
+    },
+    {
+        id: 172,
+        quote: "DO IT LADY",
+        title: "The Simple Command",
+        source: "Jay Renshaw (Chit)",
+        notes: "A catchphrase from the 'Chit' sketch series on TikTok and YouTube."
+    },
+    {
+        id: 153,
+        quote: "ITS THE FOR ME",
+        title: "The Defining Detail",
+        source: "Modern Slang",
+        notes: "A phrasal template used to point out a specific, noteworthy detail about something or someone."
+    },
+    {
+        id: 109,
+        quote: "KEEP THE CHANGE YA FILTHY ANIMAL",
+        title: "The Movie Quote Prank",
+        source: "Johnny, from Angels with Filthy Souls (in Home Alone)",
+        notes: "A line from a fictional gangster movie used to scare off a pizza boy."
+    },
+    {
+        id: 113,
+        quote: "IVE MADE A HUGE MISTAKE",
+        title: "The Magician's Regret",
+        source: "G.O.B. Bluth, from Arrested Development (Mitchell Hurwitz)",
+        notes: "The recurring realization of a man known for his grand illusions."
+    },
+    {
+        id: 132,
+        quote: "OKAY LETS GO",
+        title: "The Enthusiastic Start",
+        source: "TikTok Sound",
+        notes: "A viral sound from a popular creator used to kick off an activity."
+    },
+    {
+        id: 116,
+        quote: "SOMEBODY ONCE TOLD ME THE WORLD IS GONNA ROLL ME",
+        title: "The Ogre's Anthem",
+        source: "Smash Mouth (song)",
+        notes: "The opening line of a song that became the theme for a green ogre."
+    },
+    {
+        id: 101,
+        quote: "YESTERDAY ALL MY TROUBLES SEEMED SO FAR AWAY",
+        title: "The Ballad of Nostalgia",
+        source: "The Beatles (song)",
+        notes: "The beginning of a timeless ballad about longing for the past."
+    },
+    {
+        id: 15,
+        quote: "YOU CANT HANDLE THE TRUTH",
+        title: "The Courtroom Confession",
+        source: "Col. Nathan R. Jessep, from A Few Good Men (Aaron Sorkin)",
+        notes: "A shouted declaration from a high-ranking military officer on trial."
+    },
+    {
+        id: 122,
+        quote: "BOMBASTIC SIDE EYE",
+        title: "The Side Eye",
+        source: "TikTok Trend",
+        notes: "A popular sound used to express judgment or disapproval."
+    },
+    {
+        id: 144,
+        quote: "A LONG TIME AGO WE USED TO BE FRIENDS",
+        title: "The Veronica Mars Theme",
+        source: "The Dandy Warhols (song)",
+        notes: "The opening line of the theme song for a teen noir detective series."
+    },
+    {
+        id: 169,
+        quote: "ITS A DANGEROUS BUSINESS FRODO GOING OUT YOUR DOOR",
+        title: "The First Step of Adventure",
+        source: "Bilbo Baggins, from The Fellowship of the Ring (J.R.R. Tolkien)",
+        notes: "A hobbit's warning about the unpredictable nature of adventure."
+    },
+    {
+        id: 147,
+        quote: "HERES JOHNNY",
+        title: "The Shining Breakdown",
+        source: "Jack Torrance, from The Shining (Stephen King)",
+        notes: "A chilling ad-libbed line from a classic horror movie."
+    },
+    {
+        id: 157,
+        quote: "MY NAME IS INIGO MONTOYA YOU KILLED MY FATHER PREPARE TO DIE",
+        title: "The Duelist's Vow",
+        source: "Inigo Montoya, from The Princess Bride",
+        notes: "The iconic, oft-repeated line from a swordsman seeking revenge."
+    },
+    {
+        id: 131,
+        quote: "THEY DID SURGERY ON A GRAPE",
+        title: "The Grape Surgery",
+        source: "Internet Meme",
+        notes: "A meme celebrating a feat of incredible precision and technology."
+    },
+    {
+        id: 16,
+        quote: "I SEE DEAD PEOPLE",
+        title: "The Sixth Sense",
+        source: "Cole Sear, from The Sixth Sense (M. Night Shyamalan)",
+        notes: "A whispered secret from a boy with a supernatural ability."
+    },
+    {
+        id: 154,
+        quote: "AS IF",
+        title: "The Dismissal",
+        source: "Cher Horowitz, from Clueless",
+        notes: "Popularized in the 90s, this phrase is used to express disbelief or scorn."
+    },
+    {
+        id: 114,
+        quote: "CHANGE MY MIND",
+        title: "The Debate Challenge",
+        source: "Steven Crowder (internet meme)",
+        notes: "A meme format inviting people to challenge a stated opinion."
+    },
+    {
+        id: 14,
+        quote: "WHY SO SERIOUS",
+        title: "The Agent of Chaos",
+        source: "The Joker, from The Dark Knight (Christopher Nolan)",
+        notes: "A chilling question posed by a classic comic book villain."
+    },
+    {
+        id: 106,
+        quote: "IM THE KING OF THE WORLD",
+        title: "The Titanic Proclamation",
+        source: "Jack Dawson, from Titanic (James Cameron)",
+        notes: "An exuberant shout from the bow of a famously ill-fated ship."
+    },
+    {
+        id: 173,
+        quote: "WELL BACK TO IT THEN",
+        title: "The Return to Work",
+        source: "Jay Renshaw (Chit)",
+        notes: "A catchphrase from the 'Chit' sketch series on TikTok and YouTube."
+    },
+    {
+        id: 142,
+        quote: "I AIM TO MISBEHAVE",
+        title: "The Smuggler's Creed",
+        source: "Mal Reynolds, from Serenity (Joss Whedon)",
+        notes: "A declaration of rebellious intent from the captain of a Firefly-class ship."
+    },
+    {
+        id: 107,
+        quote: "YOURE GONNA NEED A BIGGER BOAT",
+        title: "The Underestimation",
+        source: "Chief Brody, from Jaws",
+        notes: "A classic line delivered after seeing the size of a great white shark."
+    },
+    {
+        id: 150,
+        quote: "NO CAP",
+        title: "The Honest Truth",
+        source: "Modern Slang",
+        notes: "A phrase used to emphasize that one is not lying or exaggerating."
+    },
+    {
+        id: 129,
+        quote: "I AM A SURGEON",
+        title: "The Surgeon's Declaration",
+        source: "Dr. Shaun Murphy, from The Good Doctor",
+        notes: "A clip from a medical drama used to show expertise or frustration."
+    },
+    {
+        id: 125,
+        quote: "ITS GIVING MAIN CHARACTER ENERGY",
+        title: "The Vibe Check",
+        source: "TikTok Slang",
+        notes: "A popular phrase used to describe someone who seems like the protagonist."
+    },
     {
         id: 1,
         quote: "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
         title: "The Rapid Canid's Leap",
         source: "Traditional Pangram",
         notes: "A sentence used to test typewriters and display fonts."
+    },
+    {
+        id: 165,
+        quote: "EVEN THE SMALLEST PERSON CAN CHANGE THE COURSE OF THE FUTURE",
+        title: "The Power of the Small",
+        source: "Galadriel, from The Fellowship of the Ring (J.R.R. Tolkien)",
+        notes: "A reminder that great deeds can be done by the most unlikely of heroes."
+    },
+    {
+        id: 12,
+        quote: "HOUSTON WE HAVE A PROBLEM",
+        title: "The Understated Crisis",
+        source: "Jim Lovell, from Apollo 13",
+        notes: "A calm report of a major issue during a space mission."
+    },
+    {
+        id: 152,
+        quote: "BET",
+        title: "A Simple Agreement",
+        source: "Modern Slang",
+        notes: "A term used to say 'yes' or to confirm something."
+    },
+    {
+        id: 160,
+        quote: "THATS WHAT SHE SAID",
+        title: "The Office Gag",
+        source: "Michael Scott, from The Office",
+        notes: "A juvenile joke used to add unintended innuendo to innocent phrases."
+    },
+    {
+        id: 159,
+        quote: "LIFE IS LIKE A BOX OF CHOCOLATES YOU NEVER KNOW WHAT YOURE GONNA GET",
+        title: "The Gumpism",
+        source: "Forrest Gump, from Forrest Gump",
+        notes: "A simple philosophy on the unpredictability of life."
+    },
+    {
+        id: 133,
+        quote: "YOU THINK YOU JUST FELL OUT OF A COCONUT TREE",
+        title: "The Coconut Tree",
+        source: "Kamala Harris (viral sound)",
+        notes: "A bizarre and memorable question from a politician that became a viral sound."
+    },
+    {
+        id: 145,
+        quote: "I WANT TO BELIEVE",
+        title: "The X-Files Poster",
+        source: "The X-Files (Chris Carter)",
+        notes: "The iconic phrase from a poster in Fox Mulder's office."
+    },
+    {
+        id: 164,
+        quote: "WIBBLY WOBBLY TIMEY WIMEY STUFF",
+        title: "The Doctor's Explanation",
+        source: "The Tenth Doctor, from Doctor Who",
+        notes: "A non-technical explanation for the complex nature of time travel."
+    },
+    {
+        id: 151,
+        quote: "SLAY",
+        title: "A Flawless Victory",
+        source: "Modern Slang",
+        notes: "An exclamation of approval, meaning someone did something exceptionally well."
+    },
+    {
+        id: 123,
+        quote: "DELULU IS THE SOLULU",
+        title: "The Solution",
+        source: "TikTok Slang",
+        notes: "A viral phrase suggesting that being delusional is the solution."
+    },
+    {
+        id: 135,
+        quote: "GOOD SOUP",
+        title: "The Soup Review",
+        source: "Adam Sackler, from Girls (Lena Dunham)",
+        notes: "A simple, satisfying line from a TV show that became a sound for anything good."
+    },
+    {
+        id: 108,
+        quote: "SAY HELLO TO MY LITTLE FRIEND",
+        title: "The Aggressive Introduction",
+        source: "Tony Montana, from Scarface",
+        notes: "A gangster's famous last stand introduction to his firearm."
+    },
+    {
+        id: 140,
+        quote: "I AM IRON MAN",
+        title: "The Hero's Identity",
+        source: "Tony Stark, from Iron Man",
+        notes: "The public declaration that launched a cinematic universe."
+    },
+    {
+        id: 158,
+        quote: "INCONCEIVABLE",
+        title: "The Word That Means Nothing",
+        source: "Vizzini, from The Princess Bride",
+        notes: "A word repeatedly used by a character who may not know what it means."
+    },
+    {
+        id: 149,
+        quote: "WE HAVE DONE THE IMPOSSIBLE AND THAT MAKES US MIGHTY",
+        title: "The Serenity Crew's Motto",
+        source: "Mal Reynolds, from Serenity (Joss Whedon)",
+        notes: "A line from Captain Mal Reynolds celebrating his crew's accomplishments."
+    },
+    {
+        id: 128,
+        quote: "OH NO OUR TABLE ITS BROKEN",
+        title: "The Broken Table",
+        source: "America's Funniest Home Videos (viral sound)",
+        notes: "A viral sound from a home video used to express dismay."
+    },
+    {
+        id: 118,
+        quote: "WHO LET THE DOGS OUT",
+        title: "The Unanswered Question",
+        source: "Baha Men (song)",
+        notes: "The catchy, repetitive question from a memorable early 2000s hit."
+    },
+    {
+        id: 105,
+        quote: "I GET KNOCKED DOWN BUT I GET UP AGAIN",
+        title: "The Song of Resilience",
+        source: "Chumbawamba (song)",
+        notes: "The defiant chorus of an unforgettable one-hit wonder."
+    },
+    {
+        id: 136,
+        quote: "THE NEEDS OF THE MANY OUTWEIGH THE NEEDS OF THE FEW",
+        title: "The Vulcan Philosophy",
+        source: "Spock, from Star Trek II: The Wrath of Khan",
+        notes: "A core principle of Vulcan logic, famously spoken by Spock."
+    },
+    {
+        id: 115,
+        quote: "SURPRISED PIKACHU",
+        title: "Feigned Shock",
+        source: "Pokémon (anime)",
+        notes: "A meme used to express shock at a completely predictable outcome."
+    },
+    {
+        id: 130,
+        quote: "HE LOOKED AT ME AND I LOOKED AT HIM",
+        title: "The Stare Down",
+        source: "TikTok Sound",
+        notes: "A viral sound describing a moment of intense, unspoken communication."
+    },
+    {
+        id: 146,
+        quote: "IN SPACE NO ONE CAN HEAR YOU SCREAM",
+        title: "The Alien Tagline",
+        source: "Alien (Ridley Scott)",
+        notes: "The terrifying tagline from a classic 1979 sci-fi horror film."
+    },
+    {
+        id: 102,
+        quote: "I SEE A RED DOOR AND I WANT IT PAINTED BLACK",
+        title: "The Color of Grief",
+        source: "The Rolling Stones (song)",
+        notes: "A line from a rock song expressing a desire to erase color and joy."
+    },
+    {
+        id: 120,
+        quote: "ITS CORN A BIG LUMP WITH KNOBS",
+        title: "The Corn Kid",
+        source: "Tariq (viral video)",
+        notes: "An interview with a child expressing his deep love for corn."
+    },
+    {
+        id: 124,
+        quote: "LET HIM COOK",
+        title: "The Chef's Kiss",
+        source: "Internet Slang",
+        notes: "A meme phrase used to tell people to let someone continue what they're doing well."
+    },
+    {
+        id: 117,
+        quote: "ITS THE EYE OF THE TIGER ITS THE THRILL OF THE FIGHT",
+        title: "The Training Montage",
+        source: "Survivor (song)",
+        notes: "The iconic chorus of a song about rising up to a challenge."
+    },
+    {
+        id: 163,
+        quote: "ON WEDNESDAYS WE WEAR PINK",
+        title: "The Plastics' Rule",
+        source: "Karen Smith, from Mean Girls",
+        notes: "One of the strict, arbitrary rules of a popular high school clique."
+    },
+    {
+        id: 137,
+        quote: "MAKE IT SO",
+        title: "The Captain's Command",
+        source: "Captain Picard, from Star Trek: The Next Generation",
+        notes: "The signature command of Captain Jean-Luc Picard."
+    },
+    {
+        id: 156,
+        quote: "THE RIZZ",
+        title: "The Unspoken Charisma",
+        source: "Gen Z Slang",
+        notes: "A term for skill in charming or seducing a potential romantic partner, short for charisma."
+    },
+    {
+        id: 171,
+        quote: "THE WORLD IS INDEED FULL OF PERIL AND IN IT THERE ARE MANY DARK PLACES BUT STILL THERE IS MUCH THAT IS FAIR",
+        title: "A Glimmer of Hope",
+        source: "Haldir, from The Fellowship of the Ring (J.R.R. Tolkien)",
+        notes: "An elf's balanced perspective on the state of the world."
+    },
+    {
+        id: 168,
+        quote: "DEEDS WILL NOT BE LESS VALIANT BECAUSE THEY ARE UNSUNG",
+        title: "The Unsung Hero",
+        source: "Aragorn, from The Return of the King (J.R.R. Tolkien)",
+        notes: "A king's reflection on the nature of quiet, uncelebrated bravery."
+    },
+    {
+        id: 170,
+        quote: "I DONT KNOW HALF OF YOU HALF AS WELL AS I SHOULD LIKE AND I LIKE LESS THAN HALF OF YOU HALF AS WELL AS YOU DESERVE",
+        title: "The Farewell Speech",
+        source: "Bilbo Baggins, from The Fellowship of the Ring (J.R.R. Tolkien)",
+        notes: "A famously confusing and insulting line from a hobbit's birthday speech."
+    },
+    {
+        id: 103,
+        quote: "HELLO IS IT ME YOURE LOOKING FOR",
+        title: "The Hopeful Question",
+        source: "Lionel Richie (song)",
+        notes: "The opening of a famous love song from the eighties."
+    },
+    {
+        id: 166,
+        quote: "I WOULD RATHER SHARE ONE LIFETIME WITH YOU THAN FACE ALL THE AGES OF THIS WORLD ALONE",
+        title: "Arwen's Choice",
+        source: "Arwen, from The Fellowship of the Ring (J.R.R. Tolkien)",
+        notes: "An elf's declaration of love and her choice of mortality."
+    },
+    {
+        id: 127,
+        quote: "CHRISSY WAKE UP I DONT LIKE THIS",
+        title: "The Upside Down",
+        source: "Eddie Munson, from Stranger Things (The Duffer Brothers)",
+        notes: "A line from a popular sci-fi show that was remixed into a viral song."
+    },
+    {
+        id: 155,
+        quote: "GHOSTING",
+        title: "The Sudden Disappearance",
+        source: "Modern Dating Slang",
+        notes: "The act of suddenly ending all communication with someone without explanation."
+    },
+    {
+        id: 138,
+        quote: "YOU SHALL NOT PASS",
+        title: "The Bridge Stand",
+        source: "Gandalf, from The Lord of the Rings (J.R.R. Tolkien)",
+        notes: "A wizard's powerful declaration against a fiery demon."
     },
     {
         id: 2,
@@ -56,8 +601,6 @@ const decryptQuotes = [
         source: "A Tale of Two Cities (Charles Dickens)",
         notes: "The opening of a historical novel about a revolution."
     },
-
-    // --- Movie Quotes ---
     {
         id: 9,
         quote: "I AM YOUR FATHER",
@@ -66,70 +609,12 @@ const decryptQuotes = [
         notes: "A famous, often misquoted, line from a space opera sequel."
     },
     {
-        id: 10,
-        quote: "THERES NO PLACE LIKE HOME",
-        title: "The Ruby Slipper Mantra",
-        source: "Dorothy Gale, from The Wizard of Oz",
-        notes: "A heartfelt realization from a journey to a magical land."
-    },
-    {
-        id: 11,
-        quote: "I HAVE A FEELING WERE NOT IN KANSAS ANYMORE",
-        title: "Entering a New World",
-        source: "Dorothy Gale, from The Wizard of Oz",
-        notes: "An observation made upon arriving in a strange, colorful land."
-    },
-    {
-        id: 12,
-        quote: "HOUSTON WE HAVE A PROBLEM",
-        title: "The Understated Crisis",
-        source: "Jim Lovell, from Apollo 13",
-        notes: "A calm report of a major issue during a space mission."
-    },
-    {
-        id: 13,
-        quote: "JUST KEEP SWIMMING",
-        title: "The Optimist's Motto",
-        source: "Dory, from Finding Nemo",
-        notes: "A piece of advice from a very forgetful blue fish."
-    },
-    {
-        id: 14,
-        quote: "WHY SO SERIOUS",
-        title: "The Agent of Chaos",
-        source: "The Joker, from The Dark Knight (Christopher Nolan)",
-        notes: "A chilling question posed by a classic comic book villain."
-    },
-    {
-        id: 15,
-        quote: "YOU CANT HANDLE THE TRUTH",
-        title: "The Courtroom Confession",
-        source: "Col. Nathan R. Jessep, from A Few Good Men (Aaron Sorkin)",
-        notes: "A shouted declaration from a high-ranking military officer on trial."
-    },
-    {
-        id: 16,
-        quote: "I SEE DEAD PEOPLE",
-        title: "The Sixth Sense",
-        source: "Cole Sear, from The Sixth Sense (M. Night Shyamalan)",
-        notes: "A whispered secret from a boy with a supernatural ability."
-    },
-    {
-        id: 17,
-        quote: "ROADES WHERE WERE GOING WE DONT NEED ROADS",
-        title: "The Future of Travel",
-        source: "Doc Brown, from Back to the Future",
-        notes: "A confident statement before traveling through time."
-    },
-    {
         id: 18,
         quote: "WAX ON WAX OFF",
         title: "The Art of Defense",
         source: "Mr. Miyagi, from The Karate Kid",
         notes: "A simple instruction that teaches a powerful lesson in martial arts."
     },
-
-    // --- Literature Quotes ---
     {
         id: 19,
         quote: "IT IS A TRUTH UNIVERSALLY ACKNOWLEDGED",
@@ -186,8 +671,6 @@ const decryptQuotes = [
         source: "Johnny Cade, from The Outsiders (S.E. Hinton)",
         notes: "A final piece of advice given to a young greaser."
     },
-
-    // --- Historical & Philosophical Quotes ---
     {
         id: 27,
         quote: "I HAVE A DREAM",
@@ -237,8 +720,6 @@ const decryptQuotes = [
         source: "Niccolò Machiavelli (attributed)",
         notes: "A controversial statement about outcomes versus methods."
     },
-
-    // --- Science & Technology Quotes ---
     {
         id: 34,
         quote: "IF I HAVE SEEN FURTHER IT IS BY STANDING ON THE SHOULDERS OF GIANTS",
@@ -274,8 +755,6 @@ const decryptQuotes = [
         source: "Neil deGrasse Tyson",
         notes: "A reminder from an astrophysicist about the nature of reality."
     },
-
-    // --- Proverbs & Common Sayings ---
     {
         id: 39,
         quote: "ACTIONS SPEAK LOUDER THAN WORDS",
@@ -318,8 +797,6 @@ const decryptQuotes = [
         source: "Latin Proverb",
         notes: "A saying suggesting that courage brings good luck."
     },
-    
-    // --- More Pangrams ---
     {
         id: 45,
         quote: "PACK MY BOX WITH FIVE DOZEN LIQUOR JUGS",
@@ -341,8 +818,6 @@ const decryptQuotes = [
         source: "Traditional Pangram",
         notes: "A well-known pangram with a mysterious tone."
     },
-
-    // --- Video Game Quotes ---
     {
         id: 48,
         quote: "THE CAKE IS A LIE",
@@ -392,8 +867,6 @@ const decryptQuotes = [
         source: "Announcer, from Mortal Kombat",
         notes: "A famous command from a fighting game urging a final move."
     },
-
-    // --- Art & Music Quotes ---
     {
         id: 55,
         quote: "EVERY ARTIST WAS FIRST AN AMATEUR",
@@ -436,8 +909,6 @@ const decryptQuotes = [
         source: "Hans Christian Andersen",
         notes: "A quote about music's ability to convey what words cannot."
     },
-
-    // --- More Science Quotes ---
     {
         id: 61,
         quote: "SOMEWHERE SOMETHING INCREDIBLE IS WAITING TO BE KNOWN",
@@ -480,8 +951,6 @@ const decryptQuotes = [
         source: "Carl Sagan",
         notes: "A reminder that we cannot conclude something doesn't exist just because we haven't found it."
     },
-
-    // --- More Literature Quotes (Famous First Lines) ---
     {
         id: 67,
         quote: "IT WAS A BRIGHT COLD DAY IN APRIL AND THE CLOCKS WERE STRIKING THIRTEEN",
@@ -531,8 +1000,6 @@ const decryptQuotes = [
         source: "The Creature, from Frankenstein (Mary Shelley)",
         notes: "A warning from a misunderstood creation in a gothic novel."
     },
-
-    // --- More Historical & Political Quotes ---
     {
         id: 74,
         quote: "ASK NOT WHAT YOUR COUNTRY CAN DO FOR YOU ASK WHAT YOU CAN DO FOR YOUR COUNTRY",
@@ -575,8 +1042,6 @@ const decryptQuotes = [
         source: "Theodore Roosevelt",
         notes: "A US president's philosophy on foreign policy."
     },
-
-    // --- More Proverbs ---
     {
         id: 80,
         quote: "A WATCHED POT NEVER BOILS",
@@ -619,8 +1084,6 @@ const decryptQuotes = [
         source: "Traditional Proverb",
         notes: "A saying about how you can't force someone to accept help."
     },
-
-    // --- Pop Culture Additions (Batch 1) ---
     {
         id: 86,
         quote: "I AM THE ONE WHO KNOCKS",
@@ -727,292 +1190,11 @@ const decryptQuotes = [
         notes: "The opening lines of a legendary and theatrical rock opera."
     },
     {
-        id: 101,
-        quote: "YESTERDAY ALL MY TROUBLES SEEMED SO FAR AWAY",
-        title: "The Ballad of Nostalgia",
-        source: "The Beatles (song)",
-        notes: "The beginning of a timeless ballad about longing for the past."
-    },
-    {
-        id: 102,
-        quote: "I SEE A RED DOOR AND I WANT IT PAINTED BLACK",
-        title: "The Color of Grief",
-        source: "The Rolling Stones (song)",
-        notes: "A line from a rock song expressing a desire to erase color and joy."
-    },
-    {
-        id: 103,
-        quote: "HELLO IS IT ME YOURE LOOKING FOR",
-        title: "The Hopeful Question",
-        source: "Lionel Richie (song)",
-        notes: "The opening of a famous love song from the eighties."
-    },
-    {
-        id: 104,
-        quote: "WE WILL WE WILL ROCK YOU",
-        title: "The Stadium Anthem",
-        source: "Queen (song)",
-        notes: "A simple but powerful chant designed for audience participation."
-    },
-    {
-        id: 105,
-        quote: "I GET KNOCKED DOWN BUT I GET UP AGAIN",
-        title: "The Song of Resilience",
-        source: "Chumbawamba (song)",
-        notes: "The defiant chorus of an unforgettable one-hit wonder."
-    },
-
-    // --- Pop Culture Additions (Batch 2) ---
-    {
-        id: 106,
-        quote: "IM THE KING OF THE WORLD",
-        title: "The Titanic Proclamation",
-        source: "Jack Dawson, from Titanic (James Cameron)",
-        notes: "An exuberant shout from the bow of a famously ill-fated ship."
-    },
-    {
-        id: 107,
-        quote: "YOURE GONNA NEED A BIGGER BOAT",
-        title: "The Underestimation",
-        source: "Chief Brody, from Jaws",
-        notes: "A classic line delivered after seeing the size of a great white shark."
-    },
-    {
-        id: 108,
-        quote: "SAY HELLO TO MY LITTLE FRIEND",
-        title: "The Aggressive Introduction",
-        source: "Tony Montana, from Scarface",
-        notes: "A gangster's famous last stand introduction to his firearm."
-    },
-    {
-        id: 109,
-        quote: "KEEP THE CHANGE YA FILTHY ANIMAL",
-        title: "The Movie Quote Prank",
-        source: "Johnny, from Angels with Filthy Souls (in Home Alone)",
-        notes: "A line from a fictional gangster movie used to scare off a pizza boy."
-    },
-    {
-        id: 110,
-        quote: "WITH GREAT POWER COMES GREAT RESPONSIBILITY",
-        title: "The Hero's Code",
-        source: "Uncle Ben, from Spider-Man (Stan Lee)",
-        notes: "A wise uncle's final advice to his super-powered nephew."
-    },
-    {
-        id: 111,
-        quote: "NO SOUP FOR YOU",
-        title: "The Strict Chef",
-        source: "The Soup Nazi, from Seinfeld (Larry David)",
-        notes: "The harsh verdict from a famously temperamental soup vendor."
-    },
-    {
         id: 112,
         quote: "TREAT YO SELF",
         title: "The Day of Indulgence",
         source: "Tom & Donna, from Parks and Recreation",
         notes: "The motto for an annual day of extreme self-pampering."
-    },
-    {
-        id: 113,
-        quote: "IVE MADE A HUGE MISTAKE",
-        title: "The Magician's Regret",
-        source: "G.O.B. Bluth, from Arrested Development (Mitchell Hurwitz)",
-        notes: "The recurring realization of a man known for his grand illusions."
-    },
-    {
-        id: 114,
-        quote: "CHANGE MY MIND",
-        title: "The Debate Challenge",
-        source: "Steven Crowder (internet meme)",
-        notes: "A meme format inviting people to challenge a stated opinion."
-    },
-    {
-        id: 115,
-        quote: "SURPRISED PIKACHU",
-        title: "Feigned Shock",
-        source: "Pokémon (anime)",
-        notes: "A meme used to express shock at a completely predictable outcome."
-    },
-    {
-        id: 116,
-        quote: "SOMEBODY ONCE TOLD ME THE WORLD IS GONNA ROLL ME",
-        title: "The Ogre's Anthem",
-        source: "Smash Mouth (song)",
-        notes: "The opening line of a song that became the theme for a green ogre."
-    },
-    {
-        id: 117,
-        quote: "ITS THE EYE OF THE TIGER ITS THE THRILL OF THE FIGHT",
-        title: "The Training Montage",
-        source: "Survivor (song)",
-        notes: "The iconic chorus of a song about rising up to a challenge."
-    },
-    {
-        id: 118,
-        quote: "WHO LET THE DOGS OUT",
-        title: "The Unanswered Question",
-        source: "Baha Men (song)",
-        notes: "The catchy, repetitive question from a memorable early 2000s hit."
-    },
-    {
-        id: 119,
-        quote: "THATLL DO PIG THATLL DO",
-        title: "The Farmer's Approval",
-        source: "Farmer Hoggett, from Babe",
-        notes: "A farmer's quiet words of praise to his sheep-herding pig."
-    },
-
-    // --- TikTok & Viral Trends (Batch 1) ---
-    {
-        id: 120,
-        quote: "ITS CORN A BIG LUMP WITH KNOBS",
-        title: "The Corn Kid",
-        source: "Tariq (viral video)",
-        notes: "An interview with a child expressing his deep love for corn."
-    },
-    {
-        id: 121,
-        quote: "MY MONEY DONT JIGGLE JIGGLE IT FOLDS",
-        title: "The Jiggle Jiggle Rap",
-        source: "Louis Theroux (viral sound)",
-        notes: "A rap that went viral from a documentarian's old interview."
-    },
-    {
-        id: 122,
-        quote: "BOMBASTIC SIDE EYE",
-        title: "The Side Eye",
-        source: "TikTok Trend",
-        notes: "A popular sound used to express judgment or disapproval."
-    },
-    {
-        id: 123,
-        quote: "DELULU IS THE SOLULU",
-        title: "The Solution",
-        source: "TikTok Slang",
-        notes: "A viral phrase suggesting that being delusional is the solution."
-    },
-    {
-        id: 124,
-        quote: "LET HIM COOK",
-        title: "The Chef's Kiss",
-        source: "Internet Slang",
-        notes: "A meme phrase used to tell people to let someone continue what they're doing well."
-    },
-    {
-        id: 125,
-        quote: "ITS GIVING MAIN CHARACTER ENERGY",
-        title: "The Vibe Check",
-        source: "TikTok Slang",
-        notes: "A popular phrase used to describe someone who seems like the protagonist."
-    },
-    {
-        id: 126,
-        quote: "HOW OFTEN DO YOU THINK ABOUT THE ROMAN EMPIRE",
-        title: "The Ancient Question",
-        source: "TikTok Trend",
-        notes: "A viral trend where people asked the men in their lives this specific question."
-    },
-    {
-        id: 127,
-        quote: "CHRISSY WAKE UP I DONT LIKE THIS",
-        title: "The Upside Down",
-        source: "Eddie Munson, from Stranger Things (The Duffer Brothers)",
-        notes: "A line from a popular sci-fi show that was remixed into a viral song."
-    },
-
-    // --- TikTok & Viral Trends (Batch 2) ---
-    {
-        id: 128,
-        quote: "OH NO OUR TABLE ITS BROKEN",
-        title: "The Broken Table",
-        source: "America's Funniest Home Videos (viral sound)",
-        notes: "A viral sound from a home video used to express dismay."
-    },
-    {
-        id: 129,
-        quote: "I AM A SURGEON",
-        title: "The Surgeon's Declaration",
-        source: "Dr. Shaun Murphy, from The Good Doctor",
-        notes: "A clip from a medical drama used to show expertise or frustration."
-    },
-    {
-        id: 130,
-        quote: "HE LOOKED AT ME AND I LOOKED AT HIM",
-        title: "The Stare Down",
-        source: "TikTok Sound",
-        notes: "A viral sound describing a moment of intense, unspoken communication."
-    },
-    {
-        id: 131,
-        quote: "THEY DID SURGERY ON A GRAPE",
-        title: "The Grape Surgery",
-        source: "Internet Meme",
-        notes: "A meme celebrating a feat of incredible precision and technology."
-    },
-    {
-        id: 132,
-        quote: "OKAY LETS GO",
-        title: "The Enthusiastic Start",
-        source: "TikTok Sound",
-        notes: "A viral sound from a popular creator used to kick off an activity."
-    },
-    {
-        id: 133,
-        quote: "YOU THINK YOU JUST FELL OUT OF A COCONUT TREE",
-        title: "The Coconut Tree",
-        source: "Kamala Harris (viral sound)",
-        notes: "A bizarre and memorable question from a politician that became a viral sound."
-    },
-    {
-        id: 134,
-        quote: "I LIKE TO SEE YOU WIGGLE WIGGLE",
-        title: "The Wiggle Wiggle",
-        source: "Louis Theroux (viral sound)",
-        notes: "A lyric from the 'Jiggle Jiggle' rap that became its own trend."
-    },
-    {
-        id: 135,
-        quote: "GOOD SOUP",
-        title: "The Soup Review",
-        source: "Adam Sackler, from Girls (Lena Dunham)",
-        notes: "A simple, satisfying line from a TV show that became a sound for anything good."
-    },
-
-    // --- Nerdy & Genre Favorites ---
-    {
-        id: 136,
-        quote: "THE NEEDS OF THE MANY OUTWEIGH THE NEEDS OF THE FEW",
-        title: "The Vulcan Philosophy",
-        source: "Spock, from Star Trek II: The Wrath of Khan",
-        notes: "A core principle of Vulcan logic, famously spoken by Spock."
-    },
-    {
-        id: 137,
-        quote: "MAKE IT SO",
-        title: "The Captain's Command",
-        source: "Captain Picard, from Star Trek: The Next Generation",
-        notes: "The signature command of Captain Jean-Luc Picard."
-    },
-    {
-        id: 138,
-        quote: "YOU SHALL NOT PASS",
-        title: "The Bridge Stand",
-        source: "Gandalf, from The Lord of the Rings (J.R.R. Tolkien)",
-        notes: "A wizard's powerful declaration against a fiery demon."
-    },
-    {
-        id: 139,
-        quote: "I CAN DO THIS ALL DAY",
-        title: "The Super Soldier's Resolve",
-        source: "Steve Rogers, from Captain America: The First Avenger",
-        notes: "A defiant statement in the face of overwhelming odds."
-    },
-    {
-        id: 140,
-        quote: "I AM IRON MAN",
-        title: "The Hero's Identity",
-        source: "Tony Stark, from Iron Man",
-        notes: "The public declaration that launched a cinematic universe."
     },
     {
         id: 141,
@@ -1022,53 +1204,284 @@ const decryptQuotes = [
         notes: "The simple, intimidating introduction of Gotham's protector."
     },
     {
-        id: 142,
-        quote: "I AIM TO MISBEHAVE",
-        title: "The Smuggler's Creed",
-        source: "Mal Reynolds, from Serenity (Joss Whedon)",
-        notes: "A declaration of rebellious intent from the captain of a Firefly-class ship."
+        id: 110,
+        quote: "WITH GREAT POWER COMES GREAT RESPONSIBILITY",
+        title: "The Hero's Code",
+        source: "Uncle Ben, from Spider-Man (Stan Lee)",
+        notes: "A wise uncle's final advice to his super-powered nephew."
     },
     {
-        id: 143,
-        quote: "SIX SEASONS AND A MOVIE",
-        title: "The Community Rallying Cry",
-        source: "Abed Nadir, from Community (Dan Harmon)",
-        notes: "A meta-joke from a TV show that became a fan campaign."
+        id: 126,
+        quote: "HOW OFTEN DO YOU THINK ABOUT THE ROMAN EMPIRE",
+        title: "The Ancient Question",
+        source: "TikTok Trend",
+        notes: "A viral trend where people asked the men in their lives this specific question."
     },
     {
-        id: 144,
-        quote: "A LONG TIME AGO WE USED TO BE FRIENDS",
-        title: "The Veronica Mars Theme",
-        source: "The Dandy Warhols (song)",
-        notes: "The opening line of the theme song for a teen noir detective series."
+        id: 167,
+        quote: "FAITHLESS IS HE THAT SAYS FAREWELL WHEN THE ROAD DARKENS",
+        title: "The Dwarf's Loyalty",
+        source: "Gimli, from The Fellowship of the Ring (J.R.R. Tolkien)",
+        notes: "A statement of loyalty and commitment in the face of danger."
     },
     {
-        id: 145,
-        quote: "I WANT TO BELIEVE",
-        title: "The X-Files Poster",
-        source: "The X-Files (Chris Carter)",
-        notes: "The iconic phrase from a poster in Fox Mulder's office."
+        id: 134,
+        quote: "I LIKE TO SEE YOU WIGGLE WIGGLE",
+        title: "The Wiggle Wiggle",
+        source: "Louis Theroux (viral sound)",
+        notes: "A lyric from the 'Jiggle Jiggle' rap that became its own trend."
     },
     {
-        id: 146,
-        quote: "IN SPACE NO ONE CAN HEAR YOU SCREAM",
-        title: "The Alien Tagline",
-        source: "Alien (Ridley Scott)",
-        notes: "The terrifying tagline from a classic 1979 sci-fi horror film."
+        id: 161,
+        quote: "HERES LOOKING AT YOU KID",
+        title: "The Casablanca Toast",
+        source: "Rick Blaine, from Casablanca",
+        notes: "An iconic, affectionate toast from a classic film noir."
     },
     {
-        id: 147,
-        quote: "HERES JOHNNY",
-        title: "The Shining Breakdown",
-        source: "Jack Torrance, from The Shining (Stephen King)",
-        notes: "A chilling ad-libbed line from a classic horror movie."
+        id: 111,
+        quote: "NO SOUP FOR YOU",
+        title: "The Strict Chef",
+        source: "The Soup Nazi, from Seinfeld (Larry David)",
+        notes: "The harsh verdict from a famously temperamental soup vendor."
     },
-    
     {
-        id: 149,
-        quote: "WE HAVE DONE THE IMPOSSIBLE AND THAT MAKES US MIGHTY",
-        title: "The Serenity Crew's Motto",
-        source: "Mal Reynolds, from Serenity (Joss Whedon)",
-        notes: "A line from Captain Mal Reynolds celebrating his crew's accomplishments."
+        id: 174,
+        quote: "DONT STOP BELIEVIN HOLD ON TO THAT FEELIN",
+        title: "The Arena Rock Anthem",
+        source: "Journey (song)",
+        notes: "An iconic chorus known for its uplifting message and piano riff."
+    },
+    {
+        id: 175,
+        quote: "I WILL SURVIVE",
+        title: "The Disco Declaration",
+        source: "Gloria Gaynor (song)",
+        notes: "A powerful anthem of personal strength and resilience after a breakup."
+    },
+    {
+        id: 176,
+        quote: "THUNDERBOLT AND LIGHTNING VERY VERY FRIGHTENING ME",
+        title: "The Galileo Figaro",
+        source: "Queen (song)",
+        notes: "A memorable, high-pitched line from the operatic section of a rock classic."
+    },
+    {
+        id: 178,
+        quote: "THE REPORTS OF MY DEATH ARE GREATLY EXAGGERATED",
+        title: "The Premature Obituary",
+        source: "Mark Twain",
+        notes: "A famous, and slightly misquoted, response to a newspaper's error."
+    },
+    {
+        id: 179,
+        quote: "GET YOUR FACTS FIRST THEN YOU CAN DISTORT THEM AS YOU PLEASE",
+        title: "The Humorist's Method",
+        source: "Mark Twain",
+        notes: "A witty take on the importance of truth, even when you plan to bend it."
+    },
+    {
+        id: 180,
+        quote: "IF YOU DON'T STICK TO YOUR VALUES WHEN THEY'RE BEING TESTED THEY'RE NOT VALUES THEY'RE HOBBIES",
+        title: "The Test of Conviction",
+        source: "Jon Stewart",
+        notes: "A satirical host's point about the nature of true principles."
+    },
+    {
+        id: 182,
+        quote: "HAVE YOU EVER NOTICED THAT ANYBODY DRIVING SLOWER THAN YOU IS AN IDIOT AND ANYONE GOING FASTER THAN YOU IS A MANIAC",
+        title: "The Rules of the Road",
+        source: "George Carlin",
+        notes: "A classic observation on the self-centered perspective of every driver."
+    },
+    {
+        id: 183,
+        quote: "A HOUSE IS JUST A PLACE TO KEEP YOUR STUFF WHILE YOU GO OUT AND GET MORE STUFF",
+        title: "The Philosophy of Stuff",
+        source: "George Carlin",
+        notes: "A comedian's cynical but accurate summary of consumer culture."
+    },
+    {
+        id: 184,
+        quote: "WHATS THE DEAL WITH AIRLINE FOOD",
+        title: "The Quintessential Observation",
+        source: "Jerry Seinfeld",
+        notes: "The archetypal observational comedy setup, synonymous with the comedian himself."
+    },
+    {
+        id: 185,
+        quote: "I USED TO DO DRUGS I STILL DO BUT I USED TO TOO",
+        title: "The One-Liner",
+        source: "Mitch Hedberg",
+        notes: "A perfect example of a comedian's unique, absurd, and grammatically brilliant humor."
+    },
+    {
+        id: 186,
+        quote: "YOURE ONLY GIVEN A LITTLE SPARK OF MADNESS YOU MUSTNT LOSE IT",
+        title: "The Spark of Madness",
+        source: "Robin Williams",
+        notes: "A quote that reflects the beloved comedian's own brilliant and chaotic energy."
+    },
+    {
+        id: 188,
+        quote: "I AM SO CLEVER THAT SOMETIMES I DONT UNDERSTAND A SINGLE WORD OF WHAT I AM SAYING",
+        title: "The Burden of Genius",
+        source: "Oscar Wilde",
+        notes: "A self-deprecating boast that perfectly captures the author's wit."
+    },
+    {
+        id: 189,
+        quote: "THE SHIPS HUNG IN THE SKY IN MUCH THE SAME WAY THAT BRICKS DONT",
+        title: "The Art of Anti-Description",
+        source: "Douglas Adams, from The Hitchhiker's Guide to the Galaxy",
+        notes: "A famously unhelpful but hilarious description of alien spacecraft."
+    },
+    {
+        id: 192,
+        quote: "I'D RATHER HAVE A BOTTLE IN FRONT OF ME THAN A FRONTAL LOBOTOMY",
+        title: "The Algonquin Round Table Wit",
+        source: "Dorothy Parker",
+        notes: "A classic example of the author's sharp, dark, and playful humor."
+    },
+    {
+        id: 193,
+        quote: "HE HAD THE LOOK OF ONE WHO HAD DRUNK THE CUP OF LIFE AND FOUND A DEAD BEETLE AT THE BOTTOM",
+        title: "The Unfortunate Discovery",
+        source: "P.G. Wodehouse",
+        notes: "A masterful and humorous description of a man's utter disappointment."
+    },
+    {
+        id: 194,
+        quote: "NEVER HALF ASS TWO THINGS WHOLE ASS ONE THING",
+        title: "The Swanson Pyramid of Greatness",
+        source: "Ron Swanson, from Parks and Recreation",
+        notes: "A core tenet from a libertarian's guide to life."
+    },
+    {
+        id: 195,
+        quote: "GIVE ME ALL THE BACON AND EGGS YOU HAVE",
+        title: "The Diner Order",
+        source: "Ron Swanson, from Parks and Recreation",
+        notes: "A request that is not a question, but a statement of fact."
+    },
+    {
+        id: 196,
+        quote: "REALITY HAS A WELL KNOWN LIBERAL BIAS",
+        title: "The Colbert Report Truth",
+        source: "Stephen Colbert",
+        notes: "A famous satirical line on the nature of facts and political spin."
+    },
+    {
+        id: 197,
+        quote: "I NEED MORE COWBELL",
+        title: "The Producer's Demand",
+        source: "Saturday Night Live",
+        notes: "The only prescription for a rock song, according to producer Bruce Dickinson."
+    },
+    {
+        id: 198,
+        quote: "I LIVE IN A VAN DOWN BY THE RIVER",
+        title: "The Motivational Speaker",
+        source: "Matt Foley, from Saturday Night Live",
+        notes: "The bleak residence of a highly unorthodox motivational speaker."
+    },
+    {
+        id: 199,
+        quote: "AND NOW FOR SOMETHING COMPLETELY DIFFERENT",
+        title: "The Python Transition",
+        source: "Monty Python's Flying Circus",
+        notes: "The classic non-sequitur used to link unrelated comedy sketches."
+    },
+    {
+        id: 200,
+        quote: "NOBODY EXPECTS THE SPANISH INQUISITION",
+        title: "The Surprise Entrance",
+        source: "Monty Python's Flying Circus",
+        notes: "A catchphrase heralding the arrival of a comically inept inquisitorial squad."
+    },
+    {
+        id: 201,
+        quote: "ITS JUST A FLESH WOUND",
+        title: "The Black Knight's Understatement",
+        source: "Monty Python and the Holy Grail",
+        notes: "A knight's defiant response after losing a limb in a sword fight."
+    },
+    {
+        id: 202,
+        quote: "HOMEY DONT PLAY THAT",
+        title: "The Clown's Refusal",
+        source: "Homey D. Clown, from In Living Color",
+        notes: "The signature phrase of a clown who is not to be trifled with."
+    },
+    {
+        id: 203,
+        quote: "LOOK WHAT I CAN DO",
+        title: "The Annoying Child",
+        source: "Stuart, from Mad TV",
+        notes: "The simple, repetitive plea for attention from a very strange little boy."
+    },
+    {
+        id: 204,
+        quote: "IM CRUSHING YOUR HEAD",
+        title: "The Forced Perspective",
+        source: "Kids in the Hall",
+        notes: "A simple but effective visual gag performed from a distance."
+    },
+    {
+        id: 205,
+        quote: "WHATS UP DOC",
+        title: "The Rabbit's Greeting",
+        source: "Bugs Bunny, from Looney Tunes",
+        notes: "The cool, casual greeting of a famously unflappable rabbit."
+    },
+    {
+        id: 207,
+        quote: "I AM SMARTER THAN THE AVERAGE BEAR",
+        title: "The Bear's Boast",
+        source: "Yogi Bear",
+        notes: "The confident self-assessment of a picnic-basket-pilfering bear."
+    },
+    {
+        id: 208,
+        quote: "THATS ALL FOLKS",
+        title: "The End of the Show",
+        source: "Porky Pig, from Looney Tunes",
+        notes: "The classic, stuttering sign-off from the end of many Warner Bros. cartoons."
+    },
+    {
+        id: 209,
+        quote: "COME ON DOWN",
+        title: "The Price is Right Invitation",
+        source: "The Price is Right",
+        notes: "The exciting call for a contestant to leave the audience and join the game."
+    },
+    {
+        id: 210,
+        quote: "SURVEY SAYS",
+        title: "The Family Feud Reveal",
+        source: "Family Feud",
+        notes: "The host's famous line before revealing an answer on the board."
+    },
+    {
+        id: 211,
+        quote: "WHERES THE BEEF",
+        title: "The Fast Food Question",
+        source: "Wendy's Commercial",
+        notes: "A catchphrase from an 80s commercial questioning the substance of competitors' burgers."
+    },
+    {
+        id: 212,
+        quote: "I'VE FALLEN AND I CANT GET UP",
+        title: "The Medical Alert",
+        source: "LifeCall Commercial",
+        notes: "A dramatic line from a commercial that became a cultural touchstone and punchline."
+    },
+    {
+        id: 213,
+        quote: "WASSUP",
+        title: "The Budweiser Greeting",
+        source: "Budweiser Commercial",
+        notes: "A simple greeting that became a massive pop culture phenomenon in the early 2000s."
     }
 ];
+
