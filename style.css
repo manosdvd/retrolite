@@ -103,7 +103,7 @@ body {
 .light.is-mine { background-color: #ef4444; }
 .light.is-mine::after { content: ''; font-size: 1.2rem; }
 .light.is-revealed { background-color: #4b5563; color: #fff; cursor: default; }
-.light.is-flagged::after { content: '\01F6A9'; font-size: 1.2rem; }
+.light.is-flagged::after { content: 'F6A9'; font-size: 1.2rem; }
 .light.is-hidden { background-color: #374151; }
 
 .light.line-dot::before { content: ''; display: block; width: 60%; height: 60%; border-radius: 50%; box-shadow: 0 0 10px #000; transition: transform 0.2s; }
@@ -424,3 +424,39 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     color: white;
 }
 
+/* =================================== */
+/* Keyboard Game Layout for Mobile    */
+/* =================================== */
+
+/* This rule targets the main game container div, but only when it
+   has the "keyboard-active" class, which main.js adds for us. */
+#game-container.keyboard-active {
+    display: flex; /* Use the powerful Flexbox layout model. */
+    flex-direction: column; /* Stack all children (title, board, keyboard) vertically. */
+    
+    /* This forces the container to be exactly the height of the browser window.
+       '100vh' means 100% of the viewport (screen) height. */
+    height: calc(100vh - 1rem); 
+}
+
+/* This rule targets the wrapper around the game board. */
+#game-container.keyboard-active #game-board-wrapper {
+    /* This is the key: it tells the board to stretch and take up
+       any and all available empty space in the vertical column. */
+    flex-grow: 1; 
+
+    /* If the board's content is too tall for the space it has,
+       this adds a vertical scrollbar ONLY to the board itself. */
+    overflow-y: auto; 
+
+    /* This makes scrolling feel smooth and natural on touch devices like phones. */
+    -webkit-overflow-scrolling: touch; 
+}
+
+/* This rule targets the keyboard and the bottom control bar. */
+#game-container.keyboard-active #keyboard-container,
+#game-container.keyboard-active #game-controls {
+    /* This is a safety rule that says "never shrink". It ensures the
+       keyboard and control buttons are always their full size. */
+    flex-shrink: 0; 
+}
