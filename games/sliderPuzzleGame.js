@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 const sliderPuzzleGame = {
-=======
-export const sliderPuzzleGame = {
->>>>>>> ec8738a (Optimization change)
-=======
-const sliderPuzzleGame = {
->>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = { board: [1, 2, 3, 4, 5, 6, 7, 8, EMPTY], emptyIndex: 8, moves: 0 };
         sliderPuzzleGame.shuffle();
@@ -20,11 +12,7 @@ const sliderPuzzleGame = {
     },
     shuffle: () => {
         for (let i = 0; i < 300; i++) {
-<<<<<<< HEAD
             const neighbors = utils.getSliderNeighbors(gameState.emptyIndex, 3);
-=======
-            const neighbors = getSliderNeighbors(gameState.emptyIndex, 3);
->>>>>>> ec8738a (Optimization change)
             const randomNeighbor = neighbors[Math.floor(Math.random() * neighbors.length)];
             sliderPuzzleGame.swapTiles(randomNeighbor, gameState.emptyIndex, true);
         }
@@ -32,11 +20,7 @@ const sliderPuzzleGame = {
     },
     handler: (e) => {
         const index = parseInt(e.target.dataset.index);
-<<<<<<< HEAD
         const neighbors = utils.getSliderNeighbors(gameState.emptyIndex, 3);
-=======
-        const neighbors = getSliderNeighbors(gameState.emptyIndex, 3);
->>>>>>> ec8738a (Optimization change)
         if (neighbors.includes(index)) {
             playSound(notes[index % 9]);
             sliderPuzzleGame.swapTiles(index, gameState.emptyIndex);
@@ -64,11 +48,8 @@ const sliderPuzzleGame = {
         if (gameState.board.every((val, i) => val === winState[i])) {
             showWinModal('You Win!', `Solved in ${gameState.moves} moves!`);
         }
-<<<<<<< HEAD
     },
     cleanup: () => {
         // No specific cleanup needed as event listeners are managed by main.js
-=======
->>>>>>> ec8738a (Optimization change)
     }
 };

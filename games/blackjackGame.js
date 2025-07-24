@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 const blackjackGame = {
-=======
-export const blackjackGame = {
->>>>>>> ec8738a (Optimization change)
-=======
-const blackjackGame = {
->>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = {
             deck: [], playerHand: [], cpuHand: [], gameOver: false, playerTurn: true,
@@ -16,33 +8,18 @@ const blackjackGame = {
             for (let i = 1; i <= 10; i++) gameState.deck.push(i);
             gameState.deck.push(10, 10, 10); // J, Q, K
         }
-<<<<<<< HEAD
         utils.shuffleArray(gameState.deck);
 
         const hitButton = createControlButton('Hit', 'btn-blue', blackjackGame.hit);
         const standButton = createControlButton('Stand', 'btn-yellow', blackjackGame.stand);
         gameState.hitButton = hitButton;
-=======
-        // Shuffle deck
-        for (let i = gameState.deck.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [gameState.deck[i], gameState.deck[j]] = [gameState.deck[j], gameState.deck[i]];
-        }
-
-        const hitButton = createControlButton('Hit', 'btn-blue', blackjackGame.hit);
-        const standButton = createControlButton('Stand', 'btn-yellow', blackjackGame.stand);
-        gameState.hitButton = hitButton; // Store button in gameState
->>>>>>> ec8738a (Optimization change)
         gameState.standButton = standButton;
         buttonContainer.prepend(standButton);
         buttonContainer.prepend(hitButton);
         hitButton.disabled = true; standButton.disabled = true;
 
-<<<<<<< HEAD
         blackjackGame.updateBoardAndScores(); // Initial empty board render
 
-=======
->>>>>>> ec8738a (Optimization change)
         const deal = async () => {
             await blackjackGame.dealCard(HUMAN); await delay(400);
             await blackjackGame.dealCard(AI, true); await delay(400);
@@ -58,26 +35,17 @@ const blackjackGame = {
             }
         };
         deal();
-<<<<<<< HEAD
-=======
-        updateStats(`Your Score: 0`);
->>>>>>> ec8738a (Optimization change)
     },
     calculateHandValue: (hand) => {
         let score = hand.reduce((sum, card) => sum + card, 0);
         let aceCount = hand.filter(card => card === 1).length;
         while (score <= 11 && aceCount > 0) {
-<<<<<<< HEAD
             score += 10;
-=======
-            score += 10; // Treat an Ace as 11 if it doesn't bust the hand
->>>>>>> ec8738a (Optimization change)
             aceCount--;
         }
         return score;
     },
     dealCard: async (player, isHidden = false) => {
-<<<<<<< HEAD
         if (gameState.deck.length === 0) return;
         const card = gameState.deck.pop();
         
@@ -136,19 +104,6 @@ const blackjackGame = {
             }
         });
 
-=======
-        if (gameState.deck.length === 0) return Promise.resolve();
-        const card = gameState.deck.pop();
-        
-        if (player === HUMAN) gameState.playerHand.push(card);
-        else gameState.cpuHand.push({ card, hidden: isHidden });
-        
-        playSound(notes[card] || 'C4');
-        blackjackGame.updateBoardAndScores();
-        return Promise.resolve();
-    },
-    updateBoardAndScores: () => {
->>>>>>> ec8738a (Optimization change)
         const playerScore = blackjackGame.calculateHandValue(gameState.playerHand);
         const cpuVisibleScore = blackjackGame.calculateHandValue(gameState.cpuHand.filter(c => !c.hidden).map(c => c.card));
         
@@ -158,28 +113,6 @@ const blackjackGame = {
             const finalCpuScore = blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card));
             updateStats(`Your Score: ${playerScore} | CPU: ${finalCpuScore}`);
         }
-<<<<<<< HEAD
-=======
-
-        const lights = gameBoard.querySelectorAll('.light');
-        lights.forEach(light => { light.textContent = ''; light.className = 'light is-off'; });
-        
-        gameState.cpuHand.forEach((c, index) => {
-            if (lights[index]) {
-                lights[index].textContent = c.hidden ? '?' : (c.card === 1 ? 'A' : c.card);
-                lights[index].classList.remove('is-off');
-                lights[index].classList.add('is-player-2');
-            }
-        });
-        gameState.playerHand.forEach((card, index) => {
-            const playerGridIndex = 8 + index;
-            if (lights[playerGridIndex]) {
-                lights[playerGridIndex].textContent = card === 1 ? 'A' : card;
-                lights[playerGridIndex].classList.remove('is-off');
-                lights[playerGridIndex].classList.add('is-player-1');
-            }
-        });
->>>>>>> ec8738a (Optimization change)
     },
     hit: async () => {
         if (gameState.gameOver || !gameState.playerTurn) return;
@@ -204,11 +137,7 @@ const blackjackGame = {
             playSound('E4', '4n');
         }
         
-<<<<<<< HEAD
         await blackjackGame.updateBoardAndScores();
-=======
-        blackjackGame.updateBoardAndScores();
->>>>>>> ec8738a (Optimization change)
         await delay(1000);
 
         while (blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card)) < 17 && gameState.deck.length > 0) {
@@ -239,11 +168,8 @@ const blackjackGame = {
         const finalPlayerScore = blackjackGame.calculateHandValue(gameState.playerHand);
         const finalCpuScore = blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card));
         showWinModal(message, `Final Scores - You: ${finalPlayerScore}, CPU: ${finalCpuScore}`);
-<<<<<<< HEAD
     },
     cleanup: () => {
         // No specific cleanup needed
-=======
->>>>>>> ec8738a (Optimization change)
     }
 };

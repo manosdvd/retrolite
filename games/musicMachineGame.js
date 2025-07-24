@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 const musicMachineGame = {
-=======
-export const musicMachineGame = {
->>>>>>> ec8738a (Optimization change)
-=======
-const musicMachineGame = {
->>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = { sequence: [] };
         musicMachineGame.updateBoard();
@@ -38,12 +30,8 @@ const musicMachineGame = {
         }
         gameState.isPlaying = false;
     },
-<<<<<<< HEAD
     updateBoard: () => {},
     cleanup: () => {
         // No specific cleanup needed as event listeners are managed by main.js
     }
-=======
-    updateBoard: () => {}
->>>>>>> ec8738a (Optimization change)
 };

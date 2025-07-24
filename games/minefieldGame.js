@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 const minefieldGame = {
-=======
-export const minefieldGame = {
->>>>>>> ec8738a (Optimization change)
-=======
-const minefieldGame = {
->>>>>>> d91859e (Added some games)
     setup: () => {
         const newGameButton = createControlButton('New Game', 'btn-green', () => {
             startGame(currentMode); // Restart the game
@@ -39,11 +31,7 @@ const minefieldGame = {
         gameState.board = Array(width * height).fill(0);
         gameState.revealed = Array(width * height).fill(false);
         gameState.flagged = Array(width * height).fill(false);
-<<<<<<< HEAD
         const safeZone = [firstClickIndex, ...utils.getNeighbors(firstClickIndex, height, width)];
-=======
-        const safeZone = [firstClickIndex, ...getNeighbors(firstClickIndex, height, width)];
->>>>>>> ec8738a (Optimization change)
         let minesPlaced = 0;
         while (minesPlaced < mines) {
             const index = Math.floor(Math.random() * width * height);
@@ -54,11 +42,7 @@ const minefieldGame = {
         }
         for (let i = 0; i < width * height; i++) {
             if (gameState.board[i] !== 'M') {
-<<<<<<< HEAD
                 gameState.board[i] = utils.getNeighbors(i, height, width).filter(n => gameState.board[n] === 'M').length;
-=======
-                gameState.board[i] = getNeighbors(i, height, width).filter(n => gameState.board[n] === 'M').length;
->>>>>>> ec8738a (Optimization change)
             }
         }
         gameState.firstClick = false;
@@ -89,11 +73,7 @@ const minefieldGame = {
         minefieldGame.checkWin();
     },
     chord: (index) => {
-<<<<<<< HEAD
         const neighbors = utils.getNeighbors(index, gameState.height, gameState.width);
-=======
-        const neighbors = getNeighbors(index, gameState.height, gameState.width);
->>>>>>> ec8738a (Optimization change)
         const flaggedNeighbors = neighbors.filter(n => gameState.flagged[n]).length;
         if (flaggedNeighbors === gameState.board[index]) {
             neighbors.forEach(n => {
@@ -111,11 +91,7 @@ const minefieldGame = {
             if (current < 0 || current >= height * width || gameState.revealed[current] || gameState.flagged[current]) continue;
             gameState.revealed[current] = true;
             if (gameState.board[current] === 0) {
-<<<<<<< HEAD
                 stack.push(...utils.getNeighbors(current, height, width));
-=======
-                stack.push(...getNeighbors(current, height, width));
->>>>>>> ec8738a (Optimization change)
             }
         }
     },
@@ -137,11 +113,7 @@ const minefieldGame = {
                 if (val === 'M') light.classList.add('is-mine');
                 else if (val > 0) {
                     light.textContent = val;
-<<<<<<< HEAD
                     const colors = ['var(--color-9)', 'var(--color-2)', 'var(--color-3)', 'var(--color-1)', 'var(--color-5)', 'var(--color-8)'];
-=======
-                    const colors = ['#fff', '#3b82f6', '#22c55e', '#ef4444', '#4f46e5', '#7e22ce'];
->>>>>>> ec8738a (Optimization change)
                     light.style.color = colors[val];
                 }
             } else {
@@ -157,11 +129,8 @@ const minefieldGame = {
             gameState.gameOver = true;
             showWinModal('You Win!', 'You cleared the minefield!');
         }
-<<<<<<< HEAD
     },
     cleanup: () => {
         // No specific cleanup needed as event listeners are managed by main.js
-=======
->>>>>>> ec8738a (Optimization change)
     }
 };

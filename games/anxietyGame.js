@@ -538,3 +538,43 @@ class AnxietyGame {
         }
     }
 }
+
+const anxietyGame = {
+    // ... (properties remain the same)
+
+    setup: function() {
+        // --- MODIFICATION START ---
+        // The canvas is now created by main.js, so we just get references to it.
+        const canvas = document.getElementById('anxietyCanvas');
+        if (!canvas) {
+            console.error("Anxiety Game Error: Canvas not found!");
+            return;
+        }
+        const ctx = canvas.getContext('2d');
+        const startButton = document.getElementById('anxiety-start-button');
+        const overlay = document.getElementById('anxiety-overlay');
+
+        const audioManager = new AudioManager();
+        const game = new AnxietyGame(ctx, canvas, audioManager);
+        
+        // This part remains the same logic as before
+        game.init();
+        game.draw();
+        startButton.addEventListener('click', () => {
+            audioManager.init();
+            game.start();
+            overlay.remove();
+        }, { once: true });
+
+        gameState.currentGameInstance = game;
+        // --- MODIFICATION END ---
+    },
+
+    cleanup: function() {
+        if (gameState.currentGameInstance) {
+            gameState.currentGameInstance.stop();
+        }
+    },
+
+    // ... (rest of the game class remains identical)
+};

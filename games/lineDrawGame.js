@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 const lineDrawGame = {
     setup: () => {
         const size = currentMode.gridSize;
@@ -30,17 +28,6 @@ const lineDrawGame = {
         }
         // --- END FIX ---
 
-=======
-export const lineDrawGame = {
-=======
-const lineDrawGame = {
->>>>>>> d91859e (Added some games)
-    setup: () => {
-        const size = currentMode.gridSize;
-        const puzzle = lineDrawGame.generatePuzzle(size);
-        gameState = { size, board: Array(size * size).fill(0), pairs: puzzle.pairs, paths: {}, isDrawing: false, currentColor: 0, startNode: -1 };
-        puzzle.pairs.forEach(p => { gameState.paths[p.c] = []; });
->>>>>>> ec8738a (Optimization change)
         lineDrawGame.updateBoard();
         gameBoard.addEventListener('mousedown', lineDrawGame.handleMouseDown);
         window.addEventListener('mousemove', lineDrawGame.handleMouseMove);
@@ -68,11 +55,7 @@ const lineDrawGame = {
                 grid[startCell] = color;
                 let currentCell = startCell;
                 while(true) {
-<<<<<<< HEAD
                     const neighbors = utils.getSliderNeighbors(currentCell, size).filter(n => grid[n] === 0);
-=======
-                    const neighbors = getSliderNeighbors(currentCell, size).filter(n => grid[n] === 0);
->>>>>>> ec8738a (Optimization change)
                     if (neighbors.length === 0) break;
                     const nextCell = neighbors[Math.floor(Math.random() * neighbors.length)];
                     grid[nextCell] = color;
@@ -93,17 +76,13 @@ const lineDrawGame = {
         return lineDrawGame.generatePuzzle(size);
     },
     handleMouseDown: (e) => {
-<<<<<<< HEAD
         if (gameState.gameOver) return; // Add this line
-=======
->>>>>>> ec8738a (Optimization change)
         e.preventDefault();
         const target = e.target.closest('.light');
         if (!target) return;
         const index = parseInt(target.dataset.index);
         const pair = gameState.pairs.find(p => p.s === index || p.e === index);
         if (pair) {
-<<<<<<< HEAD
             // If this path was completed, remove it from the set before redrawing
             if (gameState.completedPaths.has(pair.c)) {
                 gameState.completedPaths.delete(pair.c);
@@ -112,29 +91,18 @@ const lineDrawGame = {
             const oldPath = gameState.paths[pair.c];
             if (oldPath) oldPath.forEach(i => { if (!gameState.pairs.some(p => p.s === i || p.e === i)) gameState.board[i] = 0; });
             
-=======
-            const oldPath = gameState.paths[pair.c];
-            if (oldPath) oldPath.forEach(i => { if (!gameState.pairs.some(p => p.s === i || p.e === i)) gameState.board[i] = 0; });
->>>>>>> ec8738a (Optimization change)
             gameState.isDrawing = true;
             gameState.currentColor = pair.c;
             gameState.startNode = index;
             gameState.paths[pair.c] = [index];
             gameState.board[index] = pair.c;
-<<<<<<< HEAD
             
-=======
->>>>>>> ec8738a (Optimization change)
             playSound(notes[(pair.c - 1) % notes.length]);
             lineDrawGame.updateBoard();
         }
     },
     handleMouseMove: (e) => {
-<<<<<<< HEAD
         if (gameState.gameOver || !gameState.isDrawing) return; // Add gameOver check
-=======
-        if (!gameState.isDrawing) return;
->>>>>>> ec8738a (Optimization change)
         e.preventDefault();
         const x = e.clientX || e.touches[0].clientX;
         const y = e.clientY || e.touches[0].clientY;
@@ -154,11 +122,7 @@ const lineDrawGame = {
             lineDrawGame.updateBoard();
             return;
         }
-<<<<<<< HEAD
         const isAdjacent = utils.getSliderNeighbors(lastIndex, gameState.size).includes(index);
-=======
-        const isAdjacent = getSliderNeighbors(lastIndex, gameState.size).includes(index);
->>>>>>> ec8738a (Optimization change)
         const isEndpointOfCurrentColor = gameState.pairs.some(p => p.c === gameState.currentColor && (p.s === index || p.e === index));
         const isValidMove = isAdjacent && (gameState.board[index] === 0 || isEndpointOfCurrentColor);
         if (isValidMove) {
@@ -170,28 +134,20 @@ const lineDrawGame = {
     },
     handleMouseUp: (e) => {
         if (!gameState.isDrawing) return;
-<<<<<<< HEAD
         
-=======
->>>>>>> ec8738a (Optimization change)
         const color = gameState.currentColor;
         const path = gameState.paths[color];
         const pair = gameState.pairs.find(p => p.c === color);
         const startNode = gameState.startNode;
         const endNode = path[path.length - 1];
         const targetEndNode = (pair.s === startNode) ? pair.e : pair.s;
-<<<<<<< HEAD
 
         if (endNode !== targetEndNode) {
             // Path is invalid, so erase it
-=======
-        if (endNode !== targetEndNode) {
->>>>>>> ec8738a (Optimization change)
             path.forEach(i => { if (!gameState.pairs.some(p => p.s === i || p.e === i)) gameState.board[i] = 0; });
             gameState.paths[color] = [];
             playSound('C3');
         } else {
-<<<<<<< HEAD
             // Path is valid! Add its color to the completed set.
             gameState.completedPaths.add(color);
             playSound('G4');
@@ -200,18 +156,10 @@ const lineDrawGame = {
         gameState.isDrawing = false;
         lineDrawGame.updateBoard(); // Update the board to show the new glow
         lineDrawGame.checkWin();    // Check if the whole puzzle is solved
-=======
-                 playSound('G4');
-        }
-        gameState.isDrawing = false;
-        lineDrawGame.updateBoard();
-        lineDrawGame.checkWin();
->>>>>>> ec8738a (Optimization change)
     },
     updateBoard: () => {
         const lights = gameBoard.querySelectorAll('.light');
         lights.forEach((light, i) => {
-<<<<<<< HEAD
             light.className = 'light'; // Reset classes
             const pair = gameState.pairs.find(p => p.s === i || p.e === i);
             const pathColor = gameState.board[i];
@@ -253,25 +201,5 @@ const lineDrawGame = {
         gameBoard.removeEventListener('touchstart', lineDrawGame.handleMouseDown);
         window.removeEventListener('touchmove', lineDrawGame.handleMouseMove);
         window.removeEventListener('touchend', lineDrawGame.handleMouseUp);
-=======
-            light.className = 'light';
-            const pair = gameState.pairs.find(p => p.s === i || p.e === i);
-            const pathColor = gameState.board[i];
-            if (pair) light.classList.add(`color-${pair.c}`, 'line-dot');
-            if (pathColor) light.classList.add(`path-${pathColor}`);
-        });
-    },
-    checkWin: () => {
-        const allPaired = gameState.pairs.every(p => {
-            const path = gameState.paths[p.c];
-            if (!path || path.length < 2) return false;
-            const ends = [path[0], path[path.length-1]].sort((a,b)=>a-b);
-            const pairEnds = [p.s, p.e].sort((a,b)=>a-b);
-            return ends[0] === pairEnds[0] && ends[1] === pairEnds[1];
-        });
-        if (allPaired && !gameState.board.includes(0)) {
-            showWinModal('You Win!', 'You connected all the dots!');
-        }
->>>>>>> ec8738a (Optimization change)
     }
 };

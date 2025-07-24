@@ -1,12 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 const ticTacToeGame = {
-=======
-export const ticTacToeGame = {
->>>>>>> ec8738a (Optimization change)
-=======
-const ticTacToeGame = {
->>>>>>> d91859e (Added some games)
     setup: () => {
         gameState = { 
             board: Array(9).fill(EMPTY), 
@@ -44,7 +36,6 @@ const ticTacToeGame = {
         gameState.board[index] = player;
         playSound(player === HUMAN ? 'C4' : 'G3');
         ticTacToeGame.updateBoard();
-<<<<<<< HEAD
         const winInfo = utils.checkWin(gameState.board, player, gameState.winLines);
         if (winInfo) {
             ticTacToeGame.end(`${player === P1 ? 'Player 1' : 'CPU'} Wins!`, winInfo.line);
@@ -52,21 +43,12 @@ const ticTacToeGame = {
             ticTacToeGame.end("It's a Draw!");
         }
         else {
-=======
-        const winInfo = checkWin(gameState.board, player, gameState.winLines);
-        if (winInfo) {
-            ticTacToeGame.end(`${player === P1 ? 'Player 1' : 'CPU'} Wins!`, winInfo.line);
-        } else if (isDraw(gameState.board)) {
-            ticTacToeGame.end("It's a Draw!");
-        } else {
->>>>>>> ec8738a (Optimization change)
             gameState.currentPlayer *= -1;
             gameStatus.textContent = `Player ${gameState.currentPlayer === P1 ? 1 : 2}'s Turn`;
         }
     },
     aiMove: () => {
         if (gameState.gameOver) return;
-<<<<<<< HEAD
 
         const board = gameState.board;
         const emptyCells = [];
@@ -83,10 +65,6 @@ const ticTacToeGame = {
             const bestMove = ticTacToeGame.findBestMove(board);
             ticTacToeGame.makeMove(bestMove, AI);
         }
-=======
-        const bestMove = ticTacToeGame.findBestMove(gameState.board);
-        ticTacToeGame.makeMove(bestMove, AI);
->>>>>>> ec8738a (Optimization change)
     },
     findBestMove: (board) => {
         let bestVal = -Infinity;
@@ -108,11 +86,7 @@ const ticTacToeGame = {
         const score = ticTacToeGame.evaluate(board);
         if (score === 10) return score - depth;
         if (score === -10) return score + depth;
-<<<<<<< HEAD
         if (utils.isDraw(board)) return 0;
-=======
-        if (isDraw(board)) return 0;
->>>>>>> ec8738a (Optimization change)
 
         if (isMax) {
             let best = -Infinity;
@@ -184,11 +158,8 @@ const ticTacToeGame = {
         lineEl.style.transform = `rotate(${angle}deg)`;
         
         gameBoard.appendChild(lineEl);
-<<<<<<< HEAD
     },
     cleanup: () => {
         // No specific cleanup needed as event listeners are managed by main.js
-=======
->>>>>>> ec8738a (Optimization change)
     }
 };
