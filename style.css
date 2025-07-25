@@ -570,3 +570,18 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     color: var(--md-sys-color-on-primary);
     border: none;
 }
+
+.music-studio-grid {
+    display: grid;
+    gap: 2px;
+    padding: 2px;
+    background-color: #1a1a2e;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
+    user-select: none;
+    position: relative;
+}
+.music-studio-grid .light {
+    aspect-ratio: 1 / 1;
+    border-radius: 4px;
+}

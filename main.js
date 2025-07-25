@@ -131,7 +131,17 @@ const gameModes = {
         cleanup: fractionFlipperGame.cleanup
     },
     
-    gauntlet: { name: 'gauntlet', title: 'SURVIVAL MODE', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047', cleanup: () => gauntlet.end() }
+    gauntlet: { name: 'gauntlet', title: 'SURVIVAL MODE', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047', cleanup: () => gauntlet.end() },
+    musicStudio: {
+        name: 'musicStudio',
+        title: 'MUSIC STUDIO',
+        rules: 'Create melodies and drum beats.',
+        setup: musicStudioGame.setup,
+        handler: musicStudioGame.handler,
+        color: '#673ab7', // A new color for the theme
+        shadow: '#9575cd',
+        cleanup: musicStudioGame.cleanup
+    }
 };
 
 const gauntlet = {
@@ -343,9 +353,12 @@ document.addEventListener('DOMContentLoaded', () => {
     setInterval(updateClock, 1000);
 
     mainMenu.addEventListener('click', (e) => {
-        if (e.target.matches('[data-mode]')) {
+        // --- THIS IS THE FIX ---
+        // Use .closest() to find the button, making the click more reliable
+        const button = e.target.closest('[data-mode]');
+        if (button) {
             playSound('C4', '16n');
-            const modeKey = e.target.dataset.mode;
+            const modeKey = button.dataset.mode;
             if (gameModes[modeKey]) {
                 mainMenu.classList.add('hidden');
                 gameContainer.classList.remove('hidden');
@@ -357,6 +370,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         }
+        // --- END OF FIX ---
     });
 });
 
