@@ -34,13 +34,7 @@ const decryptQuotes = [
         source: "Terry Pratchett",
         notes: "A cynical yet funny observation from the 'Discworld' series."
     },
-    {
-        id: 206,
-        quote: "DOH",
-        title: "The Annoyed Grunt",
-        source: "Homer Simpson, from The Simpsons",
-        notes: "A versatile expression of frustration, pain, or realization of a mistake."
-    },
+    
     {
         id: 104,
         quote: "WE WILL WE WILL ROCK YOU",
@@ -216,13 +210,7 @@ const decryptQuotes = [
         source: "Cole Sear, from The Sixth Sense (M. Night Shyamalan)",
         notes: "A whispered secret from a boy with a supernatural ability."
     },
-    {
-        id: 154,
-        quote: "AS IF",
-        title: "The Dismissal",
-        source: "Cher Horowitz, from Clueless",
-        notes: "Popularized in the 90s, this phrase is used to express disbelief or scorn."
-    },
+    
     {
         id: 114,
         quote: "CHANGE MY MIND",
@@ -286,13 +274,7 @@ const decryptQuotes = [
         source: "TikTok Slang",
         notes: "A popular phrase used to describe someone who seems like the protagonist."
     },
-    {
-        id: 1,
-        quote: "THE QUICK BROWN FOX JUMPS OVER THE LAZY DOG",
-        title: "The Rapid Canid's Leap",
-        source: "Traditional Pangram",
-        notes: "A sentence used to test typewriters and display fonts."
-    },
+    
     {
         id: 165,
         quote: "EVEN THE SMALLEST PERSON CAN CHANGE THE COURSE OF THE FUTURE",
@@ -349,13 +331,7 @@ const decryptQuotes = [
         source: "The Tenth Doctor, from Doctor Who",
         notes: "A non-technical explanation for the complex nature of time travel."
     },
-    {
-        id: 151,
-        quote: "SLAY",
-        title: "A Flawless Victory",
-        source: "Modern Slang",
-        notes: "An exclamation of approval, meaning someone did something exceptionally well."
-    },
+    
     {
         id: 123,
         quote: "DELULU IS THE SOLULU",
@@ -797,27 +773,9 @@ const decryptQuotes = [
         source: "Latin Proverb",
         notes: "A saying suggesting that courage brings good luck."
     },
-    {
-        id: 45,
-        quote: "PACK MY BOX WITH FIVE DOZEN LIQUOR JUGS",
-        title: "The Bartender's Pangram",
-        source: "Traditional Pangram",
-        notes: "A classic sentence that contains every letter of the alphabet."
-    },
-    {
-        id: 46,
-        quote: "HOW QUICKLY DAFT JUMPING ZEBRAS VEX",
-        title: "The Vexing Zebra",
-        source: "Traditional Pangram",
-        notes: "A compact sentence containing every letter of the alphabet."
-    },
-    {
-        id: 47,
-        quote: "SPHINX OF BLACK QUARTZ JUDGE MY VOW",
-        title: "The Egyptian Judge",
-        source: "Traditional Pangram",
-        notes: "A well-known pangram with a mysterious tone."
-    },
+    
+    
+    
     {
         id: 48,
         quote: "THE CAKE IS A LIE",

@@ -1,10 +1,17 @@
 @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=VT323&display=swap');
 
 :root {
-    --theme-color: #ef4444;
-    --theme-shadow-color: #f87171;
-    
-    /* Centralized Color Palette - High Contrast */
+    --md-sys-color-primary: #6750A4; /* M3 Primary Color */
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-secondary-container: #E8DEF8; /* For secondary buttons */
+    --md-sys-color-on-secondary-container: #1D192B;
+    --md-sys-color-surface: #FFFBFE; /* Page background */
+    --md-sys-color-on-surface: #1C1B1F; /* Default text color */
+    --md-sys-color-surface-container-high: #F3EDF7; /* Main menu card background */
+    --md-sys-color-error: #B3261E; /* For "Menu" button */
+    --md-sys-color-on-error: #FFFFFF;
+
+    /* Keep your game colors! */
     --color-1: #F44336; /* Vivid Red */
     --color-2: #2196F3; /* Bright Blue */
     --color-3: #4CAF50; /* Strong Green */
@@ -17,10 +24,19 @@
 }
 
 body {
-    font-family: 'Orbitron', sans-serif;
+    font-family: 'Roboto', 'Orbitron', sans-serif; /* Add Roboto for a more standard UI font */
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
     touch-action: manipulation;
     user-select: none;
     -webkit-tap-highlight-color: transparent;
+}
+
+#main-menu {
+    background-color: var(--md-sys-color-surface-container-high);
+    border-radius: 12px; /* M3 uses larger border radii */
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .game-grid {
@@ -103,7 +119,7 @@ body {
 .light.is-mine { background-color: #ef4444; }
 .light.is-mine::after { content: ''; font-size: 1.2rem; }
 .light.is-revealed { background-color: #4b5563; color: #fff; cursor: default; }
-.light.is-flagged::after { content: 'F6A9'; font-size: 1.2rem; }
+.light.is-flagged::after { content: '\001F6A9'; font-size: 1.2rem; }
 .light.is-hidden { background-color: #374151; }
 
 .light.line-dot::before { content: ''; display: block; width: 60%; height: 60%; border-radius: 50%; box-shadow: 0 0 10px #000; transition: transform 0.2s; }
@@ -131,36 +147,125 @@ body {
 
 .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
 .modal-backdrop.is-visible { opacity: 1; visibility: visible; }
-.modal-content { background: linear-gradient(145deg, #2c3e50, #1a1a2e); padding: 2rem; border-radius: 15px; text-align: center; color: #fff; box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: scale(0.9); transition: transform 0.3s ease; }
+.modal-content {
+    /* M3 Dialog styles */
+    background-color: var(--md-sys-color-surface-container-high); /* A light, off-white background */
+    color: var(--md-sys-color-on-surface); /* Dark text for high contrast */
+    padding: 1.5rem; /* 24px */
+    border-radius: 28px; /* M3 uses larger, softer corners */
+    text-align: center;
+    box-shadow: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3); /* M3 Level 3 elevation shadow */
+    transform: scale(0.9);
+    transition: transform 0.3s ease;
+    width: 90%;
+    max-width: 340px; /* A standard dialog width */
+    position: relative; /* Keep for the confetti container */
+    overflow: hidden; /* Ensures confetti stays inside the rounded corners */
+}
+
+/* This rule specifically targets the main text content of the modal for better clarity. */
+.modal-content .text-lg {
+    color: var(--md-sys-color-on-surface-variant); /* A slightly muted text color for body content */
+}
+
+/* This rule styles the primary button inside the modal (e.g., "Play Again") */
+.modal-content button {
+    /* Reset old styles from .control-button if they interfere */
+    border: none;
+
+    /* Apply M3 "Filled Button" styles */
+    background-color: var(--md-sys-color-primary); /* Use the primary theme color */
+    color: var(--md-sys-color-on-primary);
+    padding: 0.625rem 1.5rem; /* 10px 24px */
+    border-radius: 100px; /* Pill shape */
+    font-weight: 500;
+    text-transform: none; /* M3 buttons use sentence case */
+    letter-spacing: 0.01em;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+    margin-top: 1rem; /* Add some space above the button */
+}
+
+.modal-content button:hover {
+    box-shadow: 0 1px 3px 1px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3); /* M3 Hover elevation */
+}
 .modal-backdrop.is-visible .modal-content { transform: scale(1); }
 
 .hidden { display: none; }
 button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .menu-button {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border-radius: 20px; /* Pill shape */
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
+    text-transform: none; /* M3 buttons often use sentence case */
+    letter-spacing: 0.01em;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    border: none;
+    /* Remove transform and other old properties if you wish, or keep for a bouncy feel */
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100%;
     min-height: 60px;
-    padding: 0.5rem 0.25rem;
     margin-bottom: 1rem;
-    font-size: 0.9rem;
     line-height: 1.2;
     font-weight: bold;
-    color: white;
     text-align: center;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    background: linear-gradient(145deg, #e53e3e, #c53030);
-    border-radius: 10px;
-    border: 2px solid #f56565;
-    box-shadow: 0 5px 15px rgba(0,0,0,0.3), inset 0 -4px 0 rgba(0,0,0,0.2);
     transition: all 0.15s ease-out;
     transform: translateY(0);
 }
-.menu-button:hover { background: linear-gradient(145deg, #f56565, #e53e3e); transform: translateY(-2px); box-shadow: 0 7px 20px rgba(0,0,0,0.35), inset 0 -4px 0 rgba(0,0,0,0.2); }
-.menu-button:active { transform: translateY(1px) scale(0.98); box-shadow: 0 3px 10px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); }
+.menu-button:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 7px 20px rgba(0,0,0,0.35), inset 0 -4px 0 rgba(0,0,0,0.2); 
+}
+.menu-button:active { 
+    transform: translateY(1px) scale(0.98); 
+    box-shadow: 0 3px 10px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); 
+}
+
+/* Base style for all control bar buttons (icons) */
+.control-button-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%; /* Circular */
+    background-color: transparent;
+    color: var(--md-sys-color-primary);
+    border: 1px solid #CAC4D0; /* Outline color */
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.control-button-icon:hover {
+    background-color: rgba(103, 80, 164, 0.08); /* Primary color with 8% opacity */
+}
+
+/* Style for the "Menu" (Back) button */
+.control-button-icon.btn-red {
+    background-color: var(--md-sys-color-error);
+    color: var(--md-sys-color-on-error);
+    border: none;
+}
+
+/* Style for "New Game", "Solve", etc. (Primary Action) */
+.control-button-icon.btn-green, .control-button-icon.btn-yellow {
+    background-color: var(--md-sys-color-secondary-container);
+    color: var(--md-sys-color-on-secondary-container);
+    border: none;
+}
+
+/* To use text instead of an icon, you can create a text-button style */
+.control-button-text {
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-weight: bold;
+    /* ... etc ... */
+}
 
 .control-button { padding: 0.75rem 1.25rem; font-weight: bold; border-radius: 8px; transition: all 0.15s ease-out; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
 .control-button:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.3); }
@@ -395,7 +500,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     width: 100%;
     height: 100%;
     -webkit-backface-visibility: hidden;
-    backface-visibility: hidden;
+    backface-face-visibility: hidden;
     border-radius: 8px;
     display: flex;
     align-items: center;
@@ -439,24 +544,29 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     height: calc(100vh - 1rem); 
 }
 
-/* This rule targets the wrapper around the game board. */
 #game-container.keyboard-active #game-board-wrapper {
-    /* This is the key: it tells the board to stretch and take up
-       any and all available empty space in the vertical column. */
-    flex-grow: 1; 
-
-    /* If the board's content is too tall for the space it has,
-       this adds a vertical scrollbar ONLY to the board itself. */
-    overflow-y: auto; 
-
-    /* This makes scrolling feel smooth and natural on touch devices like phones. */
-    -webkit-overflow-scrolling: touch; 
+    flex-grow: 1; /* Allow the board to take up all available vertical space */
+    overflow-y: auto; /* Enable vertical scrolling ONLY for the game board */
+    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
+    padding-bottom: 1rem; /* Add some space at the bottom of the scroll area */
 }
 
-/* This rule targets the keyboard and the bottom control bar. */
 #game-container.keyboard-active #keyboard-container,
 #game-container.keyboard-active #game-controls {
-    /* This is a safety rule that says "never shrink". It ensures the
-       keyboard and control buttons are always their full size. */
-    flex-shrink: 0; 
+    flex-shrink: 0; /* Prevent the keyboard and controls from shrinking */
+}
+
+/* Other Game-Specific Layouts */
+#game-container.meteos-active > #game-board { flex-grow: 1; min-height: 0; }
+
+/* Pushes the global back button to the far right of the control bar */
+.global-back-button {
+    margin-left: auto;
+}
+
+/* This rule ensures icon buttons inside modals are styled as primary actions */
+.modal-content .control-button-icon {
+    background-color: var(--md-sys-color-primary);
+    color: var(--md-sys-color-on-primary);
+    border: none;
 }

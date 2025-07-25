@@ -47,6 +47,11 @@ const wordleGame = {
         
         keyboard = new Keyboard(keyLayout, (key) => wordleGame.handler({ key: key }));
 
+        // --- ADD THESE TWO LINES ---
+        const submitButton = createControlButton('Submit', 'btn-green', wordleGame.submitGuess, 'check');
+        buttonContainer.prepend(submitButton);
+        // --- END OF ADDITION ---
+
         // Listen for physical keyboard presses
         window.addEventListener('keydown', wordleGame.handler, { signal });
         setTimeout(wordleGame.scrollActiveRowIntoView, 100);

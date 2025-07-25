@@ -2,11 +2,11 @@ const musicMachineGame = {
     setup: () => {
         gameState = { sequence: [] };
         musicMachineGame.updateBoard();
-        const playButton = createControlButton('Play Song', 'btn-green', musicMachineGame.playSequence);
+        const playButton = createControlButton('Play Song', 'btn-green', musicMachineGame.playSequence, 'play_circle');
         const clearButton = createControlButton('Clear', 'btn-yellow', () => {
             gameState.sequence = [];
             musicMachineGame.updateBoard();
-        });
+        }, 'delete');
         buttonContainer.prepend(clearButton);
         buttonContainer.prepend(playButton);
     },

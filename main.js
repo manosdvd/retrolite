@@ -185,7 +185,7 @@ const gauntlet = {
             const successModal = createModal('success-modal', 'SUCCESS!', `<p class="text-2xl">Score: ${this.score}</p>`, 'Next Game', () => {
                 successModal.remove();
                 this.nextGame();
-            });
+            }, 'arrow_forward', 'btn-green');
             setTimeout(() => successModal.classList.add('is-visible'), 10);
         } else {
             playSound('C3', '2n');
@@ -202,7 +202,7 @@ const gauntlet = {
             document.getElementById('game-container').classList.add('hidden');
             document.getElementById('main-menu').classList.remove('hidden');
             currentMode = null;
-        });
+        }, 'menu', 'btn-red');
         setTimeout(() => endModal.classList.add('is-visible'), 10);
     }
 };
@@ -220,24 +220,51 @@ function playSound(note, duration = '8n') {
     }
 }
 function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-function createControlButton(text, colorClass, onClick) {
+function createControlButton(text, colorClass, onClick, iconName = null) {
     const button = document.createElement('button');
-    button.textContent = text;
-    button.classList.add('control-button', colorClass);
+    
+    if (iconName) {
+        // Create an icon button
+        button.className = `control-button-icon ${colorClass}`;
+        const icon = document.createElement('span');
+        icon.className = 'material-symbols-outlined';
+        icon.textContent = iconName;
+        button.appendChild(icon);
+        button.setAttribute('aria-label', text); // For accessibility
+    } else {
+        // Create a text button (fallback)
+        button.textContent = text;
+        // You can add a 'control-button-text' class here if you defined one in CSS
+        button.classList.add('control-button', colorClass); 
+    }
+
     button.addEventListener('click', onClick);
     return button;
 }
 
-function createModal(id, title, content, buttonText, onButtonClick) {
+function createModal(id, title, content, buttonText, onButtonClick, iconName = null, buttonColor = 'btn-green') {
     const modal = document.createElement('div');
     modal.id = id;
     modal.className = 'modal-backdrop';
+    
+    let buttonHtml;
+    if (iconName) {
+        buttonHtml = `
+            <button id="${id}-button" class="control-button-icon ${buttonColor}" aria-label="${buttonText}">
+                <span class="material-symbols-outlined">${iconName}</span>
+            </button>
+        `;
+    } else {
+        // The text button for modals should have a different style to match M3
+        buttonHtml = `<button id="${id}-button" class="menu-button" style="width: auto; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);">${buttonText}</button>`;
+    }
+
     modal.innerHTML = `
-        <div class="modal-content">
+        <div class="modal-content" style="background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface);">
             <div class="confetti-container"></div>
             <h2 class="text-4xl font-bold mb-4">${title}</h2>
             <div id="${id}-content" class="text-lg mb-6">${content}</div>
-            <button id="${id}-button" class="control-button btn-red">${buttonText}</button>
+            ${buttonHtml}
         </div>
     `;
     modalContainer.appendChild(modal);
@@ -248,7 +275,7 @@ function showWinModal(title, message) {
     const winModal = createModal('win-modal', title, `<p>${message}</p>`, 'Play Again', () => {
         winModal.remove();
         if (currentMode) startGame(currentMode);
-    });
+    }, 'refresh', 'btn-green');
     
     if(title.toLowerCase().includes('win')) {
         const confettiContainer = winModal.querySelector('.confetti-container');
@@ -331,26 +358,18 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     });
-
-    // Global keyboard event listener
-    document.addEventListener('keydown', (e) => {
-        if (currentMode && currentMode.handler) {
-            currentMode.handler(e, 'keydown');
-        }
-    });
 });
 
 window.startGame = function(mode) {
-    // --- THIS IS THE FIX ---
     // Perform a COMPLETE cleanup of the previous game state and UI first.
     if (currentMode && typeof currentMode.cleanup === 'function') {
         currentMode.cleanup();
     }
 
-    // 1. Reset the main game board completely. This is the most critical step.
+    // 1. Reset the main game board completely.
     gameBoard.innerHTML = '';
-    gameBoard.className = ''; // Wipes all old classes like 'game-grid'
-    gameBoard.style.cssText = ''; // Wipes any inline styles
+    gameBoard.className = ''; 
+    gameBoard.style.cssText = ''; 
 
     // 2. Clear all other shared containers.
     keyboardContainer.innerHTML = '';
@@ -359,16 +378,11 @@ window.startGame = function(mode) {
     modalContainer.innerHTML = '';
     gameStatus.textContent = '';
     
-    // Now that everything is clean, set the new mode.
     currentMode = mode;
-    // --- END OF FIX ---
-
-
-    // Set up classes for keyboard-based games
+    
     const keyboardGames = ['wordGuess', 'spellingBee', 'decryptGame'];
     gameContainer.classList.toggle('keyboard-active', keyboardGames.includes(mode.name));
 
-    // Set title and theme colors
     gameTitle.textContent = mode.title;
     gameRules.textContent = mode.rules;
     root.style.setProperty('--theme-color', mode.color);
@@ -376,14 +390,10 @@ window.startGame = function(mode) {
     gameTitle.style.color = mode.color;
     gameTitle.style.textShadow = `0 0 10px ${mode.shadow}`;
 
-    // --- MODIFICATION START ---
-
-    // Add base class for grid games, but NOT for special layout games like anxiety
     if (mode.name !== 'anxiety') {
         gameBoard.classList.add('game-grid', 'mb-2');
     }
 
-    // Special setup for the Anxiety canvas game
     if (mode.name === 'anxiety') {
         gameBoard.innerHTML = `
             <div id="anxiety-container" style="position: relative; width: 100%; max-width: 500px; aspect-ratio: 500 / 600; margin: auto;">
@@ -394,7 +404,6 @@ window.startGame = function(mode) {
             </div>
         `;
     } 
-    // Generic grid setup for all other games
     else if (mode.gridSize || (mode.gridRows && mode.gridCols)) {
         const rows = mode.gridRows || mode.gridSize;
         const cols = mode.gridCols || mode.gridSize;
@@ -415,28 +424,27 @@ window.startGame = function(mode) {
         gameBoard.appendChild(fragment);
     }
     
-    // --- MODIFICATION END ---
-    
     const backButton = createControlButton('Menu', 'btn-red', () => {
-        // Run the game's specific cleanup function
         if (currentMode && typeof currentMode.cleanup === 'function') {
             currentMode.cleanup();
         }
         
-        // --- THIS IS THE FIX ---
-        // Manually clear all shared containers before going back to the menu
         keyboardContainer.innerHTML = '';
         buttonContainer.innerHTML = '';
         statsContainer.innerHTML = '';
         gameStatus.textContent = '';
-        gameBoard.innerHTML = ''; // Also clear the game board itself
-        // --- END OF FIX ---
+        gameBoard.innerHTML = '';
 
-        gameContainer.classList.remove('keyboard-active'); // ADD THIS LINE TO RESET THE CONTAINER'S LAYOUT
+        gameContainer.classList.remove('keyboard-active');
         gameContainer.classList.add('hidden');
         mainMenu.classList.remove('hidden');
         currentMode = null;
-    });
+    }, 'arrow_back');
+
+    // --- ADD THIS LINE ---
+    backButton.classList.add('global-back-button');
+    // --- END OF ADDITION ---
+    
     buttonContainer.appendChild(backButton);
 
     mode.setup();

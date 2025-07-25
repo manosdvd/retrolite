@@ -1,3 +1,5 @@
+// retrogame/games/spellingBeeGame.js
+
 const spellingBeeGame = {
     words: spellingWords,
     currentWord: null,
@@ -28,7 +30,7 @@ const spellingBeeGame = {
 
     // --- Event Handlers ---
     handleActionClick: function() {
-        const action = spellingBeeGame.actionButton.textContent;
+        const action = spellingBeeGame.actionButton.getAttribute('aria-label');
         if (action === 'Submit') {
             spellingBeeGame.handleSubmitWord();
         } else { // Handles 'Next Word' and 'Play Again'
@@ -39,7 +41,6 @@ const spellingBeeGame = {
     handleDocumentKeydown: function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
-            // Trigger the action button's current function
             spellingBeeGame.handleActionClick();
             return;
         }
@@ -58,20 +59,21 @@ const spellingBeeGame = {
         keyboardContainer.innerHTML = '';
         gameBoard.className = 'flex flex-col items-center justify-center gap-4 p-4';
 
-        spellingBeeGame.createVoiceSelector();
-        gameBoard.appendChild(spellingBeeGame.voiceSelectorContainer);
+        spellingBeeGame.speakWordBtn = createControlButton('Hear Word', 'btn-blue', () => spellingBeeGame.handleSpeakWord(), 'volume_up');
+        gameBoard.appendChild(spellingBeeGame.speakWordBtn);
 
         spellingBeeGame.wordInput = document.createElement('input');
         spellingBeeGame.wordInput.type = 'text';
         spellingBeeGame.wordInput.id = 'wordInput';
         spellingBeeGame.wordInput.inputMode = 'none';
         spellingBeeGame.wordInput.placeholder = 'Type the word here...';
+        spellingBeeGame.wordInput.setAttribute('autocomplete', 'off');
         spellingBeeGame.wordInput.classList.add('bg-gray-800', 'border', 'border-gray-600', 'rounded-md', 'p-3', 'w-full', 'max-w-sm', 'text-center', 'text-2xl', 'font-bold', 'text-white', 'focus:outline-none', 'focus:ring-2', 'focus:ring-blue-500');
         gameBoard.appendChild(spellingBeeGame.wordInput);
 
         spellingBeeGame.messageBox = document.createElement('div');
         spellingBeeGame.messageBox.id = 'message';
-        spellingBeeGame.messageBox.className = 'message-box hidden h-24';
+        spellingBeeGame.messageBox.className = 'message-box hidden h-12 text-center';
         gameBoard.appendChild(spellingBeeGame.messageBox);
 
         const keyLayout = [
@@ -79,7 +81,6 @@ const spellingBeeGame = {
             ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
             ['Enter', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Backspace']
         ];
-
         keyboard = new Keyboard(keyLayout, (key) => {
              if (key === 'Enter') {
                 spellingBeeGame.handleActionClick();
@@ -88,14 +89,13 @@ const spellingBeeGame = {
             }
         });
 
-        spellingBeeGame.speakWordBtn = createControlButton('Hear Word', 'btn-blue', () => spellingBeeGame.handleSpeakWord());
-        spellingBeeGame.actionButton = createControlButton('Submit', 'btn-green', spellingBeeGame.handleActionClick);
+        spellingBeeGame.actionButton = createControlButton('Submit', 'btn-green', spellingBeeGame.handleActionClick, 'check');
+        const chooseVoiceBtn = createControlButton('Choose Voice', 'btn-pink', spellingBeeGame.showVoiceModal, 'record_voice_over');
         
-        buttonContainer.appendChild(spellingBeeGame.speakWordBtn);
         buttonContainer.appendChild(spellingBeeGame.actionButton);
+        buttonContainer.appendChild(chooseVoiceBtn);
 
         window.addEventListener('keydown', spellingBeeGame.handleDocumentKeydown);
-        
         spellingBeeGame.loadVoices();
         spellingBeeGame.resetGame();
     },
@@ -107,13 +107,61 @@ const spellingBeeGame = {
         }
     },
 
+    showVoiceModal: function() {
+        const selectId = 'voice-selector-modal';
+        let modalContent = `
+            <div class="w-full max-w-sm mb-2">
+                <label for="${selectId}" class="block text-sm font-medium mb-2" style="color: var(--md-sys-color-on-surface-variant);">Select a speech voice:</label>
+                <select id="${selectId}" class="bg-gray-700 border border-gray-600 rounded-md p-2 w-full text-white focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </select>
+            </div>
+        `;
+
+        const voiceModal = createModal(
+            'voice-select-modal', 'Choose Voice', modalContent, 'Done', 
+            () => voiceModal.remove(), 'done', 'btn-green'
+        );
+        
+        const selector = document.getElementById(selectId);
+        spellingBeeGame.voices.forEach(voice => {
+            const option = document.createElement('option');
+            option.textContent = `${voice.name} (${voice.lang})`;
+            option.value = voice.voiceURI;
+            if (voice.voiceURI === spellingBeeGame.selectedVoiceURI) {
+                option.selected = true;
+            }
+            selector.appendChild(option);
+        });
+
+        selector.addEventListener('change', (e) => {
+            spellingBeeGame.selectedVoiceURI = e.target.value;
+        });
+
+        setTimeout(() => voiceModal.classList.add('is-visible'), 10);
+    },
+    
+    updateActionButton: function(icon, colorClass, label) {
+        const button = this.actionButton;
+        if (!button) return;
+
+        // Update icon
+        const iconSpan = button.querySelector('.material-symbols-outlined');
+        if (iconSpan) {
+            iconSpan.textContent = icon;
+        }
+        // Update color
+        button.className = `control-button-icon ${colorClass}`;
+        // Update accessibility label, which we now use to track the state
+        button.setAttribute('aria-label', label);
+    },
+
     resetGame: function() {
         spellingBeeGame.score = 0;
         spellingBeeGame.wordsAttempted = 0;
         spellingBeeGame.updateStats();
         spellingBeeGame.hideMessage();
         spellingBeeGame.wordInput.value = '';
-
+        spellingBeeGame.wordInput.readOnly = true;
         spellingBeeGame.enableKeyboard(false);
         spellingBeeGame.startGame();
     },
@@ -126,100 +174,126 @@ const spellingBeeGame = {
         spellingBeeGame.currentWord = spellingBeeGame.words[Math.floor(Math.random() * spellingBeeGame.words.length)];
         spellingBeeGame.wordInput.value = '';
 
-
-        spellingBeeGame.actionButton.textContent = 'Submit';
+        this.updateActionButton('check', 'btn-green', 'Submit');
         spellingBeeGame.actionButton.disabled = true;
-        spellingBeeGame.actionButton.className = 'control-button btn-green'; // Reset classes
+        
         spellingBeeGame.speakWordBtn.disabled = false;
 
         spellingBeeGame.hideMessage();
-        spellingBeeGame.showMessage('Click to hear the word!', 'info');
+        spellingBeeGame.showMessage('Click "Hear Word" to begin!', 'info');
         spellingBeeGame.enableKeyboard(false);
     },
 
     endGame: function() {
-        spellingBeeGame.showMessage(`Game Over! You scored ${spellingBeeGame.score} out of ${spellingBeeGame.totalWordsToPlay}.`, 'info');
-        spellingBeeGame.speakWordBtn.disabled = true;
-
-        
-        spellingBeeGame.actionButton.textContent = 'Play Again';
-        spellingBeeGame.actionButton.className = 'control-button btn-yellow'; // Change color
-        spellingBeeGame.actionButton.disabled = false;
-        
-        spellingBeeGame.enableKeyboard(false);
+        showWinModal('Game Over!', `You scored ${spellingBeeGame.score} out of ${spellingBeeGame.totalWordsToPlay}.`);
+        // We use the main win modal which already has a "Play Again" button.
     },
 
     handleSpeakWord: function() {
+        if (!spellingBeeGame.currentWord) return;
+
+        if (spellingBeeGame.voices.length === 0) {
+            spellingBeeGame.showMessage('Speech voices loading, please wait...', 'info');
+            spellingBeeGame.loadVoices();
+            return;
+        }
+
         spellingBeeGame.speakWordBtn.disabled = true;
-        spellingBeeGame.showMessage('Listen carefully...', 'info');
+        spellingBeeGame.hideMessage();
         spellingBeeGame.speakWord(spellingBeeGame.currentWord.word, () => {
             spellingBeeGame.wordInput.readOnly = false;
             spellingBeeGame.actionButton.disabled = false;
             spellingBeeGame.enableKeyboard(true);
             spellingBeeGame.wordInput.focus();
-            spellingBeeGame.showMessage(`Spell the word. Hint: ${spellingBeeGame.currentWord.definition}`, 'info');
+            spellingBeeGame.showMessage(`Hint: ${spellingBeeGame.currentWord.definition}`, 'info');
             spellingBeeGame.speakWordBtn.disabled = false;
         });
     },
 
     handleSubmitWord: function() {
-        if (spellingBeeGame.actionButton.disabled) return;
+        if (this.actionButton.disabled) return;
 
-        const userAnswer = spellingBeeGame.wordInput.value.trim().toLowerCase();
-        const correctAnswer = spellingBeeGame.currentWord.word.toLowerCase();
-
-        spellingBeeGame.wordsAttempted++;
-        let messageText = "";
-        let messageType = "info";
+        const userAnswer = this.wordInput.value.trim().toLowerCase();
+        const correctAnswer = this.currentWord.word.toLowerCase();
+        
+        this.wordsAttempted++;
 
         if (userAnswer === correctAnswer) {
-            spellingBeeGame.score++;
-            messageText = `Correct! The word was "${spellingBeeGame.currentWord.word}".`;
-            messageType = 'success';
-            playSound('C5', '8n');
+            this.score++;
+            playSound('G5', '4n');
+
+            // --- THIS IS THE NEW LOGIC ---
+            // Create a custom modal for a correct answer
+            const correctModal = createModal(
+                'correct-word-modal',
+                'Correct!',
+                `<p class="text-xl">The word was:</p><p class="text-3xl font-bold" style="color: var(--md-sys-color-primary);">${this.currentWord.word}</p>`,
+                'Next Word',
+                () => {
+                    correctModal.remove();
+                    this.handleNextWordClick(); // Proceed to next word/end game
+                },
+                'arrow_forward',
+                'btn-green'
+            );
+
+            // Add confetti just like the main win modal
+            const confettiContainer = correctModal.querySelector('.confetti-container');
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.className = 'confetti';
+                confetti.style.left = `${Math.random() * 100}%`;
+                confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
+                confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
+                confetti.style.animationDelay = `${Math.random() * 2}s`;
+                confettiContainer.appendChild(confetti);
+            }
+
+            setTimeout(() => correctModal.classList.add('is-visible'), 10);
+            
+            this.actionButton.disabled = true;
+            this.speakWordBtn.disabled = true;
+
         } else {
-            messageText = `Incorrect. The correct word was "${spellingBeeGame.currentWord.word}".`;
-            messageType = 'error';
+            // Logic for an incorrect answer remains the same
             playSound('C3', '8n');
+            this.showMessage(`Incorrect. The correct word was "${this.currentWord.word}".`, 'error');
+            this.enableKeyboard(false);
+            this.actionButton.disabled = false;
+            this.speakWordBtn.disabled = true;
+            
+            const nextActionText = (this.wordsAttempted < this.totalWordsToPlay) ? 'Next Word' : 'Play Again';
+            this.updateActionButton((nextActionText === 'Next Word' ? 'arrow_forward' : 'refresh'), 'btn-yellow', nextActionText);
         }
-        spellingBeeGame.showMessage(messageText, messageType);
-        spellingBeeGame.updateStats();
 
-
-        spellingBeeGame.enableKeyboard(false);
-        spellingBeeGame.actionButton.disabled = false;
-        spellingBeeGame.speakWordBtn.disabled = true;
-
-        const nextActionText = (spellingBeeGame.wordsAttempted < spellingBeeGame.totalWordsToPlay) ? 'Next Word' : 'Play Again';
-        spellingBeeGame.actionButton.textContent = nextActionText;
-        spellingBeeGame.actionButton.className = 'control-button btn-yellow';
+        this.updateStats();
     },
 
     handleNextWordClick: function() {
-        if (spellingBeeGame.actionButton.textContent === 'Play Again') {
-            spellingBeeGame.resetGame();
+        if (this.wordsAttempted >= this.totalWordsToPlay) {
+            this.endGame();
         } else {
-            spellingBeeGame.startGame();
+            this.startGame();
         }
     },
-
+    
     handleKeyboardInput: function(key) {
-        if (spellingBeeGame.wordInput.readOnly) return;
-        let currentValue = spellingBeeGame.wordInput.value;
+        if (this.wordInput.readOnly) return;
+        let currentValue = this.wordInput.value;
         if (navigator.vibrate) navigator.vibrate(50);
 
         if (key === 'Backspace') {
-            spellingBeeGame.wordInput.value = currentValue.slice(0, -1);
+            this.wordInput.value = currentValue.slice(0, -1);
             playSound('C3', '8n');
         } else if (key.match(/^[a-zA-Z]$/)) {
-            spellingBeeGame.wordInput.value += key.toLowerCase();
-            const note = spellingBeeGame.noteMap[key.toLowerCase()];
+            this.wordInput.value += key.toLowerCase();
+            const note = this.noteMap[key.toLowerCase()];
             if (note) playSound(note, '16n');
         }
     },
 
     updateStats: function() {
-        updateStats(`Score: ${spellingBeeGame.score} / ${spellingBeeGame.wordsAttempted} of ${spellingBeeGame.totalWordsToPlay}`);
+        updateStats(`Score: ${this.score} / ${this.wordsAttempted} of ${this.totalWordsToPlay}`);
     },
 
     enableKeyboard: function(enable) {
@@ -232,67 +306,36 @@ const spellingBeeGame = {
     },
 
     loadVoices: function() {
-        if (!spellingBeeGame.speechSynthesis) return;
+        if (!this.speechSynthesis) return;
         const populate = () => {
-            spellingBeeGame.voices = spellingBeeGame.speechSynthesis.getVoices().filter(voice => voice.lang.startsWith('en'));
-            if (spellingBeeGame.voices.length > 0) {
+            this.voices = this.speechSynthesis.getVoices().filter(voice => voice.lang.startsWith('en'));
+            if (this.voices.length > 0) {
                 const defaultVoice =
-                    spellingBeeGame.voices.find(v => v.name.includes('Google') && v.lang === 'en-US') ||
-                    spellingBeeGame.voices.find(v => v.default && v.lang === 'en-US') ||
-                    spellingBeeGame.voices.find(v => v.lang === 'en-US');
-                spellingBeeGame.selectedVoiceURI = defaultVoice ? defaultVoice.voiceURI : spellingBeeGame.voices[0].voiceURI;
-                spellingBeeGame.populateVoiceSelector();
+                    this.voices.find(v => v.name.includes('Google') && v.lang === 'en-US') ||
+                    this.voices.find(v => v.default && v.lang === 'en-US') ||
+                    this.voices.find(v => v.lang === 'en-US');
+                this.selectedVoiceURI = defaultVoice ? defaultVoice.voiceURI : this.voices[0].voiceURI;
             } else {
-                spellingBeeGame.showMessage('No English text-to-speech voices found.', 'error');
+                this.showMessage('No English text-to-speech voices found.', 'error');
             }
         };
-        if (spellingBeeGame.speechSynthesis.getVoices().length > 0) {
+
+        if (this.speechSynthesis.getVoices().length > 0) {
             populate();
         } else {
-            spellingBeeGame.speechSynthesis.onvoiceschanged = populate;
+            this.speechSynthesis.onvoiceschanged = populate;
         }
-    },
-
-    createVoiceSelector: function() {
-        spellingBeeGame.voiceSelectorContainer = document.createElement('div');
-        spellingBeeGame.voiceSelectorContainer.className = 'w-full max-w-sm mb-2';
-        const label = document.createElement('label');
-        label.textContent = 'Speech Voice:';
-        label.htmlFor = 'voice-selector';
-        label.className = 'block text-sm font-medium text-gray-300 mb-1';
-        spellingBeeGame.voiceSelector = document.createElement('select');
-        spellingBeeGame.voiceSelector.id = 'voice-selector';
-        spellingBeeGame.voiceSelector.className = 'bg-gray-700 border border-gray-600 rounded-md p-2 w-full text-white focus:outline-none focus:ring-2 focus:ring-blue-500';
-        spellingBeeGame.voiceSelector.addEventListener('change', (e) => {
-            spellingBeeGame.selectedVoiceURI = e.target.value;
-        });
-        spellingBeeGame.voiceSelectorContainer.appendChild(label);
-        spellingBeeGame.voiceSelectorContainer.appendChild(spellingBeeGame.voiceSelector);
-    },
-
-    populateVoiceSelector: function() {
-        if (!spellingBeeGame.voiceSelector) return;
-        spellingBeeGame.voiceSelector.innerHTML = '';
-        spellingBeeGame.voices.forEach(voice => {
-            const option = document.createElement('option');
-            option.textContent = `${voice.name} (${voice.lang})`;
-            option.value = voice.voiceURI;
-            if (voice.voiceURI === spellingBeeGame.selectedVoiceURI) {
-                option.selected = true;
-            }
-            spellingBeeGame.voiceSelector.appendChild(option);
-        });
     },
 
     speakWord: function(wordText, callback) {
-        if (!spellingBeeGame.speechSynthesis) {
-            spellingBeeGame.showMessage('Text-to-speech not supported.', 'error');
+        if (!this.speechSynthesis) {
+            this.showMessage('Text-to-speech not supported.', 'error');
             if (callback) callback();
             return;
         }
-        spellingBeeGame.speechSynthesis.cancel();
+        this.speechSynthesis.cancel();
         const utterance = new SpeechSynthesisUtterance(wordText);
-        const selectedVoice = spellingBeeGame.voices.find(v => v.voiceURI === spellingBeeGame.selectedVoiceURI);
+        const selectedVoice = this.voices.find(v => v.voiceURI === this.selectedVoiceURI);
         if (selectedVoice) {
             utterance.voice = selectedVoice;
         }
@@ -301,22 +344,22 @@ const spellingBeeGame = {
         utterance.onend = callback;
         utterance.onerror = (e) => {
             console.error('SpeechSynthesis Error', e);
-            spellingBeeGame.showMessage('Error playing audio.', 'error');
+            this.showMessage('Error playing audio.', 'error');
             if (callback) callback();
         };
-        spellingBeeGame.speechSynthesis.speak(utterance);
+        this.speechSynthesis.speak(utterance);
     },
 
     showMessage: function(msg, type = 'info') {
-        spellingBeeGame.messageBox.innerHTML = '';
+        this.messageBox.innerHTML = '';
         const messageTextSpan = document.createElement('span');
         messageTextSpan.textContent = msg;
-        spellingBeeGame.messageBox.appendChild(messageTextSpan);
-        spellingBeeGame.messageBox.classList.remove('hidden', 'success', 'error', 'info');
-        spellingBeeGame.messageBox.classList.add('message-box', type);
+        this.messageBox.appendChild(messageTextSpan);
+        this.messageBox.classList.remove('hidden', 'success', 'error', 'info');
+        this.messageBox.classList.add('message-box', type);
     },
 
     hideMessage: function() {
-        spellingBeeGame.messageBox.classList.add('hidden');
+        this.messageBox.classList.add('hidden');
     }
 };

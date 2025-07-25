@@ -28,7 +28,7 @@ const fractionFlipperGame = {
         // Correctly call newRound on the object itself
         fractionFlipperGame.newRound();
 
-        const newRoundButton = createControlButton('New Target', 'btn-blue', () => fractionFlipperGame.newRound());
+        const newRoundButton = createControlButton('New Target', 'btn-blue', () => fractionFlipperGame.newRound(), 'refresh');
         buttonContainer.prepend(newRoundButton);
     },
 

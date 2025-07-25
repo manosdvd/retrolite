@@ -7,7 +7,7 @@ const echoGame = {
                 startButton.remove();
                 echoGame.nextSequence();
             }
-        });
+        }, 'play_arrow');
         buttonContainer.prepend(startButton);
         updateStats(`Level: 1`);
         gameStatus.textContent = "Press Start";

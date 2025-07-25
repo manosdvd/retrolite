@@ -64,7 +64,7 @@ const connectGame = {
         }
     },
     addNewGameButton: () => {
-        const newGameButton = createControlButton('New Game', 'btn-green', () => startGame(currentMode));
+        const newGameButton = createControlButton('New Game', 'btn-green', () => startGame(currentMode), 'refresh');
         buttonContainer.appendChild(newGameButton);
     },
     findBestMove: (board) => {

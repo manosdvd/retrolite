@@ -10,8 +10,8 @@ const blackjackGame = {
         }
         utils.shuffleArray(gameState.deck);
 
-        const hitButton = createControlButton('Hit', 'btn-blue', blackjackGame.hit);
-        const standButton = createControlButton('Stand', 'btn-yellow', blackjackGame.stand);
+        const hitButton = createControlButton('Hit', 'btn-blue', blackjackGame.hit, 'add');
+        const standButton = createControlButton('Stand', 'btn-yellow', blackjackGame.stand, 'check');
         gameState.hitButton = hitButton;
         gameState.standButton = standButton;
         buttonContainer.prepend(standButton);

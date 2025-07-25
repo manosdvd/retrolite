@@ -2,7 +2,7 @@ const minefieldGame = {
     setup: () => {
         const newGameButton = createControlButton('New Game', 'btn-green', () => {
             startGame(currentMode); // Restart the game
-        });
+        }, 'refresh');
         buttonContainer.prepend(newGameButton);
         minefieldGame.start(8, 8, 10);
     },

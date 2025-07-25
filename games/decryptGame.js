@@ -53,7 +53,7 @@ const decryptGame = {
         buttonContainer.appendChild(createControlButton('New Puzzle', 'btn-green', () => {
             decryptGame.cleanup();
             startGame(gameModes.decryptGame);
-        }));
+        }, 'refresh'));
 
         decryptGame.puzzleContainer.addEventListener('click', decryptGame.handleInputClick, { signal });
         window.addEventListener('keydown', decryptGame.handlePhysicalKeyboard, { signal });
@@ -270,7 +270,7 @@ const decryptGame = {
             decryptGame.setActiveCipherChar(null);
             const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote);
             const title = puzzleInfo ? puzzleInfo.title : "You Cracked the Code!";
-            let message = `<p class="mb-2">The quote was:</p><p class="text-amber-300">"${decryptGame.currentQuote}"</p>`;
+            let message = `<p class="mb-2">The quote was:</p><p class="font-bold" style="color: var(--md-sys-color-primary);">"${decryptGame.currentQuote}"</p>`;
             if (puzzleInfo && puzzleInfo.source) message += `<p class="mt-4 text-sm">Source: ${puzzleInfo.source}</p>`;
 
             gameRules.textContent = "Congratulations! You solved it!";

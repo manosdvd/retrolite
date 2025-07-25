@@ -27,7 +27,7 @@ const decimalDashGame = {
 
         this.newGame();
 
-        const newGameButton = createControlButton('New Game', 'btn-blue', () => this.newGame());
+        const newGameButton = createControlButton('New Game', 'btn-blue', () => this.newGame(), 'refresh');
         buttonContainer.prepend(newGameButton);
     },
 

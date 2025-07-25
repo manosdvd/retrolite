@@ -7,7 +7,7 @@ const lightsOutGame = {
             lightsOutGame.toggle(randomIndex, 5, gameState.board);
         }
         
-        const solveButton = createControlButton('Solve', 'btn-yellow', lightsOutGame.solve);
+        const solveButton = createControlButton('Solve', 'btn-yellow', lightsOutGame.solve, 'emoji_objects');
         buttonContainer.prepend(solveButton);
         
         lightsOutGame.updateBoard();

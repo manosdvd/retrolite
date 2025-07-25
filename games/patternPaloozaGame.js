@@ -22,7 +22,7 @@ const patternPaloozaGame = {
         keyboardContainer.innerHTML = ''; // No keyboard needed for this game
 
         this.inputField = document.getElementById('answer-input');
-        this.submitButton = createControlButton('Submit', 'btn-green', () => this.handleSubmit());
+        this.submitButton = createControlButton('Submit', 'btn-green', () => this.handleSubmit(), 'check');
         buttonContainer.prepend(this.submitButton);
 
         this.newGame();

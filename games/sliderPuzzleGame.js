@@ -6,7 +6,7 @@ const sliderPuzzleGame = {
             sliderPuzzleGame.shuffle();
             gameState.moves = 0;
             updateStats(`Moves: 0`);
-        });
+        }, 'shuffle');
         buttonContainer.prepend(shuffleButton);
         updateStats(`Moves: 0`);
     },
