@@ -55,7 +55,7 @@ const blackjackGame = {
             gameState.cpuHand.push({ card, hidden: isHidden });
         }
         
-        playSound(notes[card] || 'C4');
+        audioManager.playSound('game', notes[card] || 'C4', '16n');
         await blackjackGame.updateBoardAndScores();
     },
     updateBoardAndScores: async () => {
@@ -134,7 +134,7 @@ const blackjackGame = {
         const hiddenCard = gameState.cpuHand.find(c => c.hidden);
         if (hiddenCard) {
             hiddenCard.hidden = false;
-            playSound('E4', '4n');
+            audioManager.playSound('positive', 'E4', '4n');
         }
         
         await blackjackGame.updateBoardAndScores();

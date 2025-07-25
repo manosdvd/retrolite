@@ -340,7 +340,7 @@ const musicStudioGame = {
         
         if (!isInitial) {
             this.updateStats();
-            playSound('C5', '8n');
+            audioManager.playSound('ui', 'C5', '8n');
         }
     },
 

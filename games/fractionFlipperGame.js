@@ -131,12 +131,12 @@ const fractionFlipperGame = {
             // Fraction is already selected, so UNSELECT it.
             this.selectedFractions.splice(index, 1);
             button.classList.remove('opacity-50'); // Make it look active again
-            playSound('C3', '8n'); // Sound for removal
+            audioManager.playSound('game', 'C3', '8n'); // Sound for removal
         } else {
             // Fraction is not selected, so SELECT it.
             this.selectedFractions.push(fraction);
             button.classList.add('opacity-50'); // Make it look selected
-            playSound('C4', '8n');
+            audioManager.playSound('game', 'C4', '8n');
         }
 
         this.updateCurrentSumDisplay();
@@ -147,7 +147,7 @@ const fractionFlipperGame = {
         let totalSum = this.selectedFractions.reduce((sum, f) => this.addFractions(sum, f), { num: 0, den: 1 });
         const simpleSum = this.simplifyFraction(totalSum.num, totalSum.den);
         if (simpleSum.num === this.targetFraction.num && simpleSum.den === this.targetFraction.den) {
-            playSound('G5', '4n');
+            audioManager.playSound('positive', 'G5', '4n');
             showWinModal("Target Matched!", `You found a combination for ${this.targetFraction.num} / ${this.targetFraction.den}!`);
             setTimeout(() => this.newRound(), 500);
         }

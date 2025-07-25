@@ -3,52 +3,13 @@
  *
  * This file contains the complete logic for the "Anxiety" game,
  * a fast-paced, match-3 game with a relentless "pusher" row mechanic.
- * It includes the main game class and the audio manager.
  */
 
-class AudioManager {
-    constructor() {
-        this.synth = new Tone.PolySynth(Tone.Synth, {
-            oscillator: { type: 'sine' },
-            envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.2 }
-        }).toDestination();
-        this.isInitialized = false;
-    }
-
-    async init() {
-        if (this.isInitialized) return;
-        try {
-            await Tone.start();
-            this.isInitialized = true;
-            console.log("Audio context started.");
-        } catch (e) {
-            console.error("Could not start audio context: ", e);
-        }
-    }
-
-    playMatchSound(combo) {
-        if (!this.isInitialized) return;
-        const baseNote = 150;
-        const note = baseNote + (combo * 25);
-        this.synth.triggerAttackRelease(note, '8n');
-    }
-
-    playPushSound() {
-        if (!this.isInitialized) return;
-        this.synth.triggerAttackRelease('C2', '8n');
-    }
-
-    playGameOverSound() {
-        if (!this.isInitialized) return;
-        this.synth.triggerAttackRelease(['C2', 'E2', 'G2'], '1n');
-    }
-}
 
 class AnxietyGame {
-    constructor(ctx, canvas, audioManager) {
+    constructor(ctx, canvas) {
         this.ctx = ctx;
         this.canvas = canvas;
-        this.audioManager = audioManager;
         this.canvasWidth = canvas.width;
         this.canvasHeight = canvas.height;
 
@@ -208,11 +169,11 @@ class AnxietyGame {
         for (let x = 0; x < this.GRID_WIDTH; x++) {
             if (this.grid[0][x] !== null) {
                 this.gameOver = true;
-                this.audioManager.playGameOverSound();
+                audioManager.playSound('negative', ['C2', 'E2', 'G2'], '1n');
                 return;
             }
         }
-        this.audioManager.playPushSound();
+        audioManager.playSound('negative', 'C2', '8n');
         for (let y = 0; y < this.GRID_HEIGHT - 1; y++) { this.grid[y] = this.grid[y + 1]; }
         this.grid[this.GRID_HEIGHT - 1] = this.previewRow;
         this.rowsPushed++;
@@ -268,7 +229,8 @@ class AnxietyGame {
 
     removeMatches(matchedSet, isInitialSetup, comboMultiplier) {
         if (!isInitialSetup) {
-            this.audioManager.playMatchSound(comboMultiplier);
+            const note = 150 + (comboMultiplier * 25);
+            audioManager.playSound('positive', note, '8n');
             const matchSize = matchedSet.size;
             let baseScore = matchSize * 10;
             if (matchSize > 3) baseScore += (matchSize - 3) * 15;
@@ -543,31 +505,35 @@ const anxietyGame = {
     // ... (properties remain the same)
 
     setup: function() {
-        // --- MODIFICATION START ---
         // The canvas is now created by main.js, so we just get references to it.
         const canvas = document.getElementById('anxietyCanvas');
         if (!canvas) {
-            console.error("Anxiety Game Error: Canvas not found!");
-            return;
+            // The game-board div is the main container now.
+            const gameBoard = document.getElementById('game-board');
+            gameBoard.innerHTML = `
+                <div id="anxiety-overlay">
+                    <button id="anxiety-start-button" class="menu-button">Start</button>
+                </div>
+                <canvas id="anxietyCanvas" width="600" height="700"></canvas>
+            `;
         }
-        const ctx = canvas.getContext('2d');
+        const canvasRef = document.getElementById('anxietyCanvas');
+        const ctx = canvasRef.getContext('2d');
         const startButton = document.getElementById('anxiety-start-button');
         const overlay = document.getElementById('anxiety-overlay');
 
-        const audioManager = new AudioManager();
-        const game = new AnxietyGame(ctx, canvas, audioManager);
+        const game = new AnxietyGame(ctx, canvasRef);
         
-        // This part remains the same logic as before
         game.init();
         game.draw();
+        
         startButton.addEventListener('click', () => {
-            audioManager.init();
+            // Audio context is already initialized by main.js
             game.start();
             overlay.remove();
         }, { once: true });
 
         gameState.currentGameInstance = game;
-        // --- MODIFICATION END ---
     },
 
     cleanup: function() {

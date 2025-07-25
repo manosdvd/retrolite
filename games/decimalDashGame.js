@@ -88,11 +88,11 @@ const decimalDashGame = {
     handleDecimalClick: function(clickedDecimal, button) {
         if (this.checkCondition(clickedDecimal)) {
             this.score++;
-            playSound('C5', '8n'); // Correct sound
+            audioManager.playSound('positive', 'C5', '8n'); // Correct sound
             button.classList.add('btn-green');
         } else {
             this.score = Math.max(0, this.score - 1); // Deduct score for incorrect
-            playSound('C3', '8n'); // Incorrect sound
+            audioManager.playSound('negative', 'C3', '8n'); // Incorrect sound
             button.classList.add('btn-red');
         }
         updateStats(`Score: ${this.score}`);

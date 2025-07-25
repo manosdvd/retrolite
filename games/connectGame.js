@@ -44,7 +44,7 @@ const connectGame = {
     },
     makeMove: (index, player) => {
         gameState.board[index] = player;
-        playSound(player === HUMAN ? 'C4' : 'G3');
+        audioManager.playSound('game', player === HUMAN ? 'C4' : 'G3');
         connectGame.updateBoard();
         const winLine = utils.checkConnectWin(gameState.board, player);
         if (winLine) {

@@ -17,7 +17,7 @@ const magicSquareGame = {
     },
     handler: (e) => {
         const index = parseInt(e.target.dataset.index);
-        playSound(notes[index % 9]);
+        audioManager.playSound('game', notes[index % 9]);
         gameState.toggles[index].forEach(toggleIndex => {
             gameState.board[toggleIndex] = 1 - gameState.board[toggleIndex];
         });

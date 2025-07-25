@@ -34,7 +34,7 @@ const ticTacToeGame = {
     },
     makeMove: (index, player) => {
         gameState.board[index] = player;
-        playSound(player === HUMAN ? 'C4' : 'G3');
+        audioManager.playSound('game', player === HUMAN ? 'C4' : 'G3');
         ticTacToeGame.updateBoard();
         const winInfo = utils.checkWin(gameState.board, player, gameState.winLines);
         if (winInfo) {

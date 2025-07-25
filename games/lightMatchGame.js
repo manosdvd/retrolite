@@ -170,7 +170,7 @@ const lightMatchGame = {
 },
     
     handleBombExplosion: async function(bombIndex) {
-        playSound('G5', '2n');
+        audioManager.playSound('positive', 'G5', '2n');
         const cellsToClear = new Set([bombIndex]);
         utils.getNeighbors(bombIndex, gameState.size, gameState.size).forEach(n => cellsToClear.add(n));
 
@@ -183,8 +183,8 @@ const lightMatchGame = {
     },
 
     animateSwap: async (index1, index2, forward) => {
-        if(forward) playSound('C4', '16n');
-        else playSound('C3', '16n');
+        if(forward) audioManager.playSound('game', 'C4', '16n');
+        else audioManager.playSound('game', 'C3', '16n');
         
         const el1 = gameBoard.querySelector(`[data-index='${index1}']`);
         const el2 = gameBoard.querySelector(`[data-index='${index2}']`);
@@ -211,7 +211,7 @@ const lightMatchGame = {
             
             if (cellsToClear.size === 0) break;
             
-            playSound(notes[chain % notes.length], '8n');
+            audioManager.playSound('positive', notes[chain % notes.length], '8n');
             gameState.score += cellsToClear.size * 10 * chain;
             updateStats(`Score: ${gameState.score}`);
 

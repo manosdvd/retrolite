@@ -97,7 +97,7 @@ const lineDrawGame = {
             gameState.paths[pair.c] = [index];
             gameState.board[index] = pair.c;
             
-            playSound(notes[(pair.c - 1) % notes.length]);
+            audioManager.playSound('game', notes[(pair.c - 1) % notes.length]);
             lineDrawGame.updateBoard();
         }
     },
@@ -118,7 +118,7 @@ const lineDrawGame = {
             const note = notes[(gameState.currentColor - 1) % notes.length];
             const noteName = note.slice(0, -1);
             const octave = parseInt(note.slice(-1));
-            playSound(`${noteName}${octave - 1}`);
+            audioManager.playSound('game', `${noteName}${octave - 1}`);
             lineDrawGame.updateBoard();
             return;
         }
@@ -128,7 +128,7 @@ const lineDrawGame = {
         if (isValidMove) {
             currentPath.push(index);
             gameState.board[index] = gameState.currentColor;
-            playSound(notes[(gameState.currentColor - 1) % notes.length]);
+            audioManager.playSound('game', notes[(gameState.currentColor - 1) % notes.length]);
             lineDrawGame.updateBoard();
         }
     },
@@ -146,11 +146,11 @@ const lineDrawGame = {
             // Path is invalid, so erase it
             path.forEach(i => { if (!gameState.pairs.some(p => p.s === i || p.e === i)) gameState.board[i] = 0; });
             gameState.paths[color] = [];
-            playSound('C3');
+            audioManager.playSound('negative', 'C3');
         } else {
             // Path is valid! Add its color to the completed set.
             gameState.completedPaths.add(color);
-            playSound('G4');
+            audioManager.playSound('positive', 'G4');
         }
 
         gameState.isDrawing = false;

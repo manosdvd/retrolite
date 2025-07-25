@@ -128,11 +128,11 @@ const patternPaloozaGame = {
 
         if (userAnswer == this.question.answer) { // Use == for type coercion with numbers/strings
             this.score++;
-            playSound('C5', '8n'); // Correct sound
+            audioManager.playSound('positive', 'C5', '8n'); // Correct sound
             gameStatus.textContent = "Correct!";
         } else {
             this.score = Math.max(0, this.score - 1); // Deduct score for incorrect
-            playSound('C3', '8n'); // Incorrect sound
+            audioManager.playSound('negative', 'C3', '8n'); // Incorrect sound
             gameStatus.textContent = `Incorrect. The answer was ${this.question.answer}.`;
         }
         updateStats(`Score: ${this.score}`);

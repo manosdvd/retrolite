@@ -2,9 +2,8 @@
 let gameBoard, buttonContainer, statsContainer, gameStatus, keyboardContainer, modalContainer, gameTitle, gameRules, root, mainMenu, gameContainer;
 let gameState = {};
 let currentMode = null;
-// --- CENTRALIZED AUDIO SYNTH ---
-// Initialize a single, persistent PolySynth for all game sounds.
-let synth = new Tone.PolySynth(Tone.Synth).toDestination();
+// --- CENTRALIZED AUDIO MANAGER ---
+const audioManager = new AudioManager();
 let keyboard; // Global keyboard variable
 const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
 const P1 = 1, P2 = -1, EMPTY = 0, AI = -1, HUMAN = 1;
@@ -89,12 +88,11 @@ const gauntlet = {
     start: function() { this.isActive = true; this.score = 0; this.availableGames = Object.keys(gameModes).filter(k => k !== 'musicMachine' && k !== 'gauntlet' && k !== 'musicStudio'); utils.shuffleArray(this.availableGames); this.nextGame(); },
     shuffleGames: function() { utils.shuffleArray(this.availableGames); },
     nextGame: function() { if (!this.isActive) return; if (this.availableGames.length === 0) this.shuffleGames(); const nextGameKey = this.availableGames.pop(); startGame(gameModes[nextGameKey]); },
-    onGameComplete: function(isSuccess) { if (!this.isActive) return; this.clearTimer(); if (isSuccess) { this.score++; playSound('G5', '8n'); const successModal = createModal('success-modal', 'SUCCESS!', `<p class="text-2xl">Score: ${this.score}</p>`, 'Next Game', () => { successModal.remove(); this.nextGame(); }, 'arrow_forward', 'btn-green'); setTimeout(() => successModal.classList.add('is-visible'), 10); } else { playSound('C3', '2n'); this.end(); } },
+    onGameComplete: function(isSuccess) { if (!this.isActive) return; this.clearTimer(); if (isSuccess) { this.score++; audioManager.playSound('positive', 'G5', '8n'); const successModal = createModal('success-modal', 'SUCCESS!', `<p class="text-2xl">Score: ${this.score}</p>`, 'Next Game', () => { successModal.remove(); this.nextGame(); }, 'arrow_forward', 'btn-green'); setTimeout(() => successModal.classList.add('is-visible'), 10); } else { audioManager.playSound('negative', 'C3', '2n'); this.end(); } },
     end: function() { const finalScore = this.score; this.isActive = false; this.score = 0; this.clearTimer(); const endModal = createModal('gauntlet-over-modal', 'Gauntlet Over', `<p class="text-2xl">Your final score is ${finalScore}.</p>`, 'Main Menu', () => { endModal.remove(); document.getElementById('game-container').classList.add('hidden'); document.getElementById('main-menu').classList.remove('hidden'); currentMode = null; }, 'menu', 'btn-red'); setTimeout(() => endModal.classList.add('is-visible'), 10); }
 };
 
 function updateStats(text) { if (statsContainer) statsContainer.textContent = text; }
-function playSound(note, duration = '8n') { try { if (Tone.context.state !== 'running') { Tone.context.resume(); } synth.triggerAttackRelease(note, duration); } catch (error) { console.error("Tone.js error:", error); } }
 function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
 function createControlButton(text, colorClass, onClick, iconName = null) { const button = document.createElement('button'); if (iconName) { button.className = `control-button-icon ${colorClass}`; const icon = document.createElement('span'); icon.className = 'material-symbols-outlined'; icon.textContent = iconName; button.appendChild(icon); button.setAttribute('aria-label', text); } else { button.textContent = text; button.classList.add('control-button', colorClass); } button.addEventListener('click', onClick); return button; }
 function createModal(id, title, content, buttonText, onButtonClick, iconName = null, buttonColor = 'btn-green') { const modal = document.createElement('div'); modal.id = id; modal.className = 'modal-backdrop'; let buttonHtml; if (iconName) { buttonHtml = `<button id="${id}-button" class="control-button-icon ${buttonColor}" aria-label="${buttonText}"><span class="material-symbols-outlined">${iconName}</span></button>`; } else { buttonHtml = `<button id="${id}-button" class="menu-button" style="width: auto; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);">${buttonText}</button>`; } modal.innerHTML = `<div class="modal-content" style="background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface);"><div class="confetti-container"></div><h2 class="text-4xl font-bold mb-4">${title}</h2><div id="${id}-content" class="text-lg mb-6">${content}</div>${buttonHtml}</div>`; modalContainer.appendChild(modal); document.getElementById(`${id}-button`).addEventListener('click', onButtonClick); return modal; }
@@ -123,10 +121,13 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock();
     setInterval(updateClock, 1000);
 
-    mainMenu.addEventListener('click', (e) => {
+    mainMenu.addEventListener('click', async (e) => {
         const button = e.target.closest('[data-mode]');
         if (button) {
-            playSound('C4', '16n');
+            // Initialize the audio manager on the very first click
+            await audioManager.init();
+            audioManager.playSound('ui', 'C4', '16n'); // Use the new audio manager
+
             const modeKey = button.dataset.mode;
             if (gameModes[modeKey]) {
                 mainMenu.classList.add('hidden');

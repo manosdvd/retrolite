@@ -220,7 +220,7 @@ const spellingBeeGame = {
 
         if (userAnswer === correctAnswer) {
             this.score++;
-            playSound('G5', '4n');
+            audioManager.playSound('positive', 'G5', '4n');
 
             // --- THIS IS THE NEW LOGIC ---
             // Create a custom modal for a correct answer
@@ -256,7 +256,7 @@ const spellingBeeGame = {
 
         } else {
             // Logic for an incorrect answer remains the same
-            playSound('C3', '8n');
+            audioManager.playSound('negative', 'C3', '8n');
             this.showMessage(`Incorrect. The correct word was "${this.currentWord.word}".`, 'error');
             this.enableKeyboard(false);
             this.actionButton.disabled = false;
@@ -284,11 +284,11 @@ const spellingBeeGame = {
 
         if (key === 'Backspace') {
             this.wordInput.value = currentValue.slice(0, -1);
-            playSound('C3', '8n');
+            audioManager.playSound('negative', 'C3', '8n');
         } else if (key.match(/^[a-zA-Z]$/)) {
             this.wordInput.value += key.toLowerCase();
             const note = this.noteMap[key.toLowerCase()];
-            if (note) playSound(note, '16n');
+            if (note) audioManager.playSound('game', note, '16n');
         }
     },
 

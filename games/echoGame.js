@@ -27,7 +27,7 @@ const echoGame = {
             const light = gameBoard.querySelector(`[data-index='${index}']`);
             light.classList.add(`echo-${index+1}`);
             light.classList.remove('is-off');
-            playSound(notes[index]);
+            audioManager.playSound('game', notes[index]);
             await delay(400);
             light.classList.add('is-off');
             light.classList.remove(`echo-${index+1}`);
@@ -45,7 +45,7 @@ const echoGame = {
         const light = e.target;
         light.classList.add(`echo-${index+1}`);
         light.classList.remove('is-off');
-        playSound(notes[index]);
+        audioManager.playSound('game', notes[index]);
         setTimeout(() => {
             light.classList.add('is-off');
             light.classList.remove(`echo-${index+1}`);
@@ -56,7 +56,7 @@ const echoGame = {
 
         if (gameState.playerSequence[currentMoveIndex] !== gameState.sequence[currentMoveIndex]) {
             gameStatus.textContent = "Wrong! Game Over.";
-            playSound('C3', '4n');
+            audioManager.playSound('negative', 'C3', '4n');
             showWinModal('Game Over', `You reached level ${gameState.level}.`);
             gameState.state = 'WATCH';
             return;

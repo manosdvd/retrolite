@@ -13,7 +13,7 @@ const musicMachineGame = {
     handler: async (e) => {
         const index = parseInt(e.target.dataset.index);
         gameState.sequence.push(index);
-        playSound(notes[index]);
+        audioManager.playSound('game', notes[index]);
         const light = e.target;
         light.classList.add('is-highlight', `echo-${index+1}`);
         setTimeout(() => light.classList.remove('is-highlight', `echo-${index+1}`), 300);
@@ -24,7 +24,7 @@ const musicMachineGame = {
         for (const noteIndex of gameState.sequence) {
             const light = gameBoard.querySelector(`[data-index='${noteIndex}']`);
             light.classList.add('is-highlight', `echo-${noteIndex+1}`);
-            playSound(notes[noteIndex]);
+            audioManager.playSound('game', notes[noteIndex]);
             await delay(300);
             light.classList.remove('is-highlight', `echo-${noteIndex+1}`);
         }

@@ -319,7 +319,7 @@ const decryptGame = {
         
         if (invertedCipherMap[cipherToReveal]) {
             decryptGame.setUserMapping(cipherToReveal, invertedCipherMap[cipherToReveal]);
-            playSound('E5', '8n');
+            audioManager.playSound('positive', 'E5', '8n');
         }
     }
 };

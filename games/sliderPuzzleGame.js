@@ -22,7 +22,7 @@ const sliderPuzzleGame = {
         const index = parseInt(e.target.dataset.index);
         const neighbors = utils.getSliderNeighbors(gameState.emptyIndex, 3);
         if (neighbors.includes(index)) {
-            playSound(notes[index % 9]);
+            audioManager.playSound('game', notes[index % 9]);
             sliderPuzzleGame.swapTiles(index, gameState.emptyIndex);
             gameState.moves++;
             sliderPuzzleGame.updateBoard();

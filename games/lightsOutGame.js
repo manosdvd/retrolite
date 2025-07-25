@@ -16,7 +16,7 @@ const lightsOutGame = {
     handler: (e) => {
         if (gameState.isSolving) return;
         const index = parseInt(e.target.dataset.index);
-        playSound(notes[index % 9]);
+        audioManager.playSound('game', notes[index % 9]);
         lightsOutGame.toggle(index, 5, gameState.board);
         gameState.moves++;
         lightsOutGame.updateBoard();
@@ -85,7 +85,7 @@ const lightsOutGame = {
             await delay(200);
             lightsOutGame.toggle(pressIndex, 5, gameState.board);
             lightsOutGame.updateBoard();
-            playSound(notes[pressIndex % 9]);
+            audioManager.playSound('positive', notes[pressIndex % 9], '16n');
             await delay(200);
             light.classList.remove('is-highlight');
         }
