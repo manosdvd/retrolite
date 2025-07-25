@@ -98,11 +98,21 @@ function createControlButton(text, colorClass, onClick, iconName = null) { const
 function createModal(id, title, content, buttonText, onButtonClick, iconName = null, buttonColor = 'btn-green') { const modal = document.createElement('div'); modal.id = id; modal.className = 'modal-backdrop'; let buttonHtml; if (iconName) { buttonHtml = `<button id="${id}-button" class="control-button-icon ${buttonColor}" aria-label="${buttonText}"><span class="material-symbols-outlined">${iconName}</span></button>`; } else { buttonHtml = `<button id="${id}-button" class="menu-button" style="width: auto; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);">${buttonText}</button>`; } modal.innerHTML = `<div class="modal-content" style="background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface);"><div class="confetti-container"></div><h2 class="text-4xl font-bold mb-4">${title}</h2><div id="${id}-content" class="text-lg mb-6">${content}</div>${buttonHtml}</div>`; modalContainer.appendChild(modal); document.getElementById(`${id}-button`).addEventListener('click', onButtonClick); return modal; }
 function showWinModal(title, message) { const winModal = createModal('win-modal', title, `<p>${message}</p>`, 'Play Again', () => { winModal.remove(); if (currentMode) startGame(currentMode); }, 'refresh', 'btn-green'); if(title.toLowerCase().includes('win')) { const confettiContainer = winModal.querySelector('.confetti-container'); for (let i = 0; i < 50; i++) { const confetti = document.createElement('div'); confetti.className = 'confetti'; confetti.style.left = `${Math.random() * 100}%`; confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; confetti.style.animationDuration = `${Math.random() * 3 + 2}s`; confetti.style.animationDelay = `${Math.random() * 2}s`; confettiContainer.appendChild(confetti); } } else { winModal.querySelector('.modal-content').classList.add('shake'); } setTimeout(() => winModal.classList.add('is-visible'), 10); }
 function getValidColumns(board) { const W = 7; const validCols = []; for (let c = 0; c < W; c++) { if (board[c] === EMPTY) { validCols.push(c); } } return validCols; }
+
 // --- CLICK HANDLER FIX ---
-// This now passes the entire event 'e' to the handler, which is what
-// the musicStudioGame handler expects, fixing the 'dataset' error.
-function handleBoardClick(e) { if (e.target.closest('.light') && currentMode && currentMode.handler) { currentMode.handler(e); } }
-function handleBoardContextMenu(e) { e.preventDefault(); if (e.target.closest('.light') && currentMode && currentMode.handler) { currentMode.handler(e, 'contextmenu'); } }
+function handleBoardClick(e) {
+    if (e.target.closest('.light') && currentMode && currentMode.handler) {
+        // Pass the event and a 'click' identifier to the handler
+        currentMode.handler(e, 'click');
+    }
+}
+
+function handleBoardContextMenu(e) {
+    e.preventDefault();
+    if (e.target.closest('.light') && currentMode && currentMode.handler) {
+        currentMode.handler(e, 'contextmenu');
+    }
+}
 
 document.addEventListener('DOMContentLoaded', () => {
     mainMenu = document.getElementById('main-menu');

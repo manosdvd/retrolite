@@ -51,7 +51,8 @@ const minefieldGame = {
         const index = parseInt(e.target.dataset.index);
         if (gameState.gameOver || !e.target.matches('.light')) return;
 
-        if (eventType === 'click') {
+        // --- FIX: Check for 'click' or undefined eventType for normal clicks ---
+        if (eventType === 'click' || eventType === undefined) {
             if (gameState.firstClick) minefieldGame.finishSetup(index);
             if (gameState.flagged[index]) return;
             if (gameState.board[index] === 'M') {
