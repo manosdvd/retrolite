@@ -6,17 +6,23 @@ const musicStudioGame = {
     gridSize: { cols: 32, rows: 8 },
     activeTrack: 'melody',
     instrumentPresets: {
-        'Synth Lead':     { synth: Tone.Synth,    options: { oscillator: { type: 'fatsawtooth' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.5 } }, colorClass: 'instrument-synth-lead' },
-        'Electric Piano': { synth: Tone.FMSynth,  options: { harmonicity: 3, modulationIndex: 14, envelope: { attack: 0.02, decay: 0.3, sustain: 0.1, release: 0.8 } }, colorClass: 'instrument-electric-piano' },
-        'Synth Strings':  { synth: Tone.AMSynth,  options: { harmonicity: 1.5, envelope: { attack: 0.1, decay: 0.5, sustain: 0.3, release: 1.2 } }, colorClass: 'instrument-synth-strings' },
-        'Brass Ensemble': { synth: Tone.FMSynth,  options: { harmonicity: 1.2, modulationIndex: 10, envelope: { attack: 0.05, decay: 0.4, sustain: 0.2, release: 0.7 } }, colorClass: 'instrument-brass-ensemble' },
-        'Synth Bass':     { synth: Tone.MonoSynth,options: { oscillator: { type: 'square' }, filter: { Q: 2, type: 'lowpass', rolloff: -24 }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.6 } }, colorClass: 'instrument-synth-bass' }
+        // --- EXPANDED INSTRUMENT PALETTE WITH EMOJIS ---
+        'Piano':    { synth: Tone.FMSynth,  options: { harmonicity: 3, modulationIndex: 14, envelope: { attack: 0.02, decay: 0.3, sustain: 0.1, release: 0.8 } }, colorClass: 'instrument-electric-piano', emoji: '🎹' },
+        'Pluck':    { synth: Tone.PluckSynth, options: { attackNoise: 0.5, dampening: 4000, resonance: 0.9 }, colorClass: 'instrument-pluck', emoji: '🎸' },
+        'Bell':     { synth: Tone.FMSynth,  options: { harmonicity: 2, modulationIndex: 10, modulationEnvelope: { attack: 0.01, decay: 0.5, sustain: 0, release: 0.8 } }, colorClass: 'instrument-bell', emoji: '🔔' },
+        'Strings':  { synth: Tone.AMSynth,  options: { harmonicity: 1.5, envelope: { attack: 0.1, decay: 0.5, sustain: 0.3, release: 1.2 } }, colorClass: 'instrument-synth-strings', emoji: '🎻' },
+        'Brass':    { synth: Tone.FMSynth,  options: { harmonicity: 1.2, modulationIndex: 10, envelope: { attack: 0.05, decay: 0.4, sustain: 0.2, release: 0.7 } }, colorClass: 'instrument-brass-ensemble', emoji: '🎺' },
+        'Bass':     { synth: Tone.MonoSynth,options: { oscillator: { type: 'square' }, filter: { Q: 2, type: 'lowpass', rolloff: -24 }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.6 } }, colorClass: 'instrument-synth-bass', emoji: '🔊' },
+        'Lead':     { synth: Tone.Synth,    options: { oscillator: { type: 'fatsawtooth' }, envelope: { attack: 0.01, decay: 0.2, sustain: 0.1, release: 0.5 } }, colorClass: 'instrument-synth-lead', emoji: '✨' },
+        'Gameboy':  { synth: Tone.MonoSynth,options: { oscillator: { type: 'pulse', width: 0.4 }, filter: { Q: 1, type: 'lowpass', rolloff: -12 }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.2, release: 0.8 } }, colorClass: 'instrument-gameboy', emoji: '👾' },
+        'Laser':    { synth: Tone.Synth,    options: { oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.1, sustain: 0.1, release: 0.2 } }, pitchShift: -0.5, colorClass: 'instrument-laser', emoji: '🔫' },
+        'Click':    { synth: Tone.Synth,    options: { oscillator: { type: 'triangle' }, envelope: { attack: 0.001, decay: 0.05, sustain: 0, release: 0.1 } }, colorClass: 'instrument-click', emoji: '🖱️' },
     },
     gameState: {},
+    ui: {}, // To hold references to UI elements
 
     // --- METHODS ---
     setup: function() {
-        // Initialize all audio components first
         this.drumKit = {
             kick: new Tone.MembraneSynth({ pitchDecay: 0.05, octaves: 10, oscillator: { type: 'sine' }, envelope: { attack: 0.001, decay: 0.4, sustain: 0.01, release: 1.4, attackCurve: 'exponential' } }).toDestination(),
             snare: new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.005, decay: 0.2, sustain: 0, release: 0.1 } }).toDestination(),
@@ -28,18 +34,15 @@ const musicStudioGame = {
             highTom: new Tone.MembraneSynth({ pitchDecay: 0.06, octaves: 8, oscillator: {type: 'sine'}, envelope: { attack: 0.01, decay: 0.2, sustain: 0.01, release: 0.4} }).toDestination()
         };
         
-        // Initialize the game's state, including the data structure for instrument colors
         this.gameState = {
-            melody: Array(this.gridSize.rows).fill(0).map(() => Array(this.gridSize.cols).fill(0)),
+            melody: Array(this.gridSize.rows).fill(0).map(() => Array(this.gridSize.cols).fill(null)),
             drums: Array(this.gridSize.rows).fill(0).map(() => Array(this.gridSize.cols).fill(0)),
-            tempo: 120, octave: 4, isPlaying: false, currentStep: -1, currentInstrument: 'Synth Lead'
+            tempo: 120, octave: 4, isPlaying: false, currentStep: -1, currentInstrument: 'Piano'
         };
 
-        // Set up the initial melody synth and then build the UI
-        this.switchInstrument(this.gameState.currentInstrument, true);
         this.setupUI();
+        this.setInstrument('Piano', true); 
 
-        // Configure and start the master sequencer
         this.sequencer = new Tone.Sequence(this.playStep.bind(this), Array.from(Array(this.gridSize.cols).keys()), '16n');
         Tone.Transport.bpm.value = this.gameState.tempo;
 
@@ -47,7 +50,6 @@ const musicStudioGame = {
     },
 
     setupUI: function() {
-        // This function is now fully self-contained and builds its own interface
         const wrapper = document.getElementById('game-board-wrapper');
         
         const mainContainer = document.createElement('div');
@@ -57,13 +59,11 @@ const musicStudioGame = {
         labelsContainer.id = 'note-labels-container';
         labelsContainer.className = 'note-labels-container';
         
-        // It's crucial that this script creates and manages its own gameBoard element
         gameBoard = document.createElement('div');
         gameBoard.id = 'game-board';
         gameBoard.className = 'music-studio-grid';
         gameBoard.style.gridTemplateColumns = `repeat(${this.gridSize.cols}, 1fr)`;
 
-        // Populate the grid with cells
         for (let i = 0; i < this.gridSize.rows * this.gridSize.cols; i++) {
             const cell = document.createElement('div');
             const row = Math.floor(i / this.gridSize.cols);
@@ -72,26 +72,91 @@ const musicStudioGame = {
             gameBoard.appendChild(cell);
         }
 
-        // Assemble the final layout
         mainContainer.appendChild(labelsContainer);
         mainContainer.appendChild(gameBoard);
         wrapper.appendChild(mainContainer);
 
         this.setupLabels(labelsContainer);
 
-        // Create all control buttons
-        const playButton = createControlButton('Play', 'btn-green', () => this.togglePlayback(), 'play_arrow');
-        const clearButton = createControlButton('Clear', 'btn-red', () => this.clearSequence(), 'delete');
-        const tempoUpButton = createControlButton('Tempo+', 'btn-blue', () => this.changeTempo(10), 'arrow_upward');
-        const tempoDownButton = createControlButton('Tempo-', 'btn-blue', () => this.changeTempo(-10), 'arrow_downward');
-        const octaveUpButton = createControlButton('Octave+', 'btn-yellow', () => this.changeOctave(1), 'add');
-        const octaveDownButton = createControlButton('Octave-', 'btn-yellow', () => this.changeOctave(-1), 'remove');
-        const switchTrackButton = createControlButton('Drums', 'btn-pink', () => this.switchTrack(), 'music_note');
-        const switchInstrumentButton = createControlButton('Instrument', 'btn-purple', () => this.switchInstrument(), 'piano');
+        this.ui.instrumentButtons = {};
+        const instrumentPalette = document.createElement('div');
+        instrumentPalette.className = 'instrument-palette';
 
-        buttonContainer.prepend(switchInstrumentButton, switchTrackButton, octaveDownButton, octaveUpButton, tempoDownButton, tempoUpButton, clearButton, playButton);
+        // Create emoji buttons for each instrument
+        for (const instrumentName in this.instrumentPresets) {
+            const preset = this.instrumentPresets[instrumentName];
+            const button = document.createElement('button');
+            button.className = 'instrument-emoji-button';
+            button.textContent = preset.emoji;
+            button.title = instrumentName;
+            button.onclick = () => this.setInstrument(instrumentName);
+            instrumentPalette.appendChild(button);
+            this.ui.instrumentButtons[instrumentName] = button;
+        }
+
+        // Create emoji button for the drum kit
+        this.ui.drumButton = document.createElement('button');
+        this.ui.drumButton.className = 'instrument-emoji-button';
+        this.ui.drumButton.textContent = '🥁';
+        this.ui.drumButton.title = 'Drums';
+        this.ui.drumButton.onclick = () => this.setTrack('drums');
+        instrumentPalette.appendChild(this.ui.drumButton);
+
+        this.ui.playButton = createControlButton('Play', 'btn-green', () => this.togglePlayback(), 'play_arrow');
+        this.ui.clearButton = createControlButton('Clear', 'btn-red', () => this.clearSequence(), 'delete');
+        this.ui.tempoUpButton = createControlButton('Tempo+', 'btn-blue', () => this.changeTempo(10), 'arrow_upward');
+        this.ui.tempoDownButton = createControlButton('Tempo-', 'btn-blue', () => this.changeTempo(-10), 'arrow_downward');
+        this.ui.octaveUpButton = createControlButton('Octave+', 'btn-yellow', () => this.changeOctave(1), 'add');
+        this.ui.octaveDownButton = createControlButton('Octave-', 'btn-yellow', () => this.changeOctave(-1), 'remove');
+        
+        buttonContainer.prepend(
+            instrumentPalette,
+            this.ui.octaveDownButton, 
+            this.ui.octaveUpButton, 
+            this.ui.tempoDownButton, 
+            this.ui.tempoUpButton, 
+            this.ui.clearButton, 
+            this.ui.playButton
+        );
         
         this.updateStats();
+    },
+    
+    setInstrument: function(instrumentName, isInitial = false) {
+        this.activeTrack = 'melody';
+        
+        for (const name in this.ui.instrumentButtons) {
+            this.ui.instrumentButtons[name].classList.toggle('is-active', name === instrumentName);
+        }
+        this.ui.drumButton.classList.remove('is-active');
+
+        this.ui.octaveUpButton.style.display = 'flex';
+        this.ui.octaveDownButton.style.display = 'flex';
+
+        this._loadInstrument(instrumentName, isInitial);
+        
+        const rules = document.getElementById('game-rules');
+        rules.textContent = 'Melody Mode: Top is high, bottom is low.';
+        
+        this.updateBoard();
+    },
+
+    setTrack: function(trackName) {
+        if (trackName !== 'drums') return;
+        this.activeTrack = 'drums';
+
+        for (const name in this.ui.instrumentButtons) {
+            this.ui.instrumentButtons[name].classList.remove('is-active');
+        }
+        this.ui.drumButton.classList.add('is-active');
+        
+        this.ui.octaveUpButton.style.display = 'none';
+        this.ui.octaveDownButton.style.display = 'none';
+        
+        const rules = document.getElementById('game-rules');
+        rules.textContent = 'Drums: Kick, Snare, Clap, Closed Hat, Open Hat, Low/Mid/High Toms';
+
+        this.updateBoard();
     },
 
     setupLabels: function(container) {
@@ -106,29 +171,32 @@ const musicStudioGame = {
     },
 
     updateStats: function() {
-        updateStats(`Tempo: ${this.gameState.tempo} | Octave: ${this.gameState.octave} | Inst: ${this.gameState.currentInstrument}`);
+        updateStats(`Tempo: ${this.gameState.tempo} | Octave: ${this.gameState.octave}`);
     },
 
     handler: function(e) {
-        // This now correctly receives the full event object 'e' from main.js
         const lightElement = e.target.closest('.light');
-        if (!lightElement) return; // Exit if the click was not on a light cell
+        if (!lightElement) return;
 
         const index = parseInt(lightElement.dataset.index);
         const col = index % this.gridSize.cols;
         const row = Math.floor(index / this.gridSize.cols);
 
         if (this.activeTrack === 'melody') {
-            // If the cell is active, turn it off.
             if (this.gameState.melody[row][col]) {
-                this.gameState.melody[row][col] = 0; 
+                this.gameState.melody[row][col] = null; 
             } else {
-                // Otherwise, activate it and store the current instrument's name.
                 this.gameState.melody[row][col] = this.gameState.currentInstrument;
                 const note = this.getNote(row);
-                this.synth.triggerAttackRelease(note, '8n');
+                if (this.instrumentPresets[this.gameState.currentInstrument].pitchShift) {
+                    this.synth.set({ detune: -1200 });
+                    this.synth.triggerAttackRelease(note, '8n');
+                    this.synth.set({ detune: 0 });
+                } else {
+                    this.synth.triggerAttackRelease(note, '8n');
+                }
             }
-        } else { // Handle the drum track
+        } else {
             this.gameState.drums[row][col] = this.gameState.drums[row][col] ? 0 : 1;
             if (this.gameState.drums[row][col]) {
                 this.playDrumSound(row);
@@ -163,25 +231,36 @@ const musicStudioGame = {
             this.gameState.currentStep = -1;
             requestAnimationFrame(() => this.updateBoard());
         }
-        const playButton = buttonContainer.querySelector('.btn-green .material-symbols-outlined');
+        const playButton = this.ui.playButton.querySelector('.material-symbols-outlined');
         playButton.textContent = this.gameState.isPlaying ? 'pause' : 'play_arrow';
     },
 
     playStep: function(time, step) {
-        // Play melody notes
         for (let row = 0; row < this.gridSize.rows; row++) {
-            if (this.gameState.melody[row][step]) {
+            const instrumentName = this.gameState.melody[row][step];
+            if (instrumentName) {
                 const note = this.getNote(row);
-                this.synth.triggerAttackRelease(note, '16n', time);
+                // Trigger visual feedback
+                Tone.Draw.schedule(() => {
+                    const light = gameBoard.querySelector(`[data-index='${row * this.gridSize.cols + step}']`);
+                    if (light) {
+                        light.classList.add('is-playing-note');
+                        setTimeout(() => light.classList.remove('is-playing-note'), 150);
+                    }
+                }, time);
+                // Trigger audio
+                if (this.instrumentPresets[instrumentName].pitchShift) {
+                    this.synth.set({ detune: -1200 });
+                    this.synth.triggerAttackRelease(note, '16n', time);
+                    this.synth.set({ detune: 0 });
+                } else {
+                    this.synth.triggerAttackRelease(note, '16n', time);
+                }
             }
-        }
-        // Play drum sounds
-        for (let row = 0; row < this.gridSize.rows; row++) {
             if (this.gameState.drums[row][step]) {
                 this.playDrumSound(row, time);
             }
         }
-        // Schedule a visual update to sync with the audio
         Tone.Draw.schedule(() => {
             this.gameState.currentStep = step;
             this.updateBoard();
@@ -196,32 +275,31 @@ const musicStudioGame = {
     },
 
     updateBoard: function() {
-        if (!gameBoard) return; // Safety check
+        if (!gameBoard) return;
         const lights = gameBoard.querySelectorAll('.light');
         lights.forEach((light, i) => {
             const col = i % this.gridSize.cols;
             const row = Math.floor(i / this.gridSize.cols);
             
-            // Reset classes to just the base row color
             light.className = `light note-row-${row}`; 
             
-            if (this.activeTrack === 'melody') {
-                const instrumentName = this.gameState.melody[row][col];
-                if (instrumentName) {
-                    light.classList.add('is-player-1');
-                    // Add the specific color class for the stored instrument
-                    const colorClass = this.instrumentPresets[instrumentName]?.colorClass;
-                    if (colorClass) {
-                        light.classList.add(colorClass);
-                    }
+            const instrumentName = this.gameState.melody[row][col];
+            if (instrumentName) {
+                const colorClass = this.instrumentPresets[instrumentName]?.colorClass;
+                if (colorClass) {
+                    light.classList.add(colorClass);
                 }
-            } else { // Drums
-                if (this.gameState.drums[row][col]) {
-                    light.classList.add('is-player-2');
-                }
+                // Display emoji on the note
+                light.textContent = this.instrumentPresets[instrumentName]?.emoji || '';
+            } else {
+                light.textContent = ''; // Clear emoji if note is removed
             }
 
-            // Highlight the current playback column
+            if (this.gameState.drums[row][col]) {
+                light.classList.add('is-player-2');
+                light.textContent = '🥁';
+            }
+
             if (col === this.gameState.currentStep && this.gameState.isPlaying) {
                 light.classList.add('is-highlight');
             }
@@ -233,7 +311,7 @@ const musicStudioGame = {
     },
     
     clearSequence: function() {
-        this.gameState.melody = Array(this.gridSize.rows).fill(0).map(() => Array(this.gridSize.cols).fill(0));
+        this.gameState.melody = Array(this.gridSize.rows).fill(0).map(() => Array(this.gridSize.cols).fill(null));
         this.gameState.drums = Array(this.gridSize.rows).fill(0).map(() => Array(this.gridSize.cols).fill(0));
         this.updateBoard();
     },
@@ -248,38 +326,17 @@ const musicStudioGame = {
         this.gameState.octave = Math.max(1, Math.min(7, this.gameState.octave + change));
         this.updateStats();
     },
-    
-    switchTrack: function() {
-        this.activeTrack = this.activeTrack === 'melody' ? 'drums' : 'melody';
-        const switchTrackButton = buttonContainer.querySelector('.btn-pink');
-        const icon = switchTrackButton.querySelector('.material-symbols-outlined');
-        const rules = document.getElementById('game-rules');
-        if (this.activeTrack === 'melody') {
-            icon.textContent = 'grid_on';
-            switchTrackButton.setAttribute('aria-label', 'Switch to Drums');
-            rules.textContent = 'Melody Mode: Top is high, bottom is low.';
-        } else {
-            icon.textContent = 'music_note';
-            switchTrackButton.setAttribute('aria-label', 'Switch to Melody');
-            rules.textContent = 'Drums: Kick, Snare, Clap, Closed Hat, Open Hat, Low/Mid/High Toms';
-        }
-        this.updateBoard();
-    },
 
-    switchInstrument: function(instrumentName, isInitial = false) {
+    _loadInstrument: function(instrumentName, isInitial = false) {
         if (this.synth) { this.synth.dispose(); }
-
-        const instrumentKeys = Object.keys(this.instrumentPresets);
-        let nextInstrumentName = instrumentName;
-
-        if (!isInitial) {
-            const currentIndex = instrumentKeys.indexOf(this.gameState.currentInstrument);
-            nextInstrumentName = instrumentKeys[(currentIndex + 1) % instrumentKeys.length];
-        }
         
-        const preset = this.instrumentPresets[nextInstrumentName];
+        const preset = this.instrumentPresets[instrumentName];
+        if (!preset) {
+            console.error(`Instrument preset "${instrumentName}" not found.`);
+            return;
+        }
         this.synth = new Tone.PolySynth(preset.synth, preset.options).toDestination();
-        this.gameState.currentInstrument = nextInstrumentName;
+        this.gameState.currentInstrument = instrumentName;
         
         if (!isInitial) {
             this.updateStats();
@@ -288,7 +345,6 @@ const musicStudioGame = {
     },
 
     cleanup: function() {
-        // Gracefully dispose of all Tone.js objects to prevent memory leaks
         if (this.sequencer) { this.sequencer.stop(); this.sequencer.dispose(); this.sequencer = null; }
         if (this.synth) { this.synth.dispose(); this.synth = null; }
         if (this.drumKit) { Object.values(this.drumKit).forEach(synth => synth.dispose()); this.drumKit = null; }

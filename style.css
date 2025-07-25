@@ -204,3 +204,82 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     transform: scale(1.1);
     box-shadow: 0 0 10px #fff, inset 0 0 5px rgba(255, 255, 255, 0.5);
 }
+/* =================================== */
+/* Music Studio Emoji Palette          */
+/* =================================== */
+
+.instrument-palette {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 8px;
+    justify-content: center;
+}
+
+.instrument-emoji-button {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 2px solid #555;
+    background-color: #333;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.instrument-emoji-button:hover {
+    background-color: #444;
+    transform: translateY(-2px);
+}
+
+.instrument-emoji-button.is-active {
+    border-color: #fdd835;
+    background-color: #555;
+    box-shadow: 0 0 10px #fdd835;
+}
+
+/* Add a class to the grid cells for the emoji */
+.music-studio-grid .light {
+    font-size: 20px; /* Adjust emoji size */
+    line-height: 1;
+}
+
+/* =================================== */
+/* Note Playing Animation              */
+/* =================================== */
+
+@keyframes grow-note {
+  0% { transform: scale(1.0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1.0); }
+}
+
+.music-studio-grid .light.is-playing-note {
+    animation: grow-note 0.15s ease-in-out;
+}
+
+
+/* =================================== */
+/* New Instrument Colors               */
+/* =================================== */
+
+.music-studio-grid .light.instrument-electric-piano { background-color: #42a5f5 !important; }
+.music-studio-grid .light.instrument-pluck { background-color: #26a69a !important; }
+.music-studio-grid .light.instrument-bell { background-color: #ffee58 !important; }
+.music-studio-grid .light.instrument-synth-strings { background-color: #ab47bc !important; }
+.music-studio-grid .light.instrument-brass-ensemble { background-color: #ffa726 !important; }
+.music-studio-grid .light.instrument-synth-bass { background-color: #ef5350 !important; }
+.music-studio-grid .light.instrument-synth-lead { background-color: #ec407a !important; }
+.music-studio-grid .light.instrument-gameboy { background-color: #78909c !important; }
+.music-studio-grid .light.instrument-laser { background-color: #5c6bc0 !important; }
+.music-studio-grid .light.instrument-click { background-color: #bdbdbd !important; }
+
+/* Override the default player-1 color since we use specific instrument colors */
+.music-studio-grid .light.is-player-1 {
+    transform: scale(1.1);
+    box-shadow: 0 0 10px #fff, inset 0 0 5px rgba(255, 255, 255, 0.5);
+}
