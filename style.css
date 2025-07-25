@@ -11,20 +11,14 @@
     --md-sys-color-error: #B3261E; /* For "Menu" button */
     --md-sys-color-on-error: #FFFFFF;
 
-    /* Keep your game colors! */
-    --color-1: #F44336; /* Vivid Red */
-    --color-2: #2196F3; /* Bright Blue */
-    --color-3: #4CAF50; /* Strong Green */
-    --color-4: #FFEB3B; /* Bold Yellow */
-    --color-5: #9C27B0; /* Deep Purple */
-    --color-6: #FF9800; /* Vibrant Orange */
-    --color-7: #00BCD4; /* Bright Cyan */
-    --color-8: #E91E63; /* Hot Pink */
-    --color-9: #FFFFFF; /* White */
+    /* Game colors */
+    --color-1: #F44336; --color-2: #2196F3; --color-3: #4CAF50;
+    --color-4: #FFEB3B; --color-5: #9C27B0; --color-6: #FF9800;
+    --color-7: #00BCD4; --color-8: #E91E63; --color-9: #FFFFFF;
 }
 
 body {
-    font-family: 'Roboto', 'Orbitron', sans-serif; /* Add Roboto for a more standard UI font */
+    font-family: 'Roboto', 'Orbitron', sans-serif;
     background-color: var(--md-sys-color-surface);
     color: var(--md-sys-color-on-surface);
     touch-action: manipulation;
@@ -34,7 +28,7 @@ body {
 
 #main-menu {
     background-color: var(--md-sys-color-surface-container-high);
-    border-radius: 12px; /* M3 uses larger border radii */
+    border-radius: 12px;
     padding: 1.5rem;
     box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
@@ -47,17 +41,11 @@ body {
     border-radius: 10px;
     box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
     user-select: none;
-    position: relative; /* For win-line */
+    position: relative;
 }
 
-.game-grid.large-grid {
-    gap: 4px;
-    padding: 4px;
-}
-.game-grid.large-grid .light {
-    font-size: 1rem;
-    border-width: 1px;
-}
+.game-grid.large-grid { gap: 4px; padding: 4px; }
+.game-grid.large-grid .light { font-size: 1rem; border-width: 1px; }
 
 .light {
     aspect-ratio: 1 / 1;
@@ -72,60 +60,22 @@ body {
     font-weight: bold;
     color: rgba(255, 255, 255, 0.7);
     position: relative;
-    overflow: hidden; /* Hide parts of blocks that are animating */
+    overflow: hidden;
 }
 
-.light-inner {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    border-radius: inherit; /* Inherit the border-radius from the parent */
-    transition: transform 0.1s linear; /* Smooth animation for launches */
-}
-
-/* Update existing color rules to target the inner element */
-.light-inner.color-0 { background-color: #2c3e50; box-shadow: inset 0 0 10px rgba(0,0,0,0.7); }
-.light-inner.color-1 { background-color: var(--color-1); }
-.light-inner.color-2 { background-color: var(--color-2); }
-.light-inner.color-3 { background-color: var(--color-3); }
-.light-inner.color-4 { background-color: var(--color-4); }
-.light-inner.color-5 { background-color: var(--color-5); }
-.light-inner.color-6 { background-color: var(--color-6); }
-
-.light.is-on {
-    background-color: var(--theme-color);
-    box-shadow: 0 0 15px var(--theme-color), 0 0 25px var(--theme-color), inset 0 0 5px var(--theme-shadow-color);
-    transform: scale(1.05);
-}
-
-.light.is-highlight {
-    transform: scale(1.1);
-    border-color: #fef08a;
-    box-shadow: 0 0 20px #fef08a;
-}
-
-.light.is-off {
-    background-color: #2c3e50;
-    box-shadow: inset 0 0 10px rgba(0,0,0,0.7);
-}
-
+.light.is-on { background-color: var(--theme-color); box-shadow: 0 0 15px var(--theme-color), 0 0 25px var(--theme-color), inset 0 0 5px var(--theme-shadow-color); transform: scale(1.05); }
+.light.is-highlight { transform: scale(1.1); border-color: #fef08a; box-shadow: 0 0 20px #fef08a; }
+.light.is-off { background-color: #2c3e50; box-shadow: inset 0 0 10px rgba(0,0,0,0.7); }
 .light.is-player-1 { background-color: var(--color-2); box-shadow: 0 0 15px var(--color-2); transform: scale(1); animation: drop 0.3s ease-out; }
 .light.is-player-2 { background-color: var(--color-6); box-shadow: 0 0 15px var(--color-6); transform: scale(1); animation: drop 0.3s ease-out; }
 .light.is-empty { background-color: #1a1a2e; box-shadow: inset 0 0 5px #000; }
 .light.is-selected { border-color: #fde047; transform: scale(1.1); box-shadow: 0 0 20px #fde047; }
-
 .light.is-mine { background-color: #ef4444; }
-.light.is-mine::after { content: ''; font-size: 1.2rem; }
 .light.is-revealed { background-color: #4b5563; color: #fff; cursor: default; }
 .light.is-flagged::after { content: '\001F6A9'; font-size: 1.2rem; }
 .light.is-hidden { background-color: #374151; }
-
 .light.line-dot::before { content: ''; display: block; width: 60%; height: 60%; border-radius: 50%; box-shadow: 0 0 10px #000; transition: transform 0.2s; }
 .light.line-dot:hover::before { transform: scale(1.2); }
-
-/* Using CSS variables for game colors */
 .light.color-1, .light.path-1, .light.color-1.line-dot::before, .light.echo-1 { background-color: var(--color-1); }
 .light.color-2, .light.path-2, .light.color-2.line-dot::before, .light.echo-2 { background-color: var(--color-2); }
 .light.color-3, .light.path-3, .light.color-3.line-dot::before, .light.echo-3 { background-color: var(--color-3); }
@@ -135,151 +85,38 @@ body {
 .light.color-7, .light.path-7, .light.color-7.line-dot::before, .light.echo-7 { background-color: var(--color-7); }
 .light.echo-8 { background-color: var(--color-8); }
 .light.echo-9 { background-color: var(--color-9); }
-
-.light.color-7 {
-    background-color: #ffffff; /* White color for bomb */
-    box-shadow: 0 0 15px #ffffff, 0 0 25px #ffffff;
-    animation: pulse 1s infinite;
-}
-
 .light.is-feedback { background-color: #fde047; box-shadow: 0 0 20px #fde047, 0 0 30px #fde047; transform: scale(1.1); border-color: #fde047; }
 .light.is-center-inactive { background-color: #111; cursor: not-allowed; }
 
 .modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
 .modal-backdrop.is-visible { opacity: 1; visibility: visible; }
-.modal-content {
-    /* M3 Dialog styles */
-    background-color: var(--md-sys-color-surface-container-high); /* A light, off-white background */
-    color: var(--md-sys-color-on-surface); /* Dark text for high contrast */
-    padding: 1.5rem; /* 24px */
-    border-radius: 28px; /* M3 uses larger, softer corners */
-    text-align: center;
-    box-shadow: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3); /* M3 Level 3 elevation shadow */
-    transform: scale(0.9);
-    transition: transform 0.3s ease;
-    width: 90%;
-    max-width: 340px; /* A standard dialog width */
-    position: relative; /* Keep for the confetti container */
-    overflow: hidden; /* Ensures confetti stays inside the rounded corners */
-}
-
-/* This rule specifically targets the main text content of the modal for better clarity. */
-.modal-content .text-lg {
-    color: var(--md-sys-color-on-surface-variant); /* A slightly muted text color for body content */
-}
-
-/* This rule styles the primary button inside the modal (e.g., "Play Again") */
-.modal-content button {
-    /* Reset old styles from .control-button if they interfere */
-    border: none;
-
-    /* Apply M3 "Filled Button" styles */
-    background-color: var(--md-sys-color-primary); /* Use the primary theme color */
-    color: var(--md-sys-color-on-primary);
-    padding: 0.625rem 1.5rem; /* 10px 24px */
-    border-radius: 100px; /* Pill shape */
-    font-weight: 500;
-    text-transform: none; /* M3 buttons use sentence case */
-    letter-spacing: 0.01em;
-    cursor: pointer;
-    transition: box-shadow 0.2s;
-    margin-top: 1rem; /* Add some space above the button */
-}
-
-.modal-content button:hover {
-    box-shadow: 0 1px 3px 1px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3); /* M3 Hover elevation */
-}
+.modal-content { background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); padding: 1.5rem; border-radius: 28px; text-align: center; box-shadow: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3); transform: scale(0.9); transition: transform 0.3s ease; width: 90%; max-width: 340px; position: relative; overflow: hidden; }
+.modal-content .text-lg { color: var(--md-sys-color-on-surface-variant); }
+.modal-content button { border: none; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); padding: 0.625rem 1.5rem; border-radius: 100px; font-weight: 500; text-transform: none; letter-spacing: 0.01em; cursor: pointer; transition: box-shadow 0.2s; margin-top: 1rem; }
+.modal-content button:hover { box-shadow: 0 1px 3px 1px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3); }
 .modal-backdrop.is-visible .modal-content { transform: scale(1); }
 
 .hidden { display: none; }
 button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 
-.menu-button {
-    background-color: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    border-radius: 20px; /* Pill shape */
-    padding: 0.75rem 1rem;
-    font-size: 0.875rem;
-    text-transform: none; /* M3 buttons often use sentence case */
-    letter-spacing: 0.01em;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
-    border: none;
-    /* Remove transform and other old properties if you wish, or keep for a bouncy feel */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    min-height: 60px;
-    margin-bottom: 1rem;
-    line-height: 1.2;
-    font-weight: bold;
-    text-align: center;
-    transition: all 0.15s ease-out;
-    transform: translateY(0);
-}
-.menu-button:hover { 
-    transform: translateY(-2px); 
-    box-shadow: 0 7px 20px rgba(0,0,0,0.35), inset 0 -4px 0 rgba(0,0,0,0.2); 
-}
-.menu-button:active { 
-    transform: translateY(1px) scale(0.98); 
-    box-shadow: 0 3px 10px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); 
-}
+.menu-button { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border-radius: 20px; padding: 0.75rem 1rem; font-size: 0.875rem; text-transform: none; letter-spacing: 0.01em; box-shadow: 0 1px 3px rgba(0,0,0,0.2); border: none; display: flex; justify-content: center; align-items: center; width: 100%; min-height: 60px; margin-bottom: 1rem; line-height: 1.2; font-weight: bold; text-align: center; transition: all 0.15s ease-out; transform: translateY(0); }
+.menu-button:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(0,0,0,0.35), inset 0 -4px 0 rgba(0,0,0,0.2); }
+.menu-button:active { transform: translateY(1px) scale(0.98); box-shadow: 0 3px 10px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); }
 
-/* Base style for all control bar buttons (icons) */
-.control-button-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%; /* Circular */
-    background-color: transparent;
-    color: var(--md-sys-color-primary);
-    border: 1px solid #CAC4D0; /* Outline color */
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.control-button-icon:hover {
-    background-color: rgba(103, 80, 164, 0.08); /* Primary color with 8% opacity */
-}
-
-/* Style for the "Menu" (Back) button */
-.control-button-icon.btn-red {
-    background-color: var(--md-sys-color-error);
-    color: var(--md-sys-color-on-error);
-    border: none;
-}
-
-/* Style for "New Game", "Solve", etc. (Primary Action) */
-.control-button-icon.btn-green, .control-button-icon.btn-yellow {
-    background-color: var(--md-sys-color-secondary-container);
-    color: var(--md-sys-color-on-secondary-container);
-    border: none;
-}
-
-/* To use text instead of an icon, you can create a text-button style */
-.control-button-text {
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-weight: bold;
-    /* ... etc ... */
-}
-
+.control-button-icon { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background-color: transparent; color: var(--md-sys-color-primary); border: 1px solid #CAC4D0; cursor: pointer; transition: background-color 0.2s; }
+.control-button-icon:hover { background-color: rgba(103, 80, 164, 0.08); }
+.control-button-icon.btn-red { background-color: var(--md-sys-color-error); color: var(--md-sys-color-on-error); border: none; }
+.control-button-icon.btn-green, .control-button-icon.btn-yellow { background-color: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border: none; }
 .control-button { padding: 0.75rem 1.25rem; font-weight: bold; border-radius: 8px; transition: all 0.15s ease-out; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
-.control-button:hover { transform: translateY(-2px); box-shadow: 0 6px 10px rgba(0,0,0,0.3); }
-.control-button:active { transform: translateY(1px) scale(0.98); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
 .btn-blue { background-color: #3b82f6; color: white; } .btn-blue:hover { background-color: #2563eb; }
 .btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
 .btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
 .btn-yellow { background-color: #f59e0b; color: white; } .btn-yellow:hover { background-color: #d97706; }
 .btn-pink { background-color: #ec4899; color: white; } .btn-pink:hover { background-color: #db2777; }
 .btn-orange { background-color: #f97316; color: white; } .btn-orange:hover { background-color: #ea580c; }
+.btn-purple { background-color: #8e24aa; color: white; } .btn-purple:hover { background-color: #7b1fa2; }
 
 .shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
-.pulse { animation: pulse 0.5s ease-in-out infinite alternate; }
-
 .confetti-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
 .confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0.7; animation: confetti-fall 5s linear infinite; }
 
@@ -294,294 +131,76 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 .wordle-cell-back.wordle-correct, .key.wordle-correct { background-color: #22c55e; border-color: #22c55e; color: white; }
 .wordle-cell-back.wordle-present, .key.wordle-present { background-color: #f59e0b; border-color: #f59e0b; color: white; }
 .wordle-cell-back.wordle-absent,  .key.wordle-absent  { background-color: #1f2937; border-color: #1f2937; color: #9ca3af; }
-.wordle-cell.shake { animation: shake 0.6s cubic-bezier(.36,.07,.19,.97); }
 
 /* On-Screen Keyboard Styles */
 .keyboard { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 500px; margin: 0 auto; padding: 10px; }
 .keyboard-row { display: flex; justify-content: center; gap: 6px; }
-.key {
-    height: 50px;
-    flex-grow: 1;
-    border: none;
-    border-radius: 5px;
-    background-color: #4b5563;
-    color: white;
-    font-size: 1rem;
-    font-weight: bold;
-    cursor: pointer;
-    text-transform: uppercase;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
+.key { height: 50px; flex-grow: 1; border: none; border-radius: 5px; background-color: #4b5563; color: white; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
 .key:hover { background-color: #6b7280; }
 .key-large { flex-grow: 1.5; }
+#keyboard-container .key.used { background-color: #1f2937; color: #4b5563; cursor: not-allowed; }
 
 .win-line { position: absolute; background-color: var(--theme-color); height: 5px; border-radius: 5px; transform-origin: left center; box-shadow: 0 0 10px var(--theme-shadow-color); animation: draw-line 0.5s ease-out; }
-
 #digital-clock { position: fixed; top: 0.5rem; right: 1rem; font-family: 'Orbitron', sans-serif; font-size: 1.25rem; color: var(--theme-color, #ef4444); text-shadow: 0 0 8px var(--theme-shadow-color, #f87171); z-index: 2000; transition: color 0.3s ease, text-shadow 0.3s ease; }
 
-/* REVISED Keyboard Game Layout Styles */
-#game-container.keyboard-active {
-    display: flex;
-    flex-direction: column;
-    height: calc(100vh - 1rem); /* Full viewport height minus body padding */
-}
+/* Keyboard Game & Music Studio Layout Styles */
+#game-container.keyboard-active, #game-container.music-studio-active { display: flex; flex-direction: column; height: calc(100vh - 1rem); }
+#game-container.keyboard-active #game-board-wrapper { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 1rem; }
+#game-container.keyboard-active #keyboard-container, #game-container.keyboard-active #game-controls { flex-shrink: 0; }
 
-#game-container.keyboard-active #game-board-wrapper {
-    flex-grow: 1; /* Allow the board to take up all available vertical space */
-    overflow-y: auto; /* Enable vertical scrolling ONLY for the game board */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    padding-bottom: 1rem; /* Add some space at the bottom of the scroll area */
-}
+.global-back-button { margin-left: auto; }
+.modal-content .control-button-icon { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border: none; }
 
-#game-container.keyboard-active #keyboard-container,
-#game-container.keyboard-active #game-controls {
-    flex-shrink: 0; /* Prevent the keyboard and controls from shrinking */
-}
-
-/* Other Game-Specific Layouts */
-#game-container.meteos-active > #game-board { flex-grow: 1; min-height: 0; }
-
-/* --- Scroll Indicator for Cryptogram (with Arrow) --- */
-.scroll-indicator-wrapper {
-    position: relative;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-}
-.scroll-indicator-wrapper::-webkit-scrollbar {
-    display: none;
-}
-
-/* Gradient Fade */
-.scroll-indicator-wrapper::after {
-    content: '';
-    position: sticky; /* Stick to the bottom of the viewport */
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 40px;
-    background: linear-gradient(to top, #1a1a2e 70%, transparent);
-    pointer-events: none;
-    opacity: 0;
-    transition: opacity 0.3s ease-in-out;
-    z-index: 10;
-}
-
-/* Arrow Indicator */
-.scroll-indicator-wrapper::before {
-    content: '';
-    position: sticky;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%) rotate(45deg);
-    width: 12px;
-    height: 12px;
-    border-bottom: 3px solid var(--theme-color);
-    border-right: 3px solid var(--theme-color);
-    pointer-events: none;
-    opacity: 0;
-    z-index: 11;
-    animation: bounce-arrow 1.5s infinite;
-}
-
-.scroll-indicator-wrapper.has-overflow::after,
-.scroll-indicator-wrapper.has-overflow::before {
-    opacity: 1;
-}
-
-/* Cryptogram Styles for Word Wrapping and Readability */
-.cryptogram-puzzle-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 0.75rem 1rem; /* Increased row gap */
-    padding: 1.5rem;
-    line-height: 1.5; /* Improved line height */
-}
-
-.cryptogram-word {
-    display: flex;
-    flex-wrap: nowrap;
-}
-
-.cryptogram-cell {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-end; /* Align to bottom */
-    width: 38px; /* Slightly wider */
-    height: 75px;
-    margin: 0 2px;
-    border-bottom: 3px solid #6b7280;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.cryptogram-cell.punctuation {
-    border-bottom: none;
-    cursor: default;
-    font-size: 1.75rem;
-    width: auto;
-    padding-bottom: 5px;
-}
-
-.cipher-char {
-    font-weight: bold;
-    font-size: 1.75rem;
-    color: #cbd5e1;
-    text-align: center;
-    letter-spacing: 0.05em; /* Kerning */
-}
-
-.plain-char {
-    font-weight: bold;
-    font-size: 1.75rem;
-    color: #f59e0b;
-    text-align: center;
-    min-height: 2.2rem;
-    letter-spacing: 0.05em; /* Kerning */
-}
-
-.cryptogram-cell.active {
-    background-color: #374151;
-    border-radius: 4px;
-}
-
-.cryptogram-cell.correct .plain-char {
-    color: #22c55e;
-}
-
-#keyboard-container .key.used {
-    background-color: #1f2937;
-    color: #4b5563;
-    cursor: not-allowed;
-}
+/* Music Studio Layout */
+#game-container.music-studio-active #game-board-wrapper { flex-grow: 1; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 1rem; display: flex; align-items: stretch; }
+.music-studio-main-container { display: flex; height: 100%; }
+.note-labels-container { display: flex; flex-direction: column; height: 100%; margin-right: 5px; }
+.note-label { flex-grow: 1; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; border-radius: 4px; padding: 0 10px; font-family: 'Orbitron', sans-serif; }
+.music-studio-grid { display: grid; gap: 2px; padding: 2px; background-color: #1a1a2e; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.5); user-select: none; position: relative; min-width: 1200px; height: 100%; }
+.music-studio-grid .light { aspect-ratio: 1 / 1; border-radius: 4px; transition: background-color 0.1s ease, transform 0.1s ease; }
+.note-row-0 { background-color: #e53935; } .note-row-1 { background-color: #d81b60; }
+.note-row-2 { background-color: #8e24aa; } .note-row-3 { background-color: #5e35b1; }
+.note-row-4 { background-color: #3949ab; } .note-row-5 { background-color: #1e88e5; }
+.note-row-6 { background-color: #039be5; } .note-row-7 { background-color: #00acc1; }
+.music-studio-grid .light.is-player-1, .music-studio-grid .light.is-player-2 { transform: scale(1.1); box-shadow: 0 0 10px #fff, inset 0 0 5px rgba(255, 255, 255, 0.5); background-color: #fdd835 !important; }
+.music-studio-grid .light.is-highlight { border: 2px solid #ffffff; transform: scale(1.15); }
 
 /* Keyframes */
- @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotateZ(0deg); } 100% { transform: translateY(110vh) rotateZ(360deg); } }
- @keyframes pulse { to { transform: scale(1.1); box-shadow: 0 0 20px var(--theme-shadow-color); } }
- @keyframes draw-line { from { width: 0; } to { width: 100%; } }
- @keyframes drop { 0% { transform: translateY(-100px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
- @keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
- @keyframes appear { from { transform: scale(0.5); opacity: 0; } to { transform: scale(1); opacity: 1; } }
- @keyframes bounce-arrow {
-    0%, 20%, 50%, 80%, 100% {
-        transform: translateX(-50%) rotate(45deg) translateY(0);
-    }
-    40% {
-        transform: translateX(-50%) rotate(45deg) translateY(-8px);
-    }
-    60% {
-        transform: translateX(-50%) rotate(45deg) translateY(-4px);
-    }
- }
-
-/* Blackjack Card Styles */
-.blackjack-card {
-    perspective: 1000px;
-}
-
-.blackjack-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-}
-
-.blackjack-card.is-flipped .blackjack-card-inner {
-    transform: rotateY(180deg);
-}
-
-.blackjack-card-front, .blackjack-card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    -webkit-backface-visibility: hidden;
-    backface-face-visibility: hidden;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    font-weight: bold;
-}
-
-.blackjack-card-front {
-    background-color: #9C27B0; /* Purple card back */
-}
-
-.blackjack-card-back {
-    background-color: #f1f1f1;
-    color: #333;
-    transform: rotateY(180deg);
-}
-
-.blackjack-card.is-player-1 .blackjack-card-back {
-    background-color: var(--color-2); /* Blue */
-    color: white;
-}
-
-.blackjack-card.is-player-2 .blackjack-card-back {
-    background-color: var(--color-6); /* Orange */
-    color: white;
-}
+@keyframes confetti-fall { 0% { transform: translateY(-10vh) rotateZ(0deg); } 100% { transform: translateY(110vh) rotateZ(360deg); } }
+@keyframes draw-line { from { width: 0; } to { width: 100%; } }
+@keyframes drop { 0% { transform: translateY(-100px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+@keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
 
 /* =================================== */
-/* Keyboard Game Layout for Mobile    */
+/* Music Studio Instrument Colors      */
 /* =================================== */
 
-/* This rule targets the main game container div, but only when it
-   has the "keyboard-active" class, which main.js adds for us. */
-#game-container.keyboard-active {
-    display: flex; /* Use the powerful Flexbox layout model. */
-    flex-direction: column; /* Stack all children (title, board, keyboard) vertically. */
-    
-    /* This forces the container to be exactly the height of the browser window.
-       '100vh' means 100% of the viewport (screen) height. */
-    height: calc(100vh - 1rem); 
+/* These override the default 'is-player-1' color based on the instrument */
+/* The !important tag is necessary to ensure the specific color is applied */
+
+.music-studio-grid .light.is-player-1.instrument-synth-lead {
+    background-color: #fdd835 !important; /* Yellow */
 }
 
-#game-container.keyboard-active #game-board-wrapper {
-    flex-grow: 1; /* Allow the board to take up all available vertical space */
-    overflow-y: auto; /* Enable vertical scrolling ONLY for the game board */
-    -webkit-overflow-scrolling: touch; /* Smooth scrolling on iOS */
-    padding-bottom: 1rem; /* Add some space at the bottom of the scroll area */
+.music-studio-grid .light.is-player-1.instrument-electric-piano {
+    background-color: #42a5f5 !important; /* Blue */
 }
 
-#game-container.keyboard-active #keyboard-container,
-#game-container.keyboard-active #game-controls {
-    flex-shrink: 0; /* Prevent the keyboard and controls from shrinking */
+.music-studio-grid .light.is-player-1.instrument-synth-strings {
+    background-color: #ab47bc !important; /* Purple */
 }
 
-/* Other Game-Specific Layouts */
-#game-container.meteos-active > #game-board { flex-grow: 1; min-height: 0; }
-
-/* Pushes the global back button to the far right of the control bar */
-.global-back-button {
-    margin-left: auto;
+.music-studio-grid .light.is-player-1.instrument-brass-ensemble {
+    background-color: #ffa726 !important; /* Orange */
 }
 
-/* This rule ensures icon buttons inside modals are styled as primary actions */
-.modal-content .control-button-icon {
-    background-color: var(--md-sys-color-primary);
-    color: var(--md-sys-color-on-primary);
-    border: none;
+.music-studio-grid .light.is-player-1.instrument-synth-bass {
+    background-color: #ef5350 !important; /* Red */
 }
 
-.music-studio-grid {
-    display: grid;
-    gap: 2px;
-    padding: 2px;
-    background-color: #1a1a2e;
-    border-radius: 10px;
-    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
-    user-select: none;
-    position: relative;
-}
-.music-studio-grid .light {
-    aspect-ratio: 1 / 1;
-    border-radius: 4px;
+/* Drum color remains distinct */
+.music-studio-grid .light.is-player-2 {
+    background-color: #66bb6a !important; /* Green */
+    transform: scale(1.1);
+    box-shadow: 0 0 10px #fff, inset 0 0 5px rgba(255, 255, 255, 0.5);
 }
