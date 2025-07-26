@@ -1,1340 +1,355 @@
-/* ==========================================================================
-   Retro-Lite Main Stylesheet
-   ==========================================================================
-*/
+@import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=VT323&display=swap');
 
-/* --- Base and Body Styles --- */
+:root {
+    --md-sys-color-primary: #6750A4; /* M3 Primary Color */
+    --md-sys-color-on-primary: #FFFFFF;
+    --md-sys-color-secondary-container: #E8DEF8; /* For secondary buttons */
+    --md-sys-color-on-secondary-container: #1D192B;
+    --md-sys-color-surface: #FFFBFE; /* Page background */
+    --md-sys-color-on-surface: #1C1B1F; /* Default text color */
+    --md-sys-color-surface-container-high: #F3EDF7; /* Main menu card background */
+    --md-sys-color-error: #B3261E; /* For "Menu" button */
+    --md-sys-color-on-error: #FFFFFF;
+
+    /* Game colors */
+    --color-1: #F44336; --color-2: #2196F3; --color-3: #4CAF50;
+    --color-4: #FFEB3B; --color-5: #9C27B0; --color-6: #FF9800;
+    --color-7: #00BCD4; --color-8: #E91E63; --color-9: #FFFFFF;
+}
+
 body {
-    font-family: 'Roboto Mono', monospace;
-    background-color: #fdf6e3; /* Solarized Base3 */
-    color: #657b83; /* Solarized Base00 */
-    margin: 0;
-    padding: 20px;
-    display: flex;
-    justify-content: center;
-    align-items: flex-start; /* Align to top */
-    min-height: 100vh;
-    box-sizing: border-box;
+    font-family: 'Roboto', 'Orbitron', sans-serif;
+    background-color: var(--md-sys-color-surface);
+    color: var(--md-sys-color-on-surface);
+    touch-action: manipulation;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
-/* --- Main Menu Container --- */
 #main-menu {
-    text-align: center;
-    background-color: #fdf6e3;
-    padding: 20px 40px 40px 40px;
-    border-radius: 10px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    width: 90%;
-    max-width: 1200px;
+    background-color: var(--md-sys-color-surface-container-high);
+    border-radius: 12px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
-h1 {
-    color: #cb4b16; /* Solarized Orange */
-    font-size: 3.5em;
-    margin-bottom: 30px;
-    text-shadow: 2px 2px #eee8d5; /* Solarized Base2 */
-}
-
-/* --- NEW: Game List Grid Layout --- */
-#game-list {
-    display: grid;
-    /* This creates a responsive grid where columns are at least 180px wide */
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-    gap: 20px;
-    padding: 20px 0;
-}
-
-#game-list button {
-    background-color: #fff;
-    color: #657b83;
-    border: 2px solid #93a1a1; /* Solarized Base1 */
-    border-radius: 8px;
-    padding: 20px 15px;
-    font-size: 1em;
-    font-family: 'Roboto Mono', monospace;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease-in-out;
-    text-align: center;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-    width: 100%; /* Ensure button fills the grid cell */
-}
-
-#game-list button:hover:not(:disabled) {
-    transform: translateY(-4px);
-    box-shadow: 0 8px 15px rgba(0,0,0,0.1);
-    border-color: #268bd2; /* Solarized Blue */
-    color: #268bd2;
-}
-
-#game-list button:disabled {
-    text-decoration: line-through;
-    opacity: 0.6;
-    background-color: #eee8d5; /* Solarized Base2 */
-    color: #93a1a1; /* Solarized Base1 */
-    cursor: not-allowed;
-    border-color: #93a1a1;
-    box-shadow: none;
-    transform: none;
-}
-
-/* --- In-Game View --- */
-#game-container {
-    width: 95%;
-    max-width: 1000px;
-    text-align: center;
-}
-
-#game-board-wrapper {
-    background-color: #fff;
-    border: 2px solid #93a1a1;
-    border-radius: 8px;
-    margin-bottom: 20px;
-    padding: 10px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-grow: 1;
-    overflow: auto;
-    max-height: 70vh;
-}
-
-#game-board {
-    display: grid;
-    width: 100%;
-    height: 100%;
-    gap: 5px;
-    justify-content: center;
-    align-content: center;
-}
-
-#keyboard-container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin-top: 10px;
-    width: 100%;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.keyboard-row {
-    display: flex;
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 8px;
-    gap: 6px;
-}
-
-.keyboard-button {
-    background-color: #eee8d5; /* Solarized Base2 */
-    color: #657b83; /* Solarized Base00 */
-    border: 1px solid #93a1a1; /* Solarized Base1 */
-    border-radius: 5px;
-    padding: 10px 12px;
-    font-size: 1.1em;
-    font-family: 'Roboto Mono', monospace;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.1s ease-in-out;
-    flex-grow: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-width: 40px;
-    height: 50px;
-    box-sizing: border-box;
-}
-
-.keyboard-button:hover:not(:disabled) {
-    background-color: #fdf6e3;
-    border-color: #268bd2;
-    color: #268bd2;
-}
-
-.keyboard-button:active:not(:disabled) {
-    transform: translateY(1px);
-}
-
-.keyboard-button.is-disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-}
-
-.keyboard-button[data-key="enter"],
-.keyboard-button[data-key="backspace"] {
-    flex-grow: 1.5;
-    font-size: 0.9em;
-}
-
-.keyboard-button.wordle-correct {
-    background-color: #859900; /* Solarized Green */
-    color: #fdf6e3;
-    border-color: #859900;
-}
-
-.keyboard-button.wordle-present {
-    background-color: #b58900; /* Solarized Yellow */
-    color: #fdf6e3;
-    border-color: #b58900;
-}
-
-.keyboard-button.wordle-absent {
-    background-color: #586e75; /* Solarized Base01 */
-    color: #fdf6e3;
-    border-color: #586e75;
-}
-
-/* --- Game Specific Styles --- */
 .game-grid {
     display: grid;
-    width: 100%;
-    height: 100%;
-    gap: 5px;
-    justify-content: center;
-    align-content: center;
+    gap: 10px;
+    padding: 10px;
+    background-color: #1a1a2e;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.5);
+    user-select: none;
+    position: relative;
 }
+
+.game-grid.large-grid { gap: 4px; padding: 4px; }
+.game-grid.large-grid .light { font-size: 1rem; border-width: 1px; }
 
 .light {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #eee8d5; /* Solarized Base2 */
-    border-radius: 5px;
-    font-size: 2em;
-    font-weight: bold;
-    color: #657b83; /* Solarized Base00 */
+    aspect-ratio: 1 / 1;
+    border-radius: 8px;
     cursor: pointer;
-    transition: background-color 0.1s, transform 0.1s, box-shadow 0.1s;
-    user-select: none;
-    aspect-ratio: 1 / 1; /* Make cells square */
-}
-
-.light:hover {
-    transform: scale(1.05);
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-}
-
-/* Tic Tac Toe / Echo / Magic Square */
-.game-grid.grid-3x3 .light {
-    width: 100px;
-    height: 100px;
-}
-
-/* Connect 4 / Minefield */
-.game-grid.grid-7x6 .light,
-.game-grid.grid-8x8 .light {
-    width: 60px;
-    height: 60px;
-}
-
-/* Lights Out */
-.game-grid.grid-5x5 .light {
-    width: 80px;
-    height: 80px;
-}
-
-/* Player Colors */
-.light.is-player-1 {
-    background-color: #268bd2; /* Solarized Blue */
-    color: #fdf6e3;
-}
-
-.light.is-player-2 {
-    background-color: #dc322f; /* Solarized Red */
-    color: #fdf6e3;
-}
-
-.light.is-empty {
-    background-color: #eee8d5;
-    color: #657b83;
-}
-
-/* Lights Out specific */
-.light.is-on {
-    background-color: #b58900; /* Solarized Yellow */
-    color: #fdf6e3;
-}
-
-.light.is-off {
-    background-color: #586e75; /* Solarized Base01 */
-    color: #fdf6e3;
-}
-
-/* Minefield specific */
-.light.is-hidden {
-    background-color: #93a1a1; /* Solarized Base1 */
-    color: transparent;
-}
-
-.light.is-revealed {
-    background-color: #fdf6e3; /* Solarized Base3 */
-    color: #657b83;
-    cursor: default;
-}
-
-.light.is-flagged {
-    background-color: #2aa198; /* Solarized Cyan */
-    color: #fdf6e3;
-}
-
-.light.is-mine {
-    background-color: #dc322f; /* Solarized Red */
-    color: #fdf6e3;
-}
-
-/* Wordle specific */
-.wordle-grid {
-    grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
-    max-width: 350px; /* Adjust as needed */
-    margin: 20px auto;
-}
-
-.wordle-cell {
-    width: 60px;
-    height: 60px;
-    font-size: 2.5em;
-    text-transform: uppercase;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.5s;
-}
-
-.wordle-cell.flip {
-    transform: rotateX(180deg);
-}
-
-.wordle-cell-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transition: transform 0.6s;
-    transform-style: preserve-3d;
-}
-
-.wordle-cell-front, .wordle-cell-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
+    transition: all 0.2s ease-in-out;
+    border: 2px solid #0f0c29;
     display: flex;
-    justify-content: center;
     align-items: center;
-    border-radius: 5px;
-    border: 2px solid #93a1a1;
-    box-sizing: border-box;
-}
-
-.wordle-cell-front {
-    background-color: #eee8d5;
-    color: #657b83;
-    z-index: 2;
-}
-
-.wordle-cell-back {
-    background-color: #586e75; /* Default for absent */
-    color: #fdf6e3;
-    transform: rotateX(180deg);
-    z-index: 1;
-}
-
-.wordle-cell-back.wordle-correct {
-    background-color: #859900; /* Solarized Green */
-}
-
-.wordle-cell-back.wordle-present {
-    background-color: #b58900; /* Solarized Yellow */
-}
-
-.wordle-cell-back.wordle-absent {
-    background-color: #586e75; /* Solarized Base01 */
-}
-
-/* Shake animation for invalid words */
-.wordle-cell.shake {
-    animation: shake 0.6s cubic-bezier(.36,.07,.19,.97) both;
-    transform: translate3d(0, 0, 0);
-    backface-visibility: hidden;
-    perspective: 1000px;
-}
-
-@keyframes shake {
-    10%, 90% { transform: translate3d(-1px, 0, 0); }
-    20%, 80% { transform: translate3d(2px, 0, 0); }
-    30%, 70% { transform: translate3d(-4px, 0, 0); }
-    40%, 60% { transform: translate3d(4px, 0, 0); }
-    50% { transform: translate3d(-4px, 0, 0); }
-}
-
-/* Line Draw Game */
-.line-dot {
-    border-radius: 50%;
-}
-
-.path-1 { background-color: #268bd2; } /* Blue */
-.path-2 { background-color: #859900; } /* Green */
-.path-3 { background-color: #b58900; } /* Yellow */
-.path-4 { background-color: #cb4b16; } /* Orange */
-.path-5 { background-color: #dc322f; } /* Red */
-.path-6 { background-color: #d33682; } /* Magenta */
-.path-7 { background-color: #6c71c4; } /* Violet */
-.path-8 { background-color: #2aa198; } /* Cyan */
-
-.light.is-highlight {
-    box-shadow: 0 0 15px 5px rgba(255, 255, 0, 0.7);
-    animation: pulse-glow 1.5s infinite alternate;
-}
-
-@keyframes pulse-glow {
-    from { box-shadow: 0 0 15px 5px rgba(255, 255, 0, 0.7); }
-    to { box-shadow: 0 0 25px 10px rgba(255, 255, 0, 1); }
-}
-
-/* Music Studio */
-.music-studio-main-container {
-    display: flex;
-    width: 100%;
-    height: 100%;
-    min-height: 400px;
-}
-
-#note-labels-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: space-around;
-    padding-right: 10px;
-    font-size: 1.2em;
+    justify-content: center;
+    font-size: 1.5rem;
     font-weight: bold;
-    color: #93a1a1;
+    color: rgba(255, 255, 255, 0.7);
+    position: relative;
+    overflow: hidden;
 }
 
-.music-studio-grid {
-    display: grid;
-    flex-grow: 1;
-    gap: 2px;
-    background-color: #002b36; /* Solarized Base03 */
-    padding: 5px;
-    border-radius: 5px;
+.light.is-on { background-color: var(--theme-color); box-shadow: 0 0 15px var(--theme-color), 0 0 25px var(--theme-color), inset 0 0 5px var(--theme-shadow-color); transform: scale(1.05); }
+.light.is-highlight { transform: scale(1.1); border-color: #fef08a; box-shadow: 0 0 20px #fef08a; }
+.light.is-off { background-color: #2c3e50; box-shadow: inset 0 0 10px rgba(0,0,0,0.7); }
+.light.is-player-1 { background-color: var(--color-2); box-shadow: 0 0 15px var(--color-2); transform: scale(1); animation: drop 0.3s ease-out; }
+.light.is-player-2 { background-color: var(--color-6); box-shadow: 0 0 15px var(--color-6); transform: scale(1); animation: drop 0.3s ease-out; }
+.light.is-empty { background-color: #1a1a2e; box-shadow: inset 0 0 5px #000; }
+.light.is-selected { border-color: #fde047; transform: scale(1.1); box-shadow: 0 0 20px #fde047; }
+.light.is-mine { background-color: #ef4444; }
+.light.is-revealed { background-color: #4b5563; color: #fff; cursor: default; }
+.light.is-flagged::after { 
+    content: '\001F6A9'; 
+    font-size: 1.2rem;
+    font-family: "Segoe UI Emoji", "Segoe UI Symbol", "Apple Color Emoji", "Twemoji Mozilla", "Noto Color Emoji", "Android Emoji";
+}
+.light.is-hidden { background-color: #374151; }
+.light.line-dot::before { content: ''; display: block; width: 60%; height: 60%; border-radius: 50%; box-shadow: 0 0 10px #000; transition: transform 0.2s; }
+.light.line-dot:hover::before { transform: scale(1.2); }
+.light.color-1, .light.path-1, .light.color-1.line-dot::before, .light.echo-1 { background-color: var(--color-1); }
+.light.color-2, .light.path-2, .light.color-2.line-dot::before, .light.echo-2 { background-color: var(--color-2); }
+.light.color-3, .light.path-3, .light.color-3.line-dot::before, .light.echo-3 { background-color: var(--color-3); }
+.light.color-4, .light.path-4, .light.color-4.line-dot::before, .light.echo-4 { background-color: var(--color-4); }
+.light.color-5, .light.path-5, .light.color-5.line-dot::before, .light.echo-5 { background-color: var(--color-5); }
+.light.color-6, .light.path-6, .light.color-6.line-dot::before, .light.echo-6 { background-color: var(--color-6); }
+.light.color-7, .light.path-7, .light.color-7.line-dot::before, .light.echo-7 { background-color: var(--color-7); }
+.light.echo-8 { background-color: var(--color-8); }
+.light.echo-9 { background-color: var(--color-9); }
+.light.is-feedback { background-color: #fde047; box-shadow: 0 0 20px #fde047, 0 0 30px #fde047; transform: scale(1.1); border-color: #fde047; }
+.light.is-center-inactive { background-color: #111; cursor: not-allowed; }
+
+.modal-backdrop { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0, 0, 0, 0.7); display: flex; justify-content: center; align-items: center; z-index: 1000; opacity: 0; visibility: hidden; transition: opacity 0.3s ease, visibility 0.3s ease; }
+.modal-backdrop.is-visible { opacity: 1; visibility: visible; }
+.modal-content { background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface); padding: 1.5rem; border-radius: 28px; text-align: center; box-shadow: 0 4px 8px 3px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.3); transform: scale(0.9); transition: transform 0.3s ease; width: 90%; max-width: 340px; position: relative; overflow: hidden; }
+.modal-content .text-lg { color: var(--md-sys-color-on-surface-variant); }
+.modal-content button { border: none; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); padding: 0.625rem 1.5rem; border-radius: 100px; font-weight: 500; text-transform: none; letter-spacing: 0.01em; cursor: pointer; transition: box-shadow 0.2s; margin-top: 1rem; }
+.modal-content button:hover { box-shadow: 0 1px 3px 1px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.3); }
+.modal-backdrop.is-visible .modal-content { transform: scale(1); }
+
+.hidden { display: none; }
+button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.menu-button { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border-radius: 20px; padding: 0.75rem 1rem; font-size: 0.875rem; text-transform: none; letter-spacing: 0.01em; box-shadow: 0 1px 3px rgba(0,0,0,0.2); border: none; display: flex; justify-content: center; align-items: center; width: 100%; min-height: 60px; margin-bottom: 1rem; line-height: 1.2; font-weight: bold; text-align: center; transition: all 0.15s ease-out; transform: translateY(0); }
+.menu-button:hover { transform: translateY(-2px); box-shadow: 0 7px 20px rgba(0,0,0,0.35), inset 0 -4px 0 rgba(0,0,0,0.2); }
+.menu-button:active { transform: translateY(1px) scale(0.98); box-shadow: 0 3px 10px rgba(0,0,0,0.3), inset 0 -2px 0 rgba(0,0,0,0.2); }
+
+.control-button-icon { display: flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background-color: transparent; color: var(--md-sys-color-primary); border: 1px solid #CAC4D0; cursor: pointer; transition: background-color 0.2s; }
+.control-button-icon:hover { background-color: rgba(103, 80, 164, 0.08); }
+.control-button-icon.btn-red { background-color: var(--md-sys-color-error); color: var(--md-sys-color-on-error); border: none; }
+.control-button-icon.btn-green, .control-button-icon.btn-yellow { background-color: var(--md-sys-color-secondary-container); color: var(--md-sys-color-on-secondary-container); border: none; }
+.control-button { padding: 0.75rem 1.25rem; font-weight: bold; border-radius: 8px; transition: all 0.15s ease-out; text-transform: uppercase; letter-spacing: 0.05em; box-shadow: 0 4px 6px rgba(0,0,0,0.2); }
+.btn-blue { background-color: #3b82f6; color: white; } .btn-blue:hover { background-color: #2563eb; }
+.btn-red { background-color: #ef4444; color: white; } .btn-red:hover { background-color: #dc2626; }
+.btn-green { background-color: #22c55e; color: white; } .btn-green:hover { background-color: #16a34a; }
+.btn-yellow { background-color: #f59e0b; color: white; } .btn-yellow:hover { background-color: #d97706; }
+.btn-pink { background-color: #ec4899; color: white; } .btn-pink:hover { background-color: #db2777; }
+.btn-orange { background-color: #f97316; color: white; } .btn-orange:hover { background-color: #ea580c; }
+.btn-purple { background-color: #8e24aa; color: white; } .btn-purple:hover { background-color: #7b1fa2; }
+
+.shake { animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both; }
+.confetti-container { position: absolute; top: 0; left: 0; width: 100%; height: 100%; overflow: hidden; pointer-events: none; }
+.confetti { position: absolute; width: 10px; height: 10px; background-color: #f00; opacity: 0.7; animation: confetti-fall 5s linear infinite; }
+
+/* Wordle Styles */
+.wordle-grid { gap: 5px; padding: 10px; }
+.wordle-cell { font-size: clamp(1.75rem, 7vw, 3rem); text-transform: uppercase; transition: transform 0.6s, background-color 0.3s; transform-style: preserve-3d; }
+.wordle-cell.flip .wordle-cell-inner { transform: rotateX(180deg); }
+.wordle-cell-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.6s; transform-style: preserve-3d; }
+.wordle-cell-front, .wordle-cell-back { position: absolute; width: 100%; height: 100%; -webkit-backface-visibility: hidden; backface-visibility: hidden; display: flex; align-items: center; justify-content: center; border-radius: 8px; }
+.wordle-cell-front { background-color: #2c3e50; border: 2px solid #0f0c29; }
+.wordle-cell-back { transform: rotateX(180deg); }
+.wordle-cell-back.wordle-correct, .key.wordle-correct { background-color: #22c55e; border-color: #22c55e; color: white; }
+.wordle-cell-back.wordle-present, .key.wordle-present { background-color: #f59e0b; border-color: #f59e0b; color: white; }
+.wordle-cell-back.wordle-absent,  .key.wordle-absent  { background-color: #1f2937; border-color: #1f2937; color: #9ca3af; }
+
+/* On-Screen Keyboard Styles */
+.keyboard { display: flex; flex-direction: column; gap: 8px; width: 100%; max-width: 500px; margin: 0 auto; padding: 10px; }
+.keyboard-row { display: flex; justify-content: center; gap: 6px; }
+.key { height: 50px; flex-grow: 1; border: none; border-radius: 5px; background-color: #4b5563; color: white; font-size: 1rem; font-weight: bold; cursor: pointer; text-transform: uppercase; display: flex; align-items: center; justify-content: center; }
+.key:hover { background-color: #6b7280; }
+.key-large { flex-grow: 1.5; }
+#keyboard-container .key.used { background-color: #1f2937; color: #4b5563; cursor: not-allowed; }
+
+.win-line { position: absolute; background-color: var(--theme-color); height: 5px; border-radius: 5px; transform-origin: left center; box-shadow: 0 0 10px var(--theme-shadow-color); animation: draw-line 0.5s ease-out; }
+#digital-clock { position: fixed; top: 0.5rem; right: 1rem; font-family: 'Orbitron', sans-serif; font-size: 1.25rem; color: var(--theme-color, #ef4444); text-shadow: 0 0 8px var(--theme-shadow-color, #f87171); z-index: 2000; transition: color 0.3s ease, text-shadow 0.3s ease; }
+
+/* Keyboard Game & Music Studio Layout Styles */
+#game-container.keyboard-active, #game-container.music-studio-active { display: flex; flex-direction: column; height: calc(100vh - 1rem); }
+#game-container.keyboard-active #game-board-wrapper { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-bottom: 1rem; }
+#game-container.keyboard-active #keyboard-container, #game-container.keyboard-active #game-controls { flex-shrink: 0; }
+
+.global-back-button { margin-left: auto; }
+.modal-content .control-button-icon { background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary); border: none; }
+
+/* Music Studio Layout */
+#game-container.music-studio-active #game-board-wrapper { flex-grow: 1; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding-bottom: 1rem; display: flex; align-items: stretch; }
+.music-studio-main-container { display: flex; height: 100%; }
+.note-labels-container { display: flex; flex-direction: column; height: 100%; margin-right: 5px; }
+.note-label { flex-grow: 1; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #fff; border-radius: 4px; padding: 0 10px; font-family: 'Orbitron', sans-serif; }
+.music-studio-grid { display: grid; gap: 2px; padding: 2px; background-color: #1a1a2e; border-radius: 10px; box-shadow: 0 0 20px rgba(0, 0, 0, 0.5), inset 0 0 10px rgba(0,0,0,0.5); user-select: none; position: relative; min-width: 1200px; height: 100%; }
+.music-studio-grid .light { aspect-ratio: 1 / 1; border-radius: 4px; transition: background-color 0.1s ease, transform 0.1s ease; }
+.note-row-0 { background-color: #e53935; } .note-row-1 { background-color: #d81b60; }
+.note-row-2 { background-color: #8e24aa; } .note-row-3 { background-color: #5e35b1; }
+.note-row-4 { background-color: #3949ab; } .note-row-5 { background-color: #1e88e5; }
+.note-row-6 { background-color: #039be5; } .note-row-7 { background-color: #00acc1; }
+.music-studio-grid .light.is-player-1, .music-studio-grid .light.is-player-2 { transform: scale(1.1); box-shadow: 0 0 10px #fff, inset 0 0 5px rgba(255, 255, 255, 0.5); background-color: #fdd835 !important; }
+.music-studio-grid .light.is-highlight { border: 2px solid #ffffff; transform: scale(1.15); }
+
+/* Keyframes */
+@keyframes confetti-fall { 0% { transform: translateY(-10vh) rotateZ(0deg); } 100% { transform: translateY(110vh) rotateZ(360deg); } }
+@keyframes draw-line { from { width: 0; } to { width: 100%; } }
+@keyframes drop { 0% { transform: translateY(-100px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+@keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
+
+/* =================================== */
+/* Music Studio Instrument Colors      */
+/* =================================== */
+
+/* These override the default 'is-player-1' color based on the instrument */
+/* The !important tag is necessary to ensure the specific color is applied */
+
+.music-studio-grid .light.is-player-1.instrument-synth-lead {
+    background-color: #fdd835 !important; /* Yellow */
 }
 
-.music-studio-grid .light {
-    width: auto;
-    height: auto;
-    min-width: 15px;
-    min-height: 15px;
-    background-color: #073642; /* Solarized Base02 */
-    color: #fdf6e3;
-    font-size: 0.8em;
+.music-studio-grid .light.is-player-1.instrument-electric-piano {
+    background-color: #42a5f5 !important; /* Blue */
 }
 
-.music-studio-grid .light.is-playing-note {
-    background-color: #2aa198; /* Solarized Cyan */
-    box-shadow: 0 0 10px #2aa198;
+.music-studio-grid .light.is-player-1.instrument-synth-strings {
+    background-color: #ab47bc !important; /* Purple */
 }
+
+.music-studio-grid .light.is-player-1.instrument-brass-ensemble {
+    background-color: #ffa726 !important; /* Orange */
+}
+
+.music-studio-grid .light.is-player-1.instrument-synth-bass {
+    background-color: #ef5350 !important; /* Red */
+}
+
+/* Drum color remains distinct */
+.music-studio-grid .light.is-player-2 {
+    background-color: #66bb6a !important; /* Green */
+    transform: scale(1.1);
+    box-shadow: 0 0 10px #fff, inset 0 0 5px rgba(255, 255, 255, 0.5);
+}
+/* =================================== */
+/* Music Studio Emoji Palette          */
+/* =================================== */
 
 .instrument-palette {
     display: flex;
-    justify-content: center;
     flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 15px;
-    padding: 10px;
-    background-color: #002b36;
-    border-radius: 8px;
+    gap: 6px;
+    margin-bottom: 8px;
+    justify-content: center;
 }
 
 .instrument-emoji-button {
-    background: none;
-    border: 2px solid #073642;
-    border-radius: 8px;
-    padding: 8px 12px;
-    font-size: 1.8em;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    border: 2px solid #555;
+    background-color: #333;
+    color: white;
+    font-size: 24px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     transition: all 0.2s ease;
-    line-height: 1;
-    color: #fdf6e3;
 }
 
 .instrument-emoji-button:hover {
-    background-color: #073642;
+    background-color: #444;
     transform: translateY(-2px);
 }
 
 .instrument-emoji-button.is-active {
-    background-color: #268bd2; /* Solarized Blue */
-    border-color: #268bd2;
+    border-color: #fdd835;
+    background-color: #555;
+    box-shadow: 0 0 10px #fdd835;
+}
+
+/* Add a class to the grid cells for the emoji */
+.music-studio-grid .light {
+    font-size: 20px; /* Adjust emoji size */
+    line-height: 1;
+}
+
+/* =================================== */
+/* Note Playing Animation              */
+/* =================================== */
+
+@keyframes grow-note {
+  0% { transform: scale(1.0); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1.0); }
+}
+
+.music-studio-grid .light.is-playing-note {
+    animation: grow-note 0.15s ease-in-out;
+}
+
+
+/* =================================== */
+/* New Instrument Colors               */
+/* =================================== */
+
+.music-studio-grid .light.instrument-electric-piano { background-color: #42a5f5 !important; }
+.music-studio-grid .light.instrument-pluck { background-color: #26a69a !important; }
+.music-studio-grid .light.instrument-bell { background-color: #ffee58 !important; }
+.music-studio-grid .light.instrument-synth-strings { background-color: #ab47bc !important; }
+.music-studio-grid .light.instrument-brass-ensemble { background-color: #ffa726 !important; }
+.music-studio-grid .light.instrument-synth-bass { background-color: #ef5350 !important; }
+.music-studio-grid .light.instrument-synth-lead { background-color: #ec407a !important; }
+.music-studio-grid .light.instrument-gameboy { background-color: #78909c !important; }
+.music-studio-grid .light.instrument-laser { background-color: #5c6bc0 !important; }
+.music-studio-grid .light.instrument-click { background-color: #bdbdbd !important; }
+
+/* Override the default player-1 color since we use specific instrument colors */
+.music-studio-grid .light.is-player-1 {
     transform: scale(1.1);
-    box-shadow: 0 0 15px rgba(38, 139, 210, 0.7);
+    box-shadow: 0 0 10px #fff, inset 0 0 5px rgba(255, 255, 255, 0.5);
 }
 
-/* Instrument specific colors for melody notes */
-.instrument-electric-piano { background-color: #268bd2; } /* Blue */
-.instrument-pluck { background-color: #859900; } /* Green */
-.instrument-bell { background-color: #b58900; } /* Yellow */
-.instrument-synth-strings { background-color: #cb4b16; } /* Orange */
-.instrument-brass-ensemble { background-color: #dc322f; } /* Red */
-.instrument-synth-bass { background-color: #d33682; } /* Magenta */
-.instrument-synth-lead { background-color: #6c71c4; } /* Violet */
-.instrument-gameboy { background-color: #2aa198; } /* Cyan */
-.instrument-laser { background-color: #93a1a1; } /* Base1 */
-.instrument-click { background-color: #586e75; } /* Base01 */
-
-/* Anxiety Game */
-#anxiety-overlay {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 10;
-}
-
-#anxiety-start-button {
-    padding: 20px 40px;
-    font-size: 2em;
-    background-color: #859900; /* Solarized Green */
-    color: #fdf6e3;
-    border: none;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-#anxiety-start-button:hover {
-    background-color: #738a05;
-}
-
-/* Blackjack Game */
-.blackjack-card {
-    width: 80px;
-    height: 110px;
-    border: 2px solid #93a1a1;
-    border-radius: 8px;
-    background-color: #eee8d5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 2em;
-    font-weight: bold;
-    color: #657b83;
-    position: relative;
-    transform-style: preserve-3d;
-    transition: transform 0.6s;
-}
-
-.blackjack-card.is-flipped {
-    transform: rotateY(180deg);
-}
-
-.blackjack-card-inner {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    text-align: center;
-    transform-style: preserve-3d;
-}
-
-.blackjack-card-front, .blackjack-card-back {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backface-visibility: hidden;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 6px;
-    box-sizing: border-box;
-}
-
-.blackjack-card-front {
-    background-color: #859900; /* Green back of card */
-    color: #fdf6e3;
-    font-size: 1.5em;
-    transform: rotateY(0deg);
-}
-
-.blackjack-card-back {
-    background-color: #fdf6e3; /* Front of card */
-    color: #657b83;
-    transform: rotateY(180deg);
-}
-
-/* Cryptogram Game */
-.cryptogram-active #game-board-wrapper {
-    display: block;
-    max-height: 60vh;
-    overflow-y: auto;
-    padding: 20px;
-}
+/* =================================== */
+/* Cryptogram (Unmask) Styles          */
+/* =================================== */
 
 .cryptogram-puzzle-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
-    justify-content: center;
-    line-height: 1;
+    gap: 10px; /* Space between words */
+    padding: 1rem;
+    line-height: 1.5;
+    font-family: 'VT323', monospace;
 }
 
 .cryptogram-word {
     display: flex;
-    gap: 2px;
-    margin-right: 10px;
-    margin-bottom: 10px;
+    gap: 2px; /* Space between letters in a word */
 }
 
 .cryptogram-cell {
     width: 35px;
-    height: 45px;
-    border: 1px solid #93a1a1;
-    border-radius: 3px;
+    height: 70px;
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    font-family: 'Roboto Mono', monospace;
-    font-weight: bold;
+    justify-content: space-between;
+    border-bottom: 2px solid #6b7280; /* Underline for input */
     position: relative;
     cursor: pointer;
-    transition: background-color 0.1s, border-color 0.1s;
 }
 
 .cryptogram-cell.punctuation {
-    border: none;
-    background: none;
-    font-size: 1.5em;
-    color: #657b83;
-    cursor: default;
+    border-bottom: none;
+    font-size: 2rem;
+    justify-content: flex-end; /* Align punctuation with the bottom */
+    color: #cbd5e1;
 }
 
-.cryptogram-cell .cipher-char {
-    font-size: 0.7em;
-    color: #586e75; /* Solarized Base01 */
-    position: absolute;
-    top: 2px;
+.cipher-char {
+    font-size: 1.5rem;
+    color: #6b7280; /* Muted color for the cipher text */
+    height: 50%;
+    display: flex;
+    align-items: center;
 }
 
-.cryptogram-cell .plain-char {
-    font-size: 1.5em;
-    color: #268bd2; /* Solarized Blue */
-    position: absolute;
-    bottom: 2px;
+.plain-char {
+    font-size: 1.75rem;
+    color: #fde047; /* Bright color for user input */
+    height: 50%;
+    width: 100%;
+    text-align: center;
+    font-weight: bold;
 }
 
-.cryptogram-cell.active {
-    background-color: #fdf6e3;
-    border-color: #268bd2;
-    box-shadow: 0 0 8px rgba(38, 139, 210, 0.5);
+.cryptogram-cell.active .plain-char {
+    background-color: rgba(253, 224, 71, 0.2);
+    border-radius: 4px;
 }
 
 .cryptogram-cell.correct {
-    background-color: #859900;
-    border-color: #859900;
+    border-color: #22c55e; /* Green underline on solve */
 }
-
-.cryptogram-active #keyboard-container {
-    margin-top: 20px;
-}
-
-.keyboard-button.used {
-    background-color: #073642; /* Solarized Base02 */
-    color: #93a1a1;
-    border-color: #073642;
-}
-
-/* Scroll Indicator for Cryptogram */
-#game-board-wrapper.scroll-indicator-wrapper {
-    position: relative;
-}
-
-#game-board-wrapper.scroll-indicator-wrapper::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 30px; /* Height of the fade effect */
-    background: linear-gradient(to top, #fdf6e3, rgba(253, 246, 227, 0));
-    pointer-events: none; /* Allow clicks to pass through */
-    transition: opacity 0.3s ease-in-out;
-    opacity: 1;
-}
-
-#game-board-wrapper.scroll-indicator-wrapper.has-overflow::after {
-    opacity: 1;
-}
-
-#game-board-wrapper.scroll-indicator-wrapper:not(.has-overflow)::after {
-    opacity: 0;
-}
-
-/* Spelling Bee Game */
-.message-box {
-    padding: 10px;
-    border-radius: 5px;
-    margin-top: 15px;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    max-width: 400px;
-}
-
-.message-box.info {
-    background-color: #268bd2; /* Solarized Blue */
-    color: #fdf6e3;
-}
-
-.message-box.success {
-    background-color: #859900; /* Solarized Green */
-    color: #fdf6e3;
-}
-
-.message-box.error {
-    background-color: #dc322f; /* Solarized Red */
-    color: #fdf6e3;
-}
-
-/* Win Modal */
-.win-modal {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.win-modal.is-visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.win-modal-content {
-    background-color: #fdf6e3;
-    color: #657b83;
-    padding: 30px 50px;
-    border-radius: 10px;
-    text-align: center;
-    max-width: 500px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    border: 2px solid #93a1a1;
-    position: relative;
-    overflow: hidden;
-}
-
-.win-modal-title {
-    color: #859900; /* Solarized Green */
-    font-size: 2.5em;
-    margin-top: 0;
-    margin-bottom: 15px;
-}
-
-.win-modal-message {
-    font-size: 1.2em;
-    line-height: 1.6;
-    margin-bottom: 25px;
-}
-
-.win-modal-content button {
-    padding: 15px 30px;
-    font-size: 1.2em;
-}
-
-/* Confetti */
-.confetti-container {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    overflow: hidden;
-    z-index: -1;
-}
-
-.confetti {
-    position: absolute;
-    width: 10px;
-    height: 10px;
-    background-color: #ffeb3b; /* Yellow */
-    opacity: 0;
-    animation: confetti-fall 5s ease-out forwards;
-}
-
-@keyframes confetti-fall {
-    0% {
-        transform: translateY(-100px) rotate(0deg);
-        opacity: 0;
-    }
-    10% {
-        opacity: 1;
-    }
-    100% {
-        transform: translateY(100vh) rotate(720deg);
-        opacity: 0;
-    }
-}
-
-/* General Control Button with Icon */
-.control-button-icon {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    padding: 12px 20px;
-    border: none;
-    border-radius: 8px;
-    font-family: 'Roboto Mono', monospace;
-    font-weight: bold;
-    font-size: 1em;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    text-decoration: none; /* For cases where it might be used as a link */
-}
-
-.control-button-icon .material-symbols-outlined {
-    font-size: 1.5em; /* Adjust icon size relative to text */
-}
-
-.control-button-icon.btn-green {
-    background-color: #859900; /* Solarized Green */
-    color: #fdf6e3;
-}
-
-.control-button-icon.btn-green:hover {
-    background-color: #738a05;
-}
-
-.control-button-icon.btn-blue {
-    background-color: #268bd2; /* Solarized Blue */
-    color: #fdf6e3;
-}
-
-.control-button-icon.btn-blue:hover {
-    background-color: #217bbd;
-}
-
-.control-button-icon.btn-yellow {
-    background-color: #b58900; /* Solarized Yellow */
-    color: #fdf6e3;
-}
-
-.control-button-icon.btn-yellow:hover {
-    background-color: #a37b00;
-}
-
-.control-button-icon.btn-red {
-    background-color: #dc322f; /* Solarized Red */
-    color: #fdf6e3;
-}
-
-.control-button-icon.btn-red:hover {
-    background-color: #c72c2c;
-}
-
-.control-button-icon.btn-pink {
-    background-color: #d33682; /* Solarized Magenta */
-    color: #fdf6e3;
-}
-
-.control-button-icon.btn-pink:hover {
-    background-color: #bd2f75;
-}
-
-.control-button-icon:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-/* Material Symbols adjustments */
-.material-symbols-outlined {
-  font-variation-settings:
-  'FILL' 0,
-  'wght' 400,
-  'GRAD' 0,
-  'opsz' 24
-}
-
-/* Flexbox utilities */
-.flex {
-    display: flex;
-}
-
-.flex-col {
-    flex-direction: column;
-}
-
-.items-center {
-    align-items: center;
-}
-
-.justify-center {
-    justify-content: center;
-}
-
-.justify-between {
-    justify-content: space-between;
-}
-
-.gap-3 {
-    gap: 0.75rem; /* 12px */
-}
-
-.gap-4 {
-    gap: 1rem; /* 16px */
-}
-
-.p-4 {
-    padding: 1rem; /* 16px */
-}
-
-.w-full {
-    width: 100%;
-}
-
-.max-w-sm {
-    max-width: 24rem; /* 384px */
-}
-
-.text-center {
-    text-align: center;
-}
-
-.mb-2 {
-    margin-bottom: 0.5rem; /* 8px */
-}
-
-.mb-4 {
-    margin-bottom: 1rem; /* 16px */
-}
-
-.mt-2 {
-    margin-top: 0.5rem; /* 8px */
-}
-
-.mt-4 {
-    margin-top: 1rem; /* 16px */
-}
-
-.text-xl {
-    font-size: 1.25rem; /* 20px */
-}
-
-.text-2xl {
-    font-size: 1.5rem; /* 24px */
-}
-
-.text-3xl {
-    font-size: 1.875rem; /* 30px */
-}
-
-.text-5xl {
-    font-size: 3rem; /* 48px */
-}
-
-.font-bold {
-    font-weight: 700;
-}
-
-.text-gray-400 {
-    color: #93a1a1; /* Solarized Base1 */
-}
-
-.text-yellow-300 {
-    color: #b58900; /* Solarized Yellow */
-}
-
-.text-purple-400 {
-    color: #6c71c4; /* Solarized Violet */
-}
-
-.text-cyan-400 {
-    color: #2aa198; /* Solarized Cyan */
-}
-
-.text-white {
-    color: #fdf6e3; /* Solarized Base3 */
-}
-
-.bg-gray-800 {
-    background-color: #002b36; /* Solarized Base03 */
-}
-
-.border {
-    border-width: 1px;
-}
-
-.border-gray-600 {
-    border-color: #586e75; /* Solarized Base01 */
-}
-
-.rounded-md {
-    border-radius: 0.375rem; /* 6px */
-}
-
-.rounded-lg {
-    border-radius: 0.5rem; /* 8px */
-}
-
-.p-2 {
-    padding: 0.5rem; /* 8px */
-}
-
-.p-3 {
-    padding: 0.75rem; /* 12px */
-}
-
-.px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
-}
-
-.py-2 {
-    padding-top: 0.5rem;
-    padding-bottom: 0.5rem;
-}
-
-.h-10 {
-    height: 2.5rem; /* 40px */
-}
-
-.opacity-50 {
-    opacity: 0.5;
-}
-
-.cursor-not-allowed {
-    cursor: not-allowed;
-}
-
-.transition-transform {
-    transition-property: transform;
-    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-    transition-duration: 0.15s;
-}
-
-.hover\:scale-105:hover {
-    transform: scale(1.05);
-}
-
-.hidden {
-    display: none;
-}
-
-/* Custom styles for specific games */
-#current-sum-canvas, #target-fraction-canvas {
-    background-color: #073642; /* Solarized Base02 */
-    border-radius: 50%;
-}
-
-#shape-drawing {
-    background-color: #073642;
-    border-radius: 5px;
-}
-
-#side-a {
-    transform: rotate(90deg);
-}
-
-#side-b {
-    transform: rotate(0deg);
-}
-
-/* Cryptogram scroll indicator */
-#game-board-wrapper.has-overflow::after {
-    opacity: 1;
-}
-
-#game-board-wrapper:not(.has-overflow)::after {
-    opacity: 0;
-}
-
-/* Music Studio specific */
-.instrument-emoji-button.is-active {
-    box-shadow: 0 0 15px rgba(38, 139, 210, 0.7);
-}
-
-/* Blackjack specific */
-.blackjack-card.is-flipped {
-    transform: rotateY(180deg);
-}
-
-.blackjack-card-inner {
-    transform-style: preserve-3d;
-}
-
-.blackjack-card-front, .blackjack-card-back {
-    backface-visibility: hidden;
-}
-
-.blackjack-card-front {
-    transform: rotateY(0deg);
-}
-
-.blackjack-card-back {
-    transform: rotateY(180deg);
-}
-
-/* Anxiety Game specific */
-#anxiety-overlay {
-    background-color: rgba(0, 0, 0, 0.8);
-}
-
-#anxiety-start-button {
-    background-color: #859900;
-    color: #fdf6e3;
-}
-
-#anxiety-start-button:hover {
-    background-color: #738a05;
-}
-
-/* Light Match Game specific */
-.light.is-removing {
-    animation: fade-out-scale 0.2s forwards;
-}
-
-@keyframes fade-out-scale {
-    from { opacity: 1; transform: scale(1); }
-    to { opacity: 0; transform: scale(0); }
-}
-
-.light.is-appearing {
-    animation: fade-in-scale 0.2s forwards;
-}
-
-@keyframes fade-in-scale {
-    from { opacity: 0; transform: scale(0); }
-    to { opacity: 1; transform: scale(1); }
-}
-
-/* Number Crunch Game specific */
-#eq-str {
-    font-size: 1.5em;
-}
-
-/* Pattern Palooza Game specific */
-#pattern-sequence span {
-    background-color: #073642;
-    color: #fdf6e3;
-}
-
-/* Measure Master Game specific */
-#unit-text {
-    font-size: 1em;
-}
-
-/* Decimal Dash Game specific */
-#decimal-dash-display {
-    background-color: #073642;
-    border-radius: 8px;
-}
-
-#condition-text {
-    color: #6c71c4;
-}
-
-#target-decimal-text {
-    color: #b58900;
-}
-
-#timer-text {
-    color: #93a1a1;
-}
-
-/* Fraction Flipper Game specific */
-#fraction-display {
-    background-color: #073642;
-    border-radius: 8px;
-}
-
-#current-sum-text {
-    color: #cb4b16;
-}
-
-#target-fraction-text {
-    color: #2aa198;
-}
-
-/* Line Plot Learner Game specific */
-#plot-canvas {
-    background-color: #073642;
-}
-
-#question-text {
-    color: #b58900;
-}
-
-#answer-input {
-    background-color: #002b36;
-    border-color: #586e75;
-    color: #fdf6e3;
-}
-
-/* General input styles */
-input[type="text"],
-input[type="number"] {
-    background-color: #002b36;
-    border: 1px solid #586e75;
-    border-radius: 5px;
-    padding: 8px;
-    color: #fdf6e3;
-    font-family: 'Roboto Mono', monospace;
-    font-size: 1em;
-    text-align: center;
-}
-
-input[type="text"]:focus,
-input[type="number"]:focus {
-    outline: none;
-    border-color: #268bd2;
-    box-shadow: 0 0 0 2px rgba(38, 139, 210, 0.5);
-}
-
-/* Modal styles */
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    opacity: 0;
-    visibility: hidden;
-    transition: opacity 0.3s ease, visibility 0.3s ease;
-}
-
-.modal-overlay.is-visible {
-    opacity: 1;
-    visibility: visible;
-}
-
-.modal-content {
-    background-color: #fdf6e3;
-    color: #657b83;
-    padding: 30px;
-    border-radius: 10px;
-    text-align: center;
-    max-width: 400px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-    border: 2px solid #93a1a1;
-    position: relative;
-}
-
-.modal-title {
-    color: #268bd2;
-    font-size: 1.8em;
-    margin-top: 0;
-    margin-bottom: 15px;
-}
-
-.modal-message {
-    font-size: 1.1em;
-    line-height: 1.6;
-    margin-bottom: 20px;
-}
-
-.modal-content button {
-    margin-top: 10px;
-}
-
-/* Material Symbols font import */
-@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200');
-
-
-#controls {
-    display: flex;
-    justify-content: center;
-    gap: 20px;
-}
-
-#controls button {
-    padding: 12px 24px;
-    border: 2px solid #2aa198; /* Solarized Cyan */
-    background-color: #2aa198;
-    color: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-#controls button:hover {
-    background-color: #fdf6e3;
-    color: #2aa198;
-}
-
-/* --- Error Modal Styles (from previous step) --- */
-.error-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.75);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    padding: 20px;
-    box-sizing: border-box;
-}
-
-.error-message-box {
-    background-color: #fdf6e3;
-    color: #657b83;
-    padding: 25px 45px;
-    border-radius: 8px;
-    text-align: center;
-    max-width: 450px;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
-    border: 2px solid #93a1a1;
-}
-
-.error-message-box h3 {
-    color: #dc322f; /* Solarized Red */
-    margin-top: 0;
-    font-size: 1.5em;
-}
-
-.error-message-box p {
-    font-size: 1.1em;
-    line-height: 1.6;
-}
-
-.error-message-box button {
-    margin-top: 20px;
-    padding: 12px 24px;
-    border: 2px solid #268bd2; /* Solarized Blue */
-    background-color: #268bd2;
-    color: #fff;
-    border-radius: 5px;
-    cursor: pointer;
-    font-size: 1em;
-    font-weight: bold;
-    transition: background-color 0.2s, color 0.2s;
-}
-
-.error-message-box button:hover {
-    background-color: #fdf6e3;
-    color: #268bd2;
+.cryptogram-cell.correct .plain-char {
+    color: #22c55e; /* Green text on solve */
 }

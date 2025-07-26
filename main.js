@@ -1,440 +1,228 @@
-// main.js
+// --- Globally Scoped Variables, Constants, and Game Objects ---
+let gameBoard, buttonContainer, statsContainer, gameStatus, keyboardContainer, modalContainer, gameTitle, gameRules, root, mainMenu, gameContainer;
+let gameState = {};
+let currentMode = null;
+// --- CENTRALIZED AUDIO MANAGER ---
+const audioManager = new AudioManager();
+let keyboard; // Global keyboard variable
+const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
+const P1 = 1, P2 = -1, EMPTY = 0, AI = -1, HUMAN = 1;
 
-// --- Game Manager ---
-// This is the new central registry for all games.
-// We attach it to the window object so that individual game files can access it
-// to register themselves. This is the only global variable we will use.
-window.gameManager = {
-    _gameConstructors: {},
-
-    /**
-     * Game files call this function to register themselves with the main application.
-     * @param {string} id - A unique identifier for the game (e.g., 'ticTacToeGame').
-     * @param {Function} constructor - The class or constructor function for the game.
-     */
-    registerGame(id, constructor) {
-        if (typeof id !== 'string' || !id) {
-            console.error('Game registration failed: ID must be a non-empty string.');
-            return;
+const utils = {
+    shuffleArray: (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
         }
-        if (typeof constructor !== 'function') {
-            console.error(`Game registration failed for "${id}": The provided constructor is not a function.`);
-            return;
+        return array;
+    },
+    getNeighbors: (i, rows, cols) => {
+        const neighbors = [];
+        const r = Math.floor(i / cols), c = i % cols;
+        for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            const nr = r + dr, nc = c + dc;
+            if (nr >= 0 && nr < rows && nc >= 0 && nc < cols) neighbors.push(nr * cols + nc);
         }
-        console.log(`Successfully registered game: ${id}`);
-        this._gameConstructors[id] = constructor;
+        return neighbors;
     },
-
-    /**
-     * Retrieves a game constructor from the registry.
-     * @param {string} id - The ID of the game to retrieve.
-     * @returns {Function|undefined} The game constructor, or undefined if not found.
-     */
-    getGameConstructor(id) {
-        return this._gameConstructors[id];
+    getSliderNeighbors: (index, size) => {
+        const neighbors = [];
+        const row = Math.floor(index / size), col = index % size;
+        if (row > 0) neighbors.push(index - size);
+        if (row < size - 1) neighbors.push(index + size);
+        if (col > 0) neighbors.push(index - 1);
+        if (col < size - 1) neighbors.push(index + 1);
+        return neighbors;
     },
-
-    /**
-     * Defines the master list of all games that the application should try to load.
-     * This is the single source of truth for the game menu.
-     * @returns {string[]} A list of game IDs.
-     */
-    getGameList() {
-        return [
-            'ticTacToeGame', 'connectGame', 'minefieldGame', 'wordleGame',
-            'echoGame', 'lightsOutGame', 'sliderPuzzleGame', 'decryptGame',
-            'spellingBeeGame', 'blackjackGame', 'anxietyGame', 'lightMatchGame',
-            'lineDrawGame', 'musicMachineGame', 'musicStudioGame', 'numberCrunchGame',
-            'patternPaloozaGame', 'magicSquareGame', 'shapeSurveyorGame', 'measureMasterGame',
-            'decimalDashGame', 'fractionFlipperGame', 'linePlotLearnerGame'
-        ];
+    isDraw: (board) => !board.includes(EMPTY),
+    checkWin: (board, player, winLines) => {
+        const line = winLines.find(line => line.every(index => board[index] === player));
+        return line ? { line } : null;
+    },
+    checkConnectWin: (board, player) => {
+        const W = 7, H = 6;
+        for (let r = 0; r < H; r++) for (let c = 0; c <= W - 4; c++) { const line = [r*W+c, r*W+c+1, r*W+c+2, r*W+c+3]; if (line.every(index => board[index] === player)) return line; }
+        for (let r = 0; r <= H - 4; r++) for (let c = 0; c < W; c++) { const line = [r*W+c, (r+1)*W+c, (r+2)*W+c, (r+3)*W+c]; if (line.every(index => board[index] === player)) return line; }
+        for (let r = 0; r <= H - 4; r++) for (let c = 0; c <= W - 4; c++) { const line = [r*W+c, (r+1)*W+c+1, (r+2)*W+c+2, (r+3)*W+c+3]; if (line.every(index => board[index] === player)) return line; }
+        for (let r = 3; r < H; r++) for (let c = 0; c <= W - 4; c++) { const line = [r*W+c, (r-1)*W+c+1, (r-2)*W+c+2, (r-3)*W+c+3]; if (line.every(index => board[index] === player)) return line; }
+        return null;
     }
 };
 
+const gameModes = {
+    lightPuzzle: { name: 'lightPuzzle', title: 'DOPAMINE SWITCH', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171', cleanup: lightsOutGame.cleanup },
+    magicSquare: { name: 'magicSquare', title: 'HYPER FOCUS', rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa', cleanup: magicSquareGame.cleanup },
+    ticTacToe: { name: 'ticTacToe', title: 'PARALLEL PLAY', rules: 'Get three in a row.', gridSize: 3, setup: ticTacToeGame.setup, handler: ticTacToeGame.handler, color: '#3b82f6', shadow: '#60a5fa', cleanup: ticTacToeGame.cleanup },
+    sequence: { name: 'sequence', title: 'WORKING MEMORY', rules: 'Repeat the sequence. Survive for 1 minute!', gridSize: 3, setup: echoGame.setup, handler: echoGame.handler, color: '#22c55e', shadow: '#4ade80', cleanup: echoGame.cleanup },
+    wordGuess: { name: 'wordGuess', title: 'REJECTION SENSITIVITY', rules: 'Guess the 5-letter word.', gridRows: 6, gridCols: 5, setup: wordleGame.setup, handler: wordleGame.handler, color: '#f97316', shadow: '#fb923c', cleanup: wordleGame.cleanup, createCell: wordleGame.createCell },
+    blackjack: { name: 'blackjack', title: 'DOPAMINE CHASE', rules: 'Get 21, or survive for 1 minute!', gridRows: 4, gridCols: 4, setup: blackjackGame.setup, handler: null, color: '#06b6d4', shadow: '#22d3ee', cleanup: blackjackGame.cleanup },
+    lightMatch: { name: 'lightMatch', title: 'DOPAMINE HIT', rules: 'Match 3+ lights. Form special combos for bombs!', gridSize: 8, setup: lightMatchGame.setup, handler: null, color: '#f43f5e', shadow: '#fb7185', cleanup: lightMatchGame.cleanup },
+    musicMachine: { name: 'musicMachine', title: 'AUDIO STIM', rules: 'Compose a tune.', gridSize: 3, setup: musicMachineGame.setup, handler: musicMachineGame.handler, color: '#d946ef', shadow: '#e879f9', cleanup: musicMachineGame.cleanup },
+    sliderPuzzle: { name: 'sliderPuzzle', title: 'TASK SWITCH', rules: 'Order the tiles from 1 to 8.', gridSize: 3, setup: sliderPuzzleGame.setup, handler: sliderPuzzleGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: sliderPuzzleGame.cleanup },
+    minefield: { name: 'minefield', title: 'OVER STIMULATION', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af', cleanup: minefieldGame.cleanup },
+    fourInARow: { name: 'fourInARow', title: 'BODY DOUBLE', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: connectGame.cleanup },
+    colorConnect: { name: 'colorConnect', title: 'FLOW STATE', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf', cleanup: lineDrawGame.cleanup },
+    anxiety: { name: 'anxiety', title: 'ANXIETY', rules: 'Slide blocks to match 3 or more. Dont let the stack reach the top!', setup: anxietyGame.setup, cleanup: anxietyGame.cleanup, color: '#FF4136', shadow: '#FF851B' },
+    spellingBee: { name: 'spellingBee', title: 'AUDITORY PROCESS', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup, handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
+    decryptGame: { name: 'decryptGame', title: 'UNMASK', setup: decryptGame.setup, handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
+    numberCrunch: { name: 'numberCrunch', title: 'EXECUTIVE FUNCTION', rules: 'Use the numbers and operators to hit the target number.', gridSize: 4, setup: numberCrunchGame.setup, handler: numberCrunchGame.handler, color: '#9C27B0', shadow: '#c039d9', cleanup: numberCrunchGame.cleanup },
+    fractionFlipper: { name: 'fractionFlipper', title: 'TASK INITIATION', rules: 'Add fractions to match the target value.', setup: fractionFlipperGame.setup, handler: null, color: '#10b981', shadow: '#34d399', cleanup: fractionFlipperGame.cleanup },
+    gauntlet: { name: 'gauntlet', title: 'SURVIVAL MODE', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047', cleanup: () => gauntlet.end() },
+    musicStudio: { 
+        name: 'musicStudio', 
+        title: 'MUSIC STUDIO', 
+        rules: 'Create melodies and drum beats.', 
+        setup: musicStudioGame.setup.bind(musicStudioGame), 
+        handler: musicStudioGame.handler.bind(musicStudioGame), 
+        color: '#673ab7', 
+        shadow: '#9575cd', 
+        cleanup: musicStudioGame.cleanup.bind(musicStudioGame) 
+    }
+};
 
-// --- Main Application Logic ---
+const gauntlet = {
+    isActive: false, score: 0, timerInterval: null, availableGames: [],
+    startTimer: function(duration, onEnd) { let timeLeft = duration; const timerEl = document.getElementById('gauntlet-timer'); const updateTimer = () => { if (timerEl) timerEl.textContent = `TIME: ${timeLeft}`; if (timeLeft <= 0) { clearInterval(this.timerInterval); onEnd(); } timeLeft--; }; updateTimer(); this.timerInterval = setInterval(updateTimer, 1000); },
+    clearTimer: function() { clearInterval(this.timerInterval); },
+    start: function() { this.isActive = true; this.score = 0; this.availableGames = Object.keys(gameModes).filter(k => k !== 'musicMachine' && k !== 'gauntlet' && k !== 'musicStudio'); utils.shuffleArray(this.availableGames); this.nextGame(); },
+    shuffleGames: function() { utils.shuffleArray(this.availableGames); },
+    nextGame: function() { if (!this.isActive) return; if (this.availableGames.length === 0) this.shuffleGames(); const nextGameKey = this.availableGames.pop(); startGame(gameModes[nextGameKey]); },
+    onGameComplete: function(isSuccess) { if (!this.isActive) return; this.clearTimer(); if (isSuccess) { this.score++; audioManager.playSound('positive', 'G5', '8n'); const successModal = createModal('success-modal', 'SUCCESS!', `<p class="text-2xl">Score: ${this.score}</p>`, 'Next Game', () => { successModal.remove(); this.nextGame(); }, 'arrow_forward', 'btn-green'); setTimeout(() => successModal.classList.add('is-visible'), 10); } else { audioManager.playSound('negative', 'C3', '2n'); this.end(); } },
+    end: function() { const finalScore = this.score; this.isActive = false; this.score = 0; this.clearTimer(); const endModal = createModal('gauntlet-over-modal', 'Gauntlet Over', `<p class="text-2xl">Your final score is ${finalScore}.</p>`, 'Main Menu', () => { endModal.remove(); document.getElementById('game-container').classList.add('hidden'); document.getElementById('main-menu').classList.remove('hidden'); currentMode = null; }, 'menu', 'btn-red'); setTimeout(() => endModal.classList.add('is-visible'), 10); }
+};
+
+function updateStats(text) { if (statsContainer) statsContainer.textContent = text; }
+function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+function createControlButton(text, colorClass, onClick, iconName = null) { const button = document.createElement('button'); if (iconName) { button.className = `control-button-icon ${colorClass}`; const icon = document.createElement('span'); icon.className = 'material-symbols-outlined'; icon.textContent = iconName; button.appendChild(icon); button.setAttribute('aria-label', text); } else { button.textContent = text; button.classList.add('control-button', colorClass); } button.addEventListener('click', onClick); return button; }
+function createModal(id, title, content, buttonText, onButtonClick, iconName = null, buttonColor = 'btn-green') { const modal = document.createElement('div'); modal.id = id; modal.className = 'modal-backdrop'; let buttonHtml; if (iconName) { buttonHtml = `<button id="${id}-button" class="control-button-icon ${buttonColor}" aria-label="${buttonText}"><span class="material-symbols-outlined">${iconName}</span></button>`; } else { buttonHtml = `<button id="${id}-button" class="menu-button" style="width: auto; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);">${buttonText}</button>`; } modal.innerHTML = `<div class="modal-content" style="background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface);"><div class="confetti-container"></div><h2 class="text-4xl font-bold mb-4">${title}</h2><div id="${id}-content" class="text-lg mb-6">${content}</div>${buttonHtml}</div>`; modalContainer.appendChild(modal); document.getElementById(`${id}-button`).addEventListener('click', onButtonClick); return modal; }
+function showWinModal(title, message) { const winModal = createModal('win-modal', title, `<p>${message}</p>`, 'Play Again', () => { winModal.remove(); if (currentMode) startGame(currentMode); }, 'refresh', 'btn-green'); if(title.toLowerCase().includes('win')) { const confettiContainer = winModal.querySelector('.confetti-container'); for (let i = 0; i < 50; i++) { const confetti = document.createElement('div'); confetti.className = 'confetti'; confetti.style.left = `${Math.random() * 100}%`; confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; confetti.style.animationDuration = `${Math.random() * 3 + 2}s`; confetti.style.animationDelay = `${Math.random() * 2}s`; confettiContainer.appendChild(confetti); } } else { winModal.querySelector('.modal-content').classList.add('shake'); } setTimeout(() => winModal.classList.add('is-visible'), 10); }
+function getValidColumns(board) { const W = 7; const validCols = []; for (let c = 0; c < W; c++) { if (board[c] === EMPTY) { validCols.push(c); } } return validCols; }
+
+// --- CLICK HANDLER FIX ---
+function handleBoardClick(e) {
+    if (e.target.closest('.light') && currentMode && currentMode.handler) {
+        // Pass the event and a 'click' identifier to the handler
+        currentMode.handler(e, 'click');
+    }
+}
+
+function handleBoardContextMenu(e) {
+    e.preventDefault();
+    if (e.target.closest('.light') && currentMode && currentMode.handler) {
+        currentMode.handler(e, 'contextmenu');
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
-    // DOM Elements
-    const gameListContainer = document.getElementById('game-list');
-    const mainMenu = document.getElementById('main-menu');
-    const gameContainer = document.getElementById('game-container');
-    const gameBoard = document.getElementById('game-board');
-    const keyboardContainer = document.getElementById('keyboard-container');
-    const buttonContainer = document.getElementById('button-container');
-    const resetButton = document.getElementById('reset-button');
-    const exitButton = document.getElementById('exit-button');
-    
-    // Error Modal Elements
-    const errorOverlay = document.getElementById('error-overlay');
-    const errorText = document.getElementById('error-text');
-    const errorCloseButton = document.getElementById('error-close-button');
+    mainMenu = document.getElementById('main-menu');
+    gameContainer = document.getElementById('game-container');
+    gameTitle = document.getElementById('game-title');
+    gameStatus = document.getElementById('game-status');
+    gameRules = document.getElementById('game-rules');
+    modalContainer = document.getElementById('modal-container');
+    statsContainer = document.getElementById('stats-container');
+    buttonContainer = document.getElementById('button-container');
+    keyboardContainer = document.getElementById('keyboard-container');
+    root = document.documentElement;
 
-    let currentGameInstance = null;
-    let currentMode = null;
-    let gameState = {};
-    let keyboard = null;
+    const clockElement = document.getElementById('digital-clock');
+    function updateClock() { if (!clockElement) return; const now = new Date(); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0'); clockElement.textContent = `${hours}:${minutes}:${seconds}`; }
+    updateClock();
+    setInterval(updateClock, 1000);
 
-    // Constants for game logic
-    const EMPTY = 0;
-    const HUMAN = 1;
-    const AI = -1;
-    const P1 = 1;
-    const P2 = -1;
+    mainMenu.addEventListener('click', async (e) => {
+        const button = e.target.closest('[data-mode]');
+        if (button) {
+            // Initialize the audio manager on the very first click
+            await audioManager.init();
+            audioManager.playSound('ui', 'C4', '16n'); // Use the new audio manager
 
-    // Musical notes for audio feedback
-    const notes = [
-        'C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5',
-        'C3', 'D3', 'E3', 'F3', 'G3', 'A3', 'B3', 'C4', 'D4'
-    ];
-
-    // Utility functions (can be moved to a separate utils.js later)
-    const utils = {
-        shuffleArray: (array) => {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-            return array;
-        },
-        checkWin: (board, player, winLines) => {
-            for (let i = 0; i < winLines.length; i++) {
-                const [a, b, c] = winLines[i];
-                if (board[a] === player && board[b] === player && board[c] === player) {
-                    return { player, line: winLines[i] };
-                }
-            }
-            return null;
-        },
-        isDraw: (board) => {
-            return board.every(cell => cell !== EMPTY);
-        },
-        getNeighbors: (index, rows, cols) => {
-            const neighbors = [];
-            const r = Math.floor(index / cols);
-            const c = index % cols;
-            const directions = [
-                [-1, -1], [-1, 0], [-1, 1],
-                [0, -1],           [0, 1],
-                [1, -1], [1, 0], [1, 1]
-            ];
-            directions.forEach(([dr, dc]) => {
-                const newR = r + dr;
-                const newC = c + dc;
-                if (newR >= 0 && newR < rows && newC >= 0 && newC < cols) {
-                    neighbors.push(newR * cols + newC);
-                }
-            });
-            return neighbors;
-        },
-        getSliderNeighbors: (index, size) => {
-            const neighbors = [];
-            const row = Math.floor(index / size);
-            const col = index % size;
-
-            // Check left
-            if (col > 0) neighbors.push(index - 1);
-            // Check right
-            if (col < size - 1) neighbors.push(index + 1);
-            // Check up
-            if (row > 0) neighbors.push(index - size);
-            // Check down
-            if (row < size - 1) neighbors.push(index + size);
-
-            return neighbors;
-        }
-    };
-
-    // Audio Manager (simplified for now)
-    const audioManager = {
-        _audioContext: null,
-        _oscillators: {},
-
-        init: function() {
-            if (!this._audioContext) {
-                this._audioContext = new (window.AudioContext || window.webkitAudioContext)();
-            }
-        },
-
-        playSound: function(type, note, duration = '8n') {
-            this.init();
-            const osc = this._audioContext.createOscillator();
-            const gainNode = this._audioContext.createGain();
-
-            osc.connect(gainNode);
-            gainNode.connect(this._audioContext.destination);
-
-            if (type === 'game' || type === 'positive' || type === 'negative' || type === 'ui') {
-                osc.type = 'sine';
-                osc.frequency.value = Tone.Midi(note).hz; // Use Tone.js for note to frequency conversion
-                gainNode.gain.setValueAtTime(0.5, this._audioContext.currentTime);
-                gainNode.gain.exponentialRampToValueAtTime(0.001, this._audioContext.currentTime + Tone.Time(duration).toSeconds());
-            }
-
-            osc.start(this._audioContext.currentTime);
-            osc.stop(this._audioContext.currentTime + Tone.Time(duration).toSeconds());
-        }
-    };
-
-    // Word list for Wordle and Spelling Bee (truncated for brevity)
-    const expandedWordList = ["apple", "baker", "crane", "drain", "eagle", "flame", "grape", "house", "igloo", "jolly", "karma", "lemon", "mango", "night", "ocean", "piano", "queen", "river", "snake", "table", "unity", "vowel", "whale", "xerox", "yacht", "zebra"];
-
-    // --- UI Utility Functions ---
-    function createControlButton(text, colorClass, onClick, iconName = null) {
-        const button = document.createElement('button');
-        button.className = `control-button-icon ${colorClass}`;
-        button.onclick = onClick;
-        if (iconName) {
-            const iconSpan = document.createElement('span');
-            iconSpan.className = 'material-symbols-outlined';
-            iconSpan.textContent = iconName;
-            button.appendChild(iconSpan);
-        }
-        const textSpan = document.createElement('span');
-        textSpan.textContent = text;
-        button.appendChild(textSpan);
-        return button;
-    }
-
-    function updateStats(text) {
-        const statsContainer = document.getElementById('stats-container');
-        if (statsContainer) {
-            statsContainer.textContent = text;
-        }
-    }
-
-    function showWinModal(title, message) {
-        const modal = document.createElement('div');
-        modal.id = 'win-modal';
-        modal.className = 'win-modal';
-        modal.innerHTML = `
-            <div class="win-modal-content">
-                <div class="confetti-container"></div>
-                <h2 class="win-modal-title">${title}</h2>
-                <p class="win-modal-message">${message}</p>
-                <button id="play-again-button" class="control-button-icon btn-green"><span class="material-symbols-outlined">refresh</span><span>Play Again</span></button>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        // Add confetti
-        const confettiContainer = modal.querySelector('.confetti-container');
-        for (let i = 0; i < 50; i++) {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = `${Math.random() * 100}%`;
-            confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`;
-            confetti.style.animationDuration = `${Math.random() * 3 + 2}s`;
-            confetti.style.animationDelay = `${Math.random() * 2}s`;
-            confettiContainer.appendChild(confetti);
-        }
-
-        document.getElementById('play-again-button').onclick = () => {
-            modal.remove();
-            startGame(currentMode);
-        };
-
-        setTimeout(() => modal.classList.add('is-visible'), 10);
-    }
-
-    function delay(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-
-    // Keyboard class (simplified, assumes a basic structure)
-    class Keyboard {
-        constructor(keyLayout, onKeyPress) {
-            this.keyLayout = keyLayout;
-            this.onKeyPress = onKeyPress;
-            this.keyboardContainer = document.getElementById('keyboard-container');
-            this.render();
-        }
-
-        render() {
-            this.keyboardContainer.innerHTML = '';
-            this.keyLayout.forEach(row => {
-                const rowDiv = document.createElement('div');
-                rowDiv.className = 'keyboard-row';
-                row.forEach(key => {
-                    const button = document.createElement('button');
-                    button.className = 'keyboard-button';
-                    button.textContent = key;
-                    button.dataset.key = key.toLowerCase();
-                    button.onclick = () => this.onKeyPress(key);
-                    rowDiv.appendChild(button);
-                });
-                this.keyboardContainer.appendChild(rowDiv);
-            });
-        }
-
-        enableKey(key, enable) {
-            const button = this.keyboardContainer.querySelector(`[data-key="${key.toLowerCase()}"]`);
-            if (button) {
-                button.disabled = !enable;
-                button.classList.toggle('is-disabled', !enable);
+            const modeKey = button.dataset.mode;
+            if (gameModes[modeKey]) {
+                mainMenu.classList.add('hidden');
+                gameContainer.classList.remove('hidden');
+                if (modeKey === 'gauntlet') { gauntlet.start(); } 
+                else { gauntlet.isActive = false; startGame(gameModes[modeKey]); }
             }
         }
-
-        updateKey(key, colorClass) {
-            const button = this.keyboardContainer.querySelector(`[data-key="${key.toLowerCase()}"]`);
-            if (button) {
-                button.classList.remove('wordle-correct', 'wordle-present', 'wordle-absent');
-                button.classList.add(colorClass);
-            }
-        }
-    }
-
-    // Tone.js (simplified, assumes basic functionality)
-    const Tone = {
-        context: { state: 'running', resume: () => {} },
-        Transport: { bpm: { value: 120 }, start: () => {}, stop: () => {}, cancel: () => {}, state: 'stopped' },
-        Midi: (note) => ({ hz: 440 }), // Placeholder
-        Time: (duration) => ({ toSeconds: () => 0.5 }), // Placeholder
-        Draw: { schedule: (fn, time) => fn() }, // Placeholder
-        PolySynth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        FMSynth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        PluckSynth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        AMSynth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        MonoSynth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        Synth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        MembraneSynth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        NoiseSynth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        MetalSynth: function() { this.toDestination = () => this; this.triggerAttackRelease = () => {}; this.dispose = () => {}; },
-        Sequence: function(callback, events, subdivision) { this.start = () => {}; this.stop = () => {}; this.dispose = () => {}; },
-    };
-
-    // --- Game Loading and Lifecycle ---
-
-    /**
-     * Dynamically loads a game's script file by creating a <script> tag.
-     * @param {string} gameId - The ID of the game to load.
-     * @returns {Promise<void>} A promise that resolves on script load or rejects on error.
-     */
-    function loadGameScript(gameId) {
-        return new Promise((resolve, reject) => {
-            const script = document.createElement('script');
-            script.src = `games/${gameId}.js`;
-            script.onload = () => {
-                console.log(`Script loaded: ${gameId}.js`);
-                resolve();
-            };
-            script.onerror = () => {
-                // This catches network errors, 404s, etc.
-                reject(new Error(`Network error or file not found for ${gameId}.js.`));
-            };
-            document.body.appendChild(script);
-        });
-    }
-
-    /**
-     * Starts a game after verifying its integrity.
-     * @param {string} gameId - The ID of the game to start.
-     */
-    async function startGame(gameId) {
-        try {
-            const GameConstructor = window.gameManager.getGameConstructor(gameId);
-            if (!GameConstructor) {
-                throw new Error(`Game "${gameId}" is not registered. Check the game file for errors or missing registration call.`);
-            }
-
-            // If validation passes, create the actual instance for the game.
-            mainMenu.style.display = 'none';
-            gameContainer.style.display = 'block';
-            
-            currentGameInstance = GameConstructor;
-            currentMode = gameModes[gameId];
-            currentGameInstance.setup();
-
-            // The main app remains in control of the reset/exit buttons.
-            // This ensures a consistent UI and experience across all games.
-            resetButton.onclick = () => startGame(currentMode);
-            exitButton.onclick = () => exitGame();
-
-        } catch (error) {
-            showError(`Could not start game "${gameId}": ${error.message}`);
-            exitGame(); // Return to the main menu if starting fails.
-        }
-    }
-
-    /**
-     * Exits the current game and returns to the main menu.
-     */
-    function exitGame() {
-        if (currentGameInstance && typeof currentGameInstance.cleanup === 'function') {
-            try {
-                currentGameInstance.cleanup();
-            } catch (e) {
-                console.error(`Error during ${currentGameInstance.constructor.name}.cleanup():`, e);
-            }
-        }
-        currentGameInstance = null;
-        mainMenu.style.display = 'block';
-        gameContainer.style.display = 'none';
-    }
-
-    // --- Application Initialization ---
-    /**
-     * Loads all game scripts and then builds the main menu,
-     * disabling any games that failed to load or register correctly.
-     */
-    async function initialize() {
-        const gameIds = window.gameManager.getGameList();
-        // Create a loading promise for each game script.
-        const loadingPromises = gameIds.map(id => loadGameScript(id).catch(err => err));
-
-        // Wait for all scripts to either load or fail.
-        await Promise.all(loadingPromises);
-
-        console.log("All game scripts processed. Building menu.");
-
-        // Now, build the menu based on which games successfully registered themselves.
-        for (const gameId of gameIds) {
-            const GameCtor = window.gameManager.getGameConstructor(gameId);
-            const gameButton = document.createElement('button');
-            // Create a user-friendly name from the camelCase ID.
-            const friendlyName = gameId.replace(/([A-Z])/g, ' $1').replace(/Game$/, '').trim();
-            gameButton.textContent = friendlyName;
-
-            if (GameCtor) {
-                // If the game is loaded and valid, enable its button.
-                gameButton.onclick = () => startGame(gameId);
-            } else {
-                // If the game failed to load or register, disable its button.
-                gameButton.disabled = true;
-                gameButton.title = `This game could not be loaded. Check console for errors.`;
-                gameButton.style.textDecoration = 'line-through';
-                gameButton.style.opacity = '0.5';
-                console.warn(`Game "${gameId}" will be disabled as it did not register correctly.`);
-            }
-            gameListContainer.appendChild(gameButton);
-        }
-    }
-
-    initialize();
+    });
 });
 
-// Game Modes (for games that need different configurations)
-const gameModes = {
-    ticTacToeGame: { name: 'ticTacToe', gridCols: 3, gridRows: 3 },
-    connectGame: { name: 'connect4', gridCols: 7, gridRows: 6 },
-    minefieldGame: { name: 'minefield', gridCols: 8, gridRows: 8 },
-    wordleGame: { name: 'wordle', gridCols: 5, gridRows: 6 },
-    echoGame: { name: 'echo', gridCols: 3, gridRows: 3 },
-    lightsOutGame: { name: 'lightsOut', gridCols: 5, gridRows: 5 },
-    sliderPuzzleGame: { name: 'sliderPuzzle', gridCols: 3, gridRows: 3 },
-    decryptGame: { name: 'decrypt', gridCols: 1, gridRows: 1 }, // Not grid-based
-    spellingBeeGame: { name: 'spellingBee', gridCols: 1, gridRows: 1 }, // Not grid-based
-    blackjackGame: { name: 'blackjack', gridCols: 4, gridRows: 4 },
-    anxietyGame: { name: 'anxiety', gridCols: 10, gridRows: 12 },
-    lightMatchGame: { name: 'lightMatch', gridCols: 8, gridRows: 8 },
-    lineDrawGame: { name: 'lineDraw', gridCols: 5, gridRows: 5 },
-    musicMachineGame: { name: 'musicMachine', gridCols: 3, gridRows: 3 },
-    musicStudioGame: { name: 'musicStudio', gridCols: 32, gridRows: 8 },
-    numberCrunchGame: { name: 'numberCrunch', gridCols: 4, gridRows: 4 },
-    patternPaloozaGame: { name: 'patternPalooza', gridCols: 1, gridRows: 1 },
-    magicSquareGame: { name: 'magicSquare', gridCols: 3, gridRows: 3 },
-    shapeSurveyorGame: { name: 'shapeSurveyor', gridCols: 1, gridRows: 1 },
-    measureMasterGame: { name: 'measureMaster', gridCols: 1, gridRows: 1 },
-    decimalDashGame: { name: 'decimalDash', gridCols: 3, gridRows: 3 },
-    fractionFlipperGame: { name: 'fractionFlipper', gridCols: 4, gridRows: 2 },
-    linePlotLearnerGame: { name: 'linePlotLearner', gridCols: 1, gridRows: 1 },
-};
+window.startGame = function(mode) {
+    if (currentMode && typeof currentMode.cleanup === 'function') {
+        currentMode.cleanup();
+    }
+
+    // --- Universal Cleanup ---
+    const gameBoardWrapper = document.getElementById('game-board-wrapper');
+    gameBoardWrapper.innerHTML = ''; // Clear previous game's special layout
+    keyboardContainer.innerHTML = '';
+    buttonContainer.innerHTML = '';
+    statsContainer.innerHTML = '';
+    modalContainer.innerHTML = '';
+    gameStatus.textContent = '';
+    
+    currentMode = mode;
+    
+    // --- Set container classes for styling ---
+    const keyboardGames = ['wordGuess', 'spellingBee', 'decryptGame'];
+    gameContainer.classList.toggle('keyboard-active', keyboardGames.includes(mode.name));
+    gameContainer.classList.toggle('music-studio-active', mode.name === 'musicStudio');
+
+    // --- Set titles and theme colors ---
+    gameTitle.textContent = mode.title;
+    gameRules.textContent = mode.rules;
+    root.style.setProperty('--theme-color', mode.color);
+    root.style.setProperty('--theme-shadow-color', mode.shadow);
+    gameTitle.style.color = mode.color;
+    gameTitle.style.textShadow = `0 0 10px ${mode.shadow}`;
+
+    // --- LAZY LOADING FIX ---
+    // Always create a gameBoard element. The game-specific setup function
+    // is responsible for populating it. This ensures the element exists
+    // when the setup function is called, fixing the "cannot set innerHTML" error.
+    gameBoard = document.createElement('div');
+    gameBoard.id = 'game-board';
+    gameBoardWrapper.appendChild(gameBoard);
+
+    if (mode.name !== 'musicStudio' && mode.name !== 'anxiety') {
+        gameBoard.className = 'game-grid mb-2';
+        if (mode.gridSize || (mode.gridRows && mode.gridCols)) {
+            const rows = mode.gridRows || mode.gridSize;
+            const cols = mode.gridCols || mode.gridSize;
+            gameBoard.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+            
+            const fragment = document.createDocumentFragment();
+            for (let i = 0; i < rows * cols; i++) {
+                let cell = (typeof mode.createCell === 'function') ? mode.createCell(i) : document.createElement('div');
+                if (!cell.classList.contains('light')) cell.classList.add('light');
+                cell.dataset.index = i;
+                fragment.appendChild(cell);
+            }
+            gameBoard.appendChild(fragment);
+        }
+    }
+    // --- END OF FIX ---
+    
+    // --- Add Back Button ---
+    const backButton = createControlButton('Menu', 'btn-red', () => {
+        if (currentMode && typeof currentMode.cleanup === 'function') {
+            currentMode.cleanup();
+        }
+        gameContainer.classList.remove('keyboard-active', 'music-studio-active');
+        gameContainer.classList.add('hidden');
+        mainMenu.classList.remove('hidden');
+        currentMode = null;
+    }, 'arrow_back');
+    backButton.classList.add('global-back-button');
+    buttonContainer.appendChild(backButton);
+
+    // --- Call the game's specific setup function ---
+    mode.setup();
+
+    // --- Add event listeners ---
+    const gameBoardWrapperRef = document.getElementById('game-board-wrapper');
+    gameBoardWrapperRef.addEventListener('click', handleBoardClick);
+    gameBoardWrapperRef.addEventListener('contextmenu', handleBoardContextMenu);
+}

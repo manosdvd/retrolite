@@ -103,14 +103,3 @@ const measureMasterGame = {
         // No specific intervals or listeners to clear for this game
     }
 };
-
-// --- Game Registration ---
-// Instead of polluting the global scope, we now explicitly register
-// the game with the gameManager.
-if (window.gameManager) {
-    window.gameManager.registerGame('measureMasterGame', measureMasterGame);
-} else {
-    // This error will appear if a game script is loaded without main.js,
-    // which can be helpful for debugging.
-    console.error("Fatal Error: gameManager is not available.");
-}

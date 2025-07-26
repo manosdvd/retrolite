@@ -1,41 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Retro-Lite</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Retro Game Collection</title>
+    <link rel="icon" href="favicon.ico" type="image/svg+xml">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
 </head>
-<body>
-    <!-- This is the new overlay for displaying errors without using alert() -->
-    <div id="error-overlay" class="error-overlay" style="display:none;">
-        <div class="error-message-box">
-            <h3>Application Error</h3>
-            <p id="error-text"></p>
-            <button id="error-close-button">Close</button>
+<body class="bg-gray-900 text-white flex flex-col items-center justify-center min-h-screen p-2">
+
+    <div id="digital-clock"></div>
+
+    <div id="main-menu" class="w-full max-w-md mx-auto">
+        <h1 class="text-4xl md:text-5xl font-bold text-center mb-6 tracking-widest text-red-400" style="text-shadow: 0 0 10px #f87171;">GAME COLLECTION</h1>
+        <div class="px-4 grid grid-cols-2 sm:grid-cols-3 gap-x-4">
+            <button data-mode="lightPuzzle" class="menu-button">Dopamine Switch</button>
+            <button data-mode="magicSquare" class="menu-button">Hyper Focus</button>
+            <button data-mode="ticTacToe" class="menu-button">Parallel Play</button>
+            <button data-mode="sequence" class="menu-button">Working Memory</button>
+            <button data-mode="wordGuess" class="menu-button">Rejection Sensitivity</button>
+            <button data-mode="blackjack" class="menu-button">Dopamine Chase</button>
+            <button data-mode="sliderPuzzle" class="menu-button">Task Switch</button>
+            <button data-mode="minefield" class="menu-button">Over Stimulation</button>
+            <button data-mode="fourInARow" class="menu-button">Body Double</button>
+            <button data-mode="colorConnect" class="menu-button">Flow State</button>
+            <button data-mode="lightMatch" class="menu-button">Dopamine Hit</button>
+            <button data-mode="anxiety" class="menu-button">Anxiety</button>
+            <button data-mode="musicMachine" class="menu-button">Audio Stim</button>
+            <button data-mode="spellingBee" class="menu-button">Auditory Process</button>
+            <button data-mode="decryptGame" class="menu-button">Unmask</button>
+            <button data-mode="numberCrunch" class="menu-button">Executive Function</button>
+            <button data-mode="fractionFlipper" class="menu-button">Task Initiation</button>
+            
+            
+            <button data-mode="musicStudio" class="menu-button">Music Studio</button>
+            <button data-mode="gauntlet" class="menu-button col-span-2 sm:col-span-3">Gauntlet</button>
         </div>
     </div>
 
-    <div id="main-menu">
-        <h1>Retro-Lite</h1>
-        <div id="game-list"></div>
-    </div>
-
-    <div id="game-container" style="display:none;">
+    <div id="game-container" class="w-full max-w-md mx-auto hidden">
+        <h1 id="game-title" class="text-3xl md:text-4xl font-bold text-center mb-1 tracking-widest" style="transition: all 0.3s ease;"></h1>
+        <p id="game-status" class="text-center text-lg text-yellow-300 h-7 mb-2"></p>
+        <p id="game-rules" class="text-center text-gray-400 mb-4 h-5"></p>
         <div id="game-board-wrapper">
-            <div id="game-board"></div>
+            <div id="game-board" class="game-grid mb-2"></div>
         </div>
-        <div id="keyboard-container"></div>
-        <div id="controls">
-            <div id="button-container"></div>
-            <button id="reset-button">Reset</button>
-            <button id="exit-button">Exit</button>
+        <div id="keyboard-container" class="my-2"></div>
+
+        <div id="game-controls" class="flex flex-wrap justify-between items-center bg-gray-800 p-2 rounded-lg shadow-lg gap-2">
+            <div id="stats-container" class="flex-grow text-lg"></div>
+            <div id="button-container" class="flex gap-2 flex-wrap"></div>
         </div>
     </div>
 
-    <!-- The Game Manager must be defined before any game scripts are loaded -->
+    <div id="modal-container"></div>
+
+    <script src="words.js"></script>
+    <script src="spellingwords.js"></script>
+    <script src="decryptQuotes.js"></script>
+    <script src="games/lightsOutGame.js"></script>
+    <script src="games/magicSquareGame.js"></script>
+    <script src="games/ticTacToeGame.js"></script>
+    <script src="games/echoGame.js"></script>
+    <script src="utils/keyboard.js"></script>
+    <script src="games/wordleGame.js"></script>
+    <script src="games/blackjackGame.js"></script>
+    <script src="games/sliderPuzzleGame.js"></script>
+    <script src="games/minefieldGame.js"></script>
+    <script src="games/connectGame.js"></script>
+    <script src="games/lineDrawGame.js"></script>
+    <script src="games/musicMachineGame.js"></script>
+    <script src="games/lightMatchGame.js"></script>
+    <script src="games/anxietyGame.js"></script>
+    <script src="games/spellingBeeGame.js"></script>
+    <script src="games/decryptGame.js"></script>
+    <script src="games/numberCrunchGame.js"></script>
+    <script src="games/fractionFlipperGame.js"></script>
+    <script src="games/musicStudioGame.js"></script>
+
+    <script src="utils/audioManager.js"></script>
     <script src="main.js"></script>
-    
-    <!-- Dynamically loaded game scripts will be appended here by main.js -->
 </body>
 </html>
