@@ -2,7 +2,7 @@ const magicSquareGame = {
     setup: () => {
         const merlinToggles = [
             [0, 1, 3], [0, 1, 2, 4], [1, 2, 5], [0, 3, 4, 6], [1, 3, 4, 5, 7],
-            [2, 4, 5, 8], [3, 6, 7], [4, 6, 7, 8], [5, 7, 8]
+            [2, 4, 5, 8], [5, 7, 8], [4, 6, 7, 8], [5, 7, 8]
         ];
         gameState = { board: [1, 1, 1, 1, 0, 1, 1, 1, 1], moves: 0, toggles: merlinToggles };
         const scrambleMoves = Math.floor(Math.random() * 5) + 5;
@@ -44,3 +44,14 @@ const magicSquareGame = {
         // No specific cleanup needed as event listeners are managed by main.js
     }
 };
+
+// --- Game Registration ---
+// Instead of polluting the global scope, we now explicitly register
+// the game with the gameManager.
+if (window.gameManager) {
+    window.gameManager.registerGame('magicSquareGame', magicSquareGame);
+} else {
+    // This error will appear if a game script is loaded without main.js,
+    // which can be helpful for debugging.
+    console.error("Fatal Error: gameManager is not available.");
+}

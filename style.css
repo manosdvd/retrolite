@@ -353,3 +353,58 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 .cryptogram-cell.correct .plain-char {
     color: #22c55e; /* Green text on solve */
 }
+/* Add these styles to your existing style.css file */
+
+.error-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.75);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    font-family: 'Roboto Mono', monospace;
+}
+
+.error-message-box {
+    background-color: #fdf6e3; /* A soft, retro-friendly background */
+    color: #657b83; /* Solarized text color */
+    padding: 25px 45px;
+    border-radius: 8px;
+    text-align: center;
+    max-width: 450px;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.25);
+    border: 2px solid #93a1a1;
+}
+
+.error-message-box h3 {
+    color: #dc322f; /* Solarized red */
+    margin-top: 0;
+    font-size: 1.5em;
+}
+
+.error-message-box p {
+    font-size: 1.1em;
+    line-height: 1.6;
+}
+
+.error-message-box button {
+    margin-top: 20px;
+    padding: 12px 24px;
+    border: 2px solid #268bd2; /* Solarized blue */
+    background-color: #268bd2;
+    color: #fff;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: bold;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.error-message-box button:hover {
+    background-color: #fdf6e3;
+    color: #268bd2;
+}

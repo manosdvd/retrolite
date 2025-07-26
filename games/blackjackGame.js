@@ -173,3 +173,14 @@ const blackjackGame = {
         // No specific cleanup needed
     }
 };
+
+// --- Game Registration ---
+// Instead of polluting the global scope, we now explicitly register
+// the game with the gameManager.
+if (window.gameManager) {
+    window.gameManager.registerGame('blackjackGame', blackjackGame);
+} else {
+    // This error will appear if a game script is loaded without main.js,
+    // which can be helpful for debugging.
+    console.error("Fatal Error: gameManager is not available.");
+}
