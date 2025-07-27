@@ -210,6 +210,28 @@ window.startGame = function(mode) {
         if (currentMode && typeof currentMode.cleanup === 'function') {
             currentMode.cleanup();
         }
+
+        // --- MAIN MENU CLEANUP CHECK ---
+        // After cleanup, check if any game-specific elements remain.
+        const gameBoardWrapper = document.getElementById('game-board-wrapper');
+        const keyboardActive = gameContainer.classList.contains('keyboard-active');
+        const musicStudioActive = gameContainer.classList.contains('music-studio-active');
+
+        if (gameBoardWrapper.innerHTML.trim() !== '' || keyboardActive || musicStudioActive || buttonContainer.children.length > 1 || statsContainer.innerHTML.trim() !== '' || modalContainer.innerHTML.trim() !== '') {
+            const errorMessage = "Cleanup was not successful. Residual elements detected: " +
+                (gameBoardWrapper.innerHTML.trim() !== '' ? 'GameBoard not empty; ' : '') +
+                (keyboardActive ? 'Keyboard active; ' : '') +
+                (musicStudioActive ? 'Music Studio active; ' : '') +
+                (buttonContainer.children.length > 1 ? 'Extra buttons present; ' : '') +
+                (statsContainer.innerHTML.trim() !== '' ? 'Stats not cleared; ' : '') +
+                (modalContainer.innerHTML.trim() !== '' ? 'Modals not cleared; ' : '');
+
+            // In a real app, you might want to handle this more gracefully.
+            // For now, we'll throw an error to make it obvious during development.
+            throw new Error(errorMessage);
+        }
+        // --- END OF CHECK ---
+
         gameContainer.classList.remove('keyboard-active', 'music-studio-active');
         gameContainer.classList.add('hidden');
         mainMenu.classList.remove('hidden');
