@@ -272,7 +272,8 @@ const wordFallGame = {
                         renderCell(selX, selY);
                         renderCell(x, y);
                         await new Promise(resolve => setTimeout(resolve, 150));
-                        await checkClearAndDropLoop();
+                        // Pass the swapped cells to the check loop
+                        await checkClearAndDropLoop([{ x: selX, y: selY }, { x, y }]);
                     }
                 } else {
                     if (grid[y][x] !== null) {
@@ -342,13 +343,17 @@ const wordFallGame = {
             }
         }
 
-        async function checkClearAndDropLoop() {
+        async function checkClearAndDropLoop(swappedCells = null) {
             let matchesFound;
             let chain = 0;
             let allWordsThisTurn = [];
+            let firstCheck = true;
             do {
                 if (self.gameOver) return;
-                const { coords, words } = findMatches();
+                
+                const { coords, words } = findMatches(firstCheck ? swappedCells : null);
+                firstCheck = false;
+
                 matchesFound = coords.size > 0;
                 if (matchesFound) {
                     chain++;
@@ -367,30 +372,88 @@ const wordFallGame = {
             await checkForBoardClear();
         }
 
-        function findMatches() {
+        function findMatches(cellsToFocusOn = null) {
             const matchCoords = new Set();
             const wordsFound = new Set();
-            wordList.forEach(word => {
-                if (word.length < 3) return;
+
+            if (cellsToFocusOn) {
+                const coordsToCheck = new Set();
+                cellsToFocusOn.forEach(cell => {
+                    coordsToCheck.add(`h,${cell.y}`); // Check horizontal row
+                    coordsToCheck.add(`v,${cell.x}`); // Check vertical column
+                });
+
+                coordsToCheck.forEach(coordKey => {
+                    const [dir, indexStr] = coordKey.split(',');
+                    const index = parseInt(indexStr, 10);
+                    let line = "";
+                    let lineCoords = [];
+
+                    if (dir === 'h') {
+                        for (let x = 0; x < GRID_WIDTH; x++) {
+                            line += grid[index][x] || ' ';
+                            lineCoords.push({x, y: index});
+                        }
+                    } else { // dir === 'v'
+                        for (let y = 0; y < GRID_HEIGHT; y++) {
+                            line += grid[y][index] || ' ';
+                            lineCoords.push({x: index, y});
+                        }
+                    }
+
+                    for (let i = 0; i < line.length; i++) {
+                        for (let j = i + 3; j <= line.length; j++) {
+                            const sub = line.substring(i, j).toLowerCase();
+                            if (wordList.has(sub)) {
+                                let intersects = false;
+                                for (let k = 0; k < sub.length; k++) {
+                                    const currentCoord = lineCoords[i + k];
+                                    if (cellsToFocusOn.some(c => c.x === currentCoord.x && c.y === currentCoord.y)) {
+                                        intersects = true;
+                                        break;
+                                    }
+                                }
+                                if (intersects) {
+                                    wordsFound.add(sub.toUpperCase());
+                                    for (let k = 0; k < sub.length; k++) {
+                                        const coord = lineCoords[i + k];
+                                        matchCoords.add(`${coord.x},${coord.y}`);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Horizontal check
                 for (let y = 0; y < GRID_HEIGHT; y++) {
                     let rowString = "";
                     for (let x = 0; x < GRID_WIDTH; x++) rowString += grid[y][x] || ' ';
-                    let fromIndex = -1;
-                    while ((fromIndex = rowString.toLowerCase().indexOf(word, fromIndex + 1)) !== -1) {
-                        wordsFound.add(word.toUpperCase());
-                        for (let i = 0; i < word.length; i++) matchCoords.add(`${fromIndex + i},${y}`);
+                    for (let i = 0; i < GRID_WIDTH; i++) {
+                        for (let j = i + 3; j <= GRID_WIDTH; j++) {
+                            const sub = rowString.substring(i, j).toLowerCase();
+                            if (wordList.has(sub)) {
+                                wordsFound.add(sub.toUpperCase());
+                                for (let k = 0; k < sub.length; k++) matchCoords.add(`${i + k},${y}`);
+                            }
+                        }
                     }
                 }
+                // Vertical check
                 for (let x = 0; x < GRID_WIDTH; x++) {
                     let colString = "";
                     for (let y = 0; y < GRID_HEIGHT; y++) colString += grid[y][x] || ' ';
-                    let fromIndex = -1;
-                    while ((fromIndex = colString.toLowerCase().indexOf(word, fromIndex + 1)) !== -1) {
-                        wordsFound.add(word.toUpperCase());
-                        for (let i = 0; i < word.length; i++) matchCoords.add(`${x},${fromIndex + i}`);
+                    for (let i = 0; i < GRID_HEIGHT; i++) {
+                        for (let j = i + 3; j <= GRID_HEIGHT; j++) {
+                            const sub = colString.substring(i, j).toLowerCase();
+                            if (wordList.has(sub)) {
+                                wordsFound.add(sub.toUpperCase());
+                                for (let k = 0; k < sub.length; k++) matchCoords.add(`${x},${i + k}`);
+                            }
+                        }
                     }
                 }
-            });
+            }
             return { coords: matchCoords, words: Array.from(wordsFound) };
         }
 
