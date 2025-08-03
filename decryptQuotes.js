@@ -290,13 +290,6 @@ const decryptQuotes = [
         notes: "A calm report of a major issue during a space mission."
     },
     {
-        id: 152,
-        quote: "BET",
-        title: "A Simple Agreement",
-        source: "Modern Slang",
-        notes: "A term used to say 'yes' or to confirm something."
-    },
-    {
         id: 160,
         quote: "THATS WHAT SHE SAID",
         title: "The Office Gag",

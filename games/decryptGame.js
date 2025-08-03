@@ -25,7 +25,6 @@ const decryptGame = {
         gameBoard.innerHTML = '';
         keyboardContainer.innerHTML = '';
         gameTitle.textContent = 'CIPHER';
-        // This initial text will be overwritten by newGame()
         gameRules.textContent = 'Decode the quote. Click a cell to select a letter.';
         document.getElementById('game-container').classList.add('cryptogram-active');
         document.getElementById('game-board-wrapper').classList.add('scroll-indicator-wrapper');
@@ -78,33 +77,49 @@ const decryptGame = {
     fetchQuote: async function() {
         gameRules.textContent = 'Fetching new quote from API...';
         try {
-            const response = await fetch('https://api.quotable.io/random');
+            // Use the new API endpoint
+            const response = await fetch('https://thequoteshub.com/api/');
             if (!response.ok) {
-                // This handles errors from the API, like '404 Not Found' or '500 Server Error'
                 throw new Error(`Network response was not ok: ${response.statusText}`);
             }
             const data = await response.json();
-            decryptGame.currentQuote = data.content.toUpperCase();
-            decryptGame.currentSource = data.author;
-            gameRules.textContent = `Source: ${decryptGame.currentSource}`;
-            decryptGame.cipherMap = decryptGame.generateCipherMap();
-            decryptGame.encryptedQuote = decryptGame.encrypt(decryptGame.currentQuote, decryptGame.cipherMap);
-            decryptGame.userMappings = {};
-            decryptGame.activeCipherChar = null;
-            decryptGame.isSolved = false;
-            gameStatus.textContent = '';
-            decryptGame.renderPuzzle();
-            setTimeout(() => {
-                decryptGame.applyInitialHints();
-                decryptGame.updatePuzzleDisplay();
-                decryptGame.updateKeyboard();
-                decryptGame.selectFirstOpenCell();
-                decryptGame.updateScrollIndicator();
-            }, 10);
+            
+            // **FIX:** Handle both object and array responses from the API
+            let quoteData;
+            if (Array.isArray(data) && data.length > 0) {
+                // Handle array response
+                quoteData = data[0];
+            } else if (data && typeof data === 'object' && data.quote) {
+                // Handle single object response
+                quoteData = data;
+            }
+
+            if (quoteData) {
+                decryptGame.currentQuote = quoteData.quote.toUpperCase();
+                decryptGame.currentSource = quoteData.author;
+                gameRules.textContent = `Source: ${decryptGame.currentSource}`;
+                
+                // Continue setting up the game with the new quote
+                decryptGame.cipherMap = decryptGame.generateCipherMap();
+                decryptGame.encryptedQuote = decryptGame.encrypt(decryptGame.currentQuote, decryptGame.cipherMap);
+                decryptGame.userMappings = {};
+                decryptGame.activeCipherChar = null;
+                decryptGame.isSolved = false;
+                gameStatus.textContent = '';
+                decryptGame.renderPuzzle();
+                setTimeout(() => {
+                    decryptGame.applyInitialHints();
+                    decryptGame.updatePuzzleDisplay();
+                    decryptGame.updateKeyboard();
+                    decryptGame.selectFirstOpenCell();
+                    decryptGame.updateScrollIndicator();
+                }, 10);
+            } else {
+                // If neither format matches, throw the error
+                throw new Error('API returned no quotes or an invalid format.');
+            }
         } catch (error) {
-            // This catches network failures (offline) or the error thrown above
             console.error('Failed to fetch quote:', error);
-            // Provide a clear, direct alert to the user
             alert('Could not fetch a quote from the API. This may be due to your network connection or the API service being temporarily down. Switching to local mode.');
             
             gameStatus.textContent = 'API fetch failed. Switched to local mode.';
@@ -140,10 +155,9 @@ const decryptGame = {
         
         const puzzleInfo = decryptGame.availablePuzzles.pop();
 
-        decryptGame.currentQuote = puzzleInfo.quote.toUpperCase(); //
-        decryptGame.currentSource = puzzleInfo.source; //
-        // Display the source by default
-        gameRules.textContent = `Source: ${decryptGame.currentSource}`; //
+        decryptGame.currentQuote = puzzleInfo.quote.toUpperCase();
+        decryptGame.currentSource = puzzleInfo.source;
+        gameRules.textContent = `Source: ${decryptGame.currentSource}`;
         decryptGame.cipherMap = decryptGame.generateCipherMap();
         decryptGame.encryptedQuote = decryptGame.encrypt(decryptGame.currentQuote, decryptGame.cipherMap);
         decryptGame.userMappings = {};
@@ -333,7 +347,7 @@ const decryptGame = {
             decryptGame.setActiveCipherChar(null);
             
             const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote);
-            const title = puzzleInfo ? puzzleInfo.title : "You Cracked the Code!"; //
+            const title = puzzleInfo ? puzzleInfo.title : "You Cracked the Code!";
             let message = `<p class="mb-2">The quote was:</p><p class="font-bold" style="color: var(--md-sys-color-primary);">"${decryptGame.currentQuote}"</p>`;
             
             if (decryptGame.currentSource) {
@@ -364,10 +378,10 @@ const decryptGame = {
             return;
         }
 
-        const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote); //
+        const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote);
 
-        if (puzzleInfo && puzzleInfo.notes && gameStatus.textContent.indexOf(puzzleInfo.notes) === -1) { //
-            gameStatus.textContent = `Hint: ${puzzleInfo.notes}`; //
+        if (puzzleInfo && puzzleInfo.notes && gameStatus.textContent.indexOf(puzzleInfo.notes) === -1) {
+            gameStatus.textContent = `Hint: ${puzzleInfo.notes}`;
             return;
         }
 
