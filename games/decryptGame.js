@@ -4,7 +4,6 @@ const decryptGame = {
     keyboardContainer: null,
     controller: null,
     availablePuzzles: [], // Holds the list of puzzles for the current cycle
-    useAPI: false, // Flag to determine quote source
 
     // Game State
     puzzles: decryptQuotes,
@@ -50,17 +49,9 @@ const decryptGame = {
             }
         });
 
-        const apiButton = createControlButton(decryptGame.useAPI ? 'API Mode' : 'Local Mode', decryptGame.useAPI ? 'btn-purple' : 'btn-blue', () => {
-            decryptGame.useAPI = !decryptGame.useAPI;
-            apiButton.textContent = decryptGame.useAPI ? 'API Mode' : 'Local Mode';
-            apiButton.classList.toggle('btn-purple', decryptGame.useAPI);
-            apiButton.classList.toggle('btn-blue', !decryptGame.useAPI);
-            decryptGame.newGame();
-        });
-        buttonContainer.appendChild(apiButton);
-
+        // Removed the API toggle button
         buttonContainer.appendChild(createControlButton('Hint', 'btn-yellow', decryptGame.giveHint));
-        buttonContainer.appendChild(createControlButton('Source', 'btn-pink', decryptGame.giveSourceHint));
+        
         buttonContainer.appendChild(createControlButton('New Puzzle', 'btn-green', () => {
             decryptGame.cleanup();
             startGame(gameModes.decryptGame);
@@ -74,66 +65,7 @@ const decryptGame = {
         decryptGame.newGame();
     },
 
-    fetchQuote: async function() {
-        gameRules.textContent = 'Fetching new quote from API...';
-        try {
-            // Use the new API endpoint
-            const response = await fetch('https://thequoteshub.com/api/');
-            if (!response.ok) {
-                throw new Error(`Network response was not ok: ${response.statusText}`);
-            }
-            const data = await response.json();
-            
-            // **FIX:** Handle both object and array responses from the API
-            let quoteData;
-            if (Array.isArray(data) && data.length > 0) {
-                // Handle array response
-                quoteData = data[0];
-            } else if (data && typeof data === 'object' && data.quote) {
-                // Handle single object response
-                quoteData = data;
-            }
-
-            if (quoteData) {
-                decryptGame.currentQuote = quoteData.quote.toUpperCase();
-                decryptGame.currentSource = quoteData.author;
-                gameRules.textContent = `Source: ${decryptGame.currentSource}`;
-                
-                // Continue setting up the game with the new quote
-                decryptGame.cipherMap = decryptGame.generateCipherMap();
-                decryptGame.encryptedQuote = decryptGame.encrypt(decryptGame.currentQuote, decryptGame.cipherMap);
-                decryptGame.userMappings = {};
-                decryptGame.activeCipherChar = null;
-                decryptGame.isSolved = false;
-                gameStatus.textContent = '';
-                decryptGame.renderPuzzle();
-                setTimeout(() => {
-                    decryptGame.applyInitialHints();
-                    decryptGame.updatePuzzleDisplay();
-                    decryptGame.updateKeyboard();
-                    decryptGame.selectFirstOpenCell();
-                    decryptGame.updateScrollIndicator();
-                }, 10);
-            } else {
-                // If neither format matches, throw the error
-                throw new Error('API returned no quotes or an invalid format.');
-            }
-        } catch (error) {
-            console.error('Failed to fetch quote:', error);
-            alert('Could not fetch a quote from the API. This may be due to your network connection or the API service being temporarily down. Switching to local mode.');
-            
-            gameStatus.textContent = 'API fetch failed. Switched to local mode.';
-            decryptGame.useAPI = false; // Revert to local mode on failure
-            const apiButton = buttonContainer.querySelector('.btn-purple, .btn-blue');
-            if (apiButton) {
-                apiButton.textContent = 'Local Mode';
-                apiButton.classList.remove('btn-purple');
-                apiButton.classList.add('btn-blue');
-            }
-            // Load a local game as a fallback
-            setTimeout(decryptGame.newGame, 100);
-        }
-    },
+    // Removed the fetchQuote function
 
     cleanup: function() {
         document.getElementById('game-container').classList.remove('cryptogram-active');
@@ -144,11 +76,7 @@ const decryptGame = {
     },
 
     newGame: function() {
-        if (decryptGame.useAPI) {
-            decryptGame.fetchQuote();
-            return;
-        }
-
+        // Simplified to only use local puzzles
         if (decryptGame.availablePuzzles.length === 0) {
             decryptGame.availablePuzzles = utils.shuffleArray([...decryptGame.puzzles]);
         }
@@ -373,18 +301,6 @@ const decryptGame = {
 
     giveHint: function() {
         gameStatus.textContent = '';
-        if (decryptGame.useAPI) {
-            gameStatus.textContent = 'Hints are disabled for API quotes.';
-            return;
-        }
-
-        const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote);
-
-        if (puzzleInfo && puzzleInfo.notes && gameStatus.textContent.indexOf(puzzleInfo.notes) === -1) {
-            gameStatus.textContent = `Hint: ${puzzleInfo.notes}`;
-            return;
-        }
-
         const letterFrequencies = {};
         decryptGame.encryptedQuote.split('').forEach(char => {
             if (char.match(/[A-Z]/) && !decryptGame.userMappings[char]) {
@@ -393,18 +309,23 @@ const decryptGame = {
         });
         
         const unmappedChars = Object.keys(letterFrequencies);
-        if (unmappedChars.length === 0) {
-            gameStatus.textContent = "No more hints available!";
-            return;
+        if (unmappedChars.length > 0) {
+            const cipherToReveal = unmappedChars.sort((a, b) => letterFrequencies[b] - letterFrequencies[a])[0];
+            const invertedCipherMap = Object.fromEntries(Object.entries(decryptGame.cipherMap).map(([plain, cipher]) => [cipher, plain]));
+            
+            if (invertedCipherMap[cipherToReveal]) {
+                decryptGame.setUserMapping(cipherToReveal, invertedCipherMap[cipherToReveal]);
+                audioManager.playSound('positive', 'E5', '8n');
+                return;
+            }
         }
 
-        const cipherToReveal = unmappedChars.sort((a, b) => letterFrequencies[b] - letterFrequencies[a])[0];
-        
-        const invertedCipherMap = Object.fromEntries(Object.entries(decryptGame.cipherMap).map(([plain, cipher]) => [cipher, plain]));
-        
-        if (invertedCipherMap[cipherToReveal]) {
-            decryptGame.setUserMapping(cipherToReveal, invertedCipherMap[cipherToReveal]);
-            audioManager.playSound('positive', 'E5', '8n');
+        // If no unmapped characters, or if the above logic didn't reveal a character, try the notes hint
+        const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote);
+        if (puzzleInfo && puzzleInfo.notes) {
+            gameStatus.textContent = `Hint: ${puzzleInfo.notes}`;
+        } else {
+            gameStatus.textContent = "No more hints available!";
         }
     }
 };

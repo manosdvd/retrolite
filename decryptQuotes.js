@@ -1433,6 +1433,712 @@ const decryptQuotes = [
         title: "The Budweiser Greeting",
         source: "Budweiser Commercial",
         notes: "A simple greeting that became a massive pop culture phenomenon in the early 2000s."
+    },
+    {
+        id: 214,
+        quote: "LIFE ISNT ABOUT GETTING AND HAVING ITS ABOUT GIVING AND BEING",
+        title: "Inspirational Quote",
+        source: "Kevin Kruse",
+        notes: "A quote by Kevin Kruse."
+    },
+    {
+        id: 215,
+        quote: "WHATEVER THE MIND OF MAN CAN CONCEIVE AND BELIEVE IT CAN ACHIEVE",
+        title: "Inspirational Quote",
+        source: "Napoleon Hill",
+        notes: "A quote by Napoleon Hill."
+    },
+    {
+        id: 216,
+        quote: "STRIVE NOT TO BE A SUCCESS BUT RATHER TO BE OF VALUE",
+        title: "Inspirational Quote",
+        source: "Albert Einstein",
+        notes: "A quote by Albert Einstein."
+    },
+    {
+        id: 217,
+        quote: "TWO ROADS DIVERGED IN A WOOD AND I I TOOK THE ONE LESS TRAVELED BY AND THAT HAS MADE ALL THE DIFFERENCE",
+        title: "Inspirational Quote",
+        source: "Robert Frost",
+        notes: "A quote by Robert Frost."
+    },
+    {
+        id: 218,
+        quote: "I ATTRIBUTE MY SUCCESS TO THIS I NEVER GAVE OR TOOK ANY EXCUSE",
+        title: "Inspirational Quote",
+        source: "Florence Nightingale",
+        notes: "A quote by Florence Nightingale."
+    },
+    {
+        id: 219,
+        quote: "YOU MISS 100% OF THE SHOTS YOU DONT TAKE",
+        title: "Inspirational Quote",
+        source: "Wayne Gretzky",
+        notes: "A quote by Wayne Gretzky."
+    },
+    {
+        id: 221,
+        quote: "THE MOST DIFFICULT THING IS THE DECISION TO ACT THE REST IS MERELY TENACITY",
+        title: "Inspirational Quote",
+        source: "Amelia Earhart",
+        notes: "A quote by Amelia Earhart."
+    },
+    {
+        id: 222,
+        quote: "EVERY STRIKE BRINGS ME CLOSER TO THE NEXT HOME RUN",
+        title: "Inspirational Quote",
+        source: "Babe Ruth",
+        notes: "A quote by Babe Ruth."
+    },
+    {
+        id: 223,
+        quote: "DEFINITENESS OF PURPOSE IS THE STARTING POINT OF ALL ACHIEVEMENT",
+        title: "Inspirational Quote",
+        source: "W. Clement Stone",
+        notes: "A quote by W. Clement Stone."
+    },
+    {
+        id: 224,
+        quote: "WE MUST BALANCE CONSPICUOUS CONSUMPTION WITH CONSCIOUS CAPITALISM",
+        title: "Inspirational Quote",
+        source: "Kevin Kruse",
+        notes: "A quote by Kevin Kruse."
+    },
+    {
+        id: 225,
+        quote: "LIFE IS WHAT HAPPENS TO YOU WHILE YOURE BUSY MAKING OTHER PLANS",
+        title: "Inspirational Quote",
+        source: "John Lennon",
+        notes: "A quote by John Lennon."
+    },
+    {
+        id: 226,
+        quote: "WE BECOME WHAT WE THINK ABOUT",
+        title: "Inspirational Quote",
+        source: "Earl Nightingale",
+        notes: "A quote by Earl Nightingale."
+    },
+    {
+        id: 227,
+        quote: "TWENTY YEARS FROM NOW YOU WILL BE MORE DISAPPOINTED BY THE THINGS THAT YOU DIDNT DO THAN BY THE ONES YOU DID DO",
+        title: "Inspirational Quote",
+        source: "Mark Twain",
+        notes: "A quote by Mark Twain."
+    },
+    {
+        id: 228,
+        quote: "LIFE IS 10% WHAT HAPPENS TO ME AND 90% OF HOW I REACT TO IT",
+        title: "Inspirational Quote",
+        source: "Charles Swindoll",
+        notes: "A quote by Charles Swindoll."
+    },
+    {
+        id: 229,
+        quote: "THE MOST COMMON WAY PEOPLE GIVE UP THEIR POWER IS BY THINKING THEY DONT HAVE ANY",
+        title: "Inspirational Quote",
+        source: "Alice Walker",
+        notes: "A quote by Alice Walker."
+    },
+    {
+        id: 230,
+        quote: "THE MIND IS EVERYTHING WHAT YOU THINK YOU BECOME",
+        title: "Inspirational Quote",
+        source: "Buddha",
+        notes: "A quote by Buddha."
+    },
+    {
+        id: 231,
+        quote: "THE BEST TIME TO PLANT A TREE WAS 20 YEARS AGO THE SECOND BEST TIME IS NOW",
+        title: "Inspirational Quote",
+        source: "Chinese Proverb",
+        notes: "A quote by Chinese Proverb."
+    },
+    {
+        id: 232,
+        quote: "AN UNEXAMINED LIFE IS NOT WORTH LIVING",
+        title: "Inspirational Quote",
+        source: "Socrates",
+        notes: "A quote by Socrates."
+    },
+    {
+        id: 233,
+        quote: "EIGHTY PERCENT OF SUCCESS IS SHOWING UP",
+        title: "Inspirational Quote",
+        source: "Woody Allen",
+        notes: "A quote by Woody Allen."
+    },
+    {
+        id: 234,
+        quote: "YOUR TIME IS LIMITED SO DONT WASTE IT LIVING SOMEONE ELSES LIFE",
+        title: "Inspirational Quote",
+        source: "Steve Jobs",
+        notes: "A quote by Steve Jobs."
+    },
+    {
+        id: 235,
+        quote: "WINNING ISNT EVERYTHING BUT WANTING TO WIN IS",
+        title: "Inspirational Quote",
+        source: "Vince Lombardi",
+        notes: "A quote by Vince Lombardi."
+    },
+    {
+        id: 236,
+        quote: "I AM NOT A PRODUCT OF MY CIRCUMSTANCES I AM A PRODUCT OF MY DECISIONS",
+        title: "Inspirational Quote",
+        source: "Stephen Covey",
+        notes: "A quote by Stephen Covey."
+    },
+    {
+        id: 237,
+        quote: "EVERY CHILD IS AN ARTIST  THE PROBLEM IS HOW TO REMAIN AN ARTIST ONCE HE GROWS UP",
+        title: "Inspirational Quote",
+        source: "Pablo Picasso",
+        notes: "A quote by Pablo Picasso."
+    },
+    {
+        id: 238,
+        quote: "YOU CAN NEVER CROSS THE OCEAN UNTIL YOU HAVE THE COURAGE TO LOSE SIGHT OF THE SHORE",
+        title: "Inspirational Quote",
+        source: "Christopher Columbus",
+        notes: "A quote by Christopher Columbus."
+    },
+    {
+        id: 239,
+        quote: "IVE LEARNED THAT PEOPLE WILL FORGET WHAT YOU SAID PEOPLE WILL FORGET WHAT YOU DID BUT PEOPLE WILL NEVER FORGET HOW YOU MADE THEM FEEL",
+        title: "Inspirational Quote",
+        source: "Maya Angelou",
+        notes: "A quote by Maya Angelou."
+    },
+    {
+        id: 240,
+        quote: "EITHER YOU RUN THE DAY OR THE DAY RUNS YOU",
+        title: "Inspirational Quote",
+        source: "Jim Rohn",
+        notes: "A quote by Jim Rohn."
+    },
+    {
+        id: 241,
+        quote: "WHETHER YOU THINK YOU CAN OR YOU THINK YOU CANT YOURE RIGHT",
+        title: "Inspirational Quote",
+        source: "Henry Ford",
+        notes: "A quote by Henry Ford."
+    },
+    {
+        id: 242,
+        quote: "THE TWO MOST IMPORTANT DAYS IN YOUR LIFE ARE THE DAY YOU ARE BORN AND THE DAY YOU FIND OUT WHY",
+        title: "Inspirational Quote",
+        source: "Mark Twain",
+        notes: "A quote by Mark Twain."
+    },
+    {
+        id: 243,
+        quote: "WHATEVER YOU CAN DO OR DREAM YOU CAN BEGIN IT  BOLDNESS HAS GENIUS POWER AND MAGIC IN IT",
+        title: "Inspirational Quote",
+        source: "Johann Wolfgang von Goethe",
+        notes: "A quote by Johann Wolfgang von Goethe."
+    },
+    {
+        id: 244,
+        quote: "THE BEST REVENGE IS MASSIVE SUCCESS",
+        title: "Inspirational Quote",
+        source: "Frank Sinatra",
+        notes: "A quote by Frank Sinatra."
+    },
+    {
+        id: 245,
+        quote: "PEOPLE OFTEN SAY THAT MOTIVATION DOESNT LAST WELL NEITHER DOES BATHING  THATS WHY WE RECOMMEND IT DAILY",
+        title: "Inspirational Quote",
+        source: "Zig Ziglar",
+        notes: "A quote by Zig Ziglar."
+    },
+    {
+        id: 246,
+        quote: "LIFE SHRINKS OR EXPANDS IN PROPORTION TO ONES COURAGE",
+        title: "Inspirational Quote",
+        source: "Anais Nin",
+        notes: "A quote by Anais Nin."
+    },
+    {
+        id: 247,
+        quote: "IF YOU HEAR A VOICE WITHIN YOU SAY YOU CANNOT PAINT THEN BY ALL MEANS PAINT AND THAT VOICE WILL BE SILENCED",
+        title: "Inspirational Quote",
+        source: "Vincent Van Gogh",
+        notes: "A quote by Vincent Van Gogh."
+    },
+    {
+        id: 248,
+        quote: "THERE IS ONLY ONE WAY TO AVOID CRITICISM DO NOTHING SAY NOTHING AND BE NOTHING",
+        title: "Inspirational Quote",
+        source: "Aristotle",
+        notes: "A quote by Aristotle."
+    },
+    {
+        id: 249,
+        quote: "ASK AND IT WILL BE GIVEN TO YOU SEARCH AND YOU WILL FIND KNOCK AND THE DOOR WILL BE OPENED FOR YOU",
+        title: "Inspirational Quote",
+        source: "Jesus",
+        notes: "A quote by Jesus."
+    },
+    {
+        id: 250,
+        quote: "THE ONLY PERSON YOU ARE DESTINED TO BECOME IS THE PERSON YOU DECIDE TO BE",
+        title: "Inspirational Quote",
+        source: "Ralph Waldo Emerson",
+        notes: "A quote by Ralph Waldo Emerson."
+    },
+    {
+        id: 251,
+        quote: "GO CONFIDENTLY IN THE DIRECTION OF YOUR DREAMS  LIVE THE LIFE YOU HAVE IMAGINED",
+        title: "Inspirational Quote",
+        source: "Henry David Thoreau",
+        notes: "A quote by Henry David Thoreau."
+    },
+    {
+        id: 252,
+        quote: "WHEN I STAND BEFORE GOD AT THE END OF MY LIFE I WOULD HOPE THAT I WOULD NOT HAVE A SINGLE BIT OF TALENT LEFT AND COULD SAY I USED EVERYTHING YOU GAVE ME",
+        title: "Inspirational Quote",
+        source: "Erma Bombeck",
+        notes: "A quote by Erma Bombeck."
+    },
+    {
+        id: 253,
+        quote: "FEW THINGS CAN HELP AN INDIVIDUAL MORE THAN TO PLACE RESPONSIBILITY ON HIM AND TO LET HIM KNOW THAT YOU TRUST HIM",
+        title: "Inspirational Quote",
+        source: "Booker T. Washington",
+        notes: "A quote by Booker T. Washington."
+    },
+    {
+        id: 254,
+        quote: "CERTAIN THINGS CATCH YOUR EYE BUT PURSUE ONLY THOSE THAT CAPTURE THE HEART",
+        title: "Inspirational Quote",
+        source: " Ancient Indian Proverb",
+        notes: "A quote by  Ancient Indian Proverb."
+    },
+    {
+        id: 255,
+        quote: "BELIEVE YOU CAN AND YOURE HALFWAY THERE",
+        title: "Inspirational Quote",
+        source: "Theodore Roosevelt",
+        notes: "A quote by Theodore Roosevelt."
+    },
+    {
+        id: 256,
+        quote: "EVERYTHING YOUVE EVER WANTED IS ON THE OTHER SIDE OF FEAR",
+        title: "Inspirational Quote",
+        source: "George Addair",
+        notes: "A quote by George Addair."
+    },
+    {
+        id: 257,
+        quote: "WE CAN EASILY FORGIVE A CHILD WHO IS AFRAID OF THE DARK THE REAL TRAGEDY OF LIFE IS WHEN MEN ARE AFRAID OF THE LIGHT",
+        title: "Inspirational Quote",
+        source: "Plato",
+        notes: "A quote by Plato."
+    },
+    {
+        id: 258,
+        quote: "TEACH THY TONGUE TO SAY I DO NOT KNOW AND THOUS SHALT PROGRESS",
+        title: "Inspirational Quote",
+        source: "Maimonides",
+        notes: "A quote by Maimonides."
+    },
+    {
+        id: 259,
+        quote: "START WHERE YOU ARE USE WHAT YOU HAVE  DO WHAT YOU CAN",
+        title: "Inspirational Quote",
+        source: "Arthur Ashe",
+        notes: "A quote by Arthur Ashe."
+    },
+    {
+        id: 260,
+        quote: "WHEN I WAS 5 YEARS OLD MY MOTHER ALWAYS TOLD ME THAT HAPPINESS WAS THE KEY TO LIFE  WHEN I WENT TO SCHOOL THEY ASKED ME WHAT I WANTED TO BE WHEN I GREW UP  I WROTE DOWN HAPPY  THEY TOLD ME I DIDNT UNDERSTAND THE ASSIGNMENT AND I TOLD THEM THEY DIDNT UNDERSTAND LIFE",
+        title: "Inspirational Quote",
+        source: "John Lennon",
+        notes: "A quote by John Lennon."
+    },
+    {
+        id: 261,
+        quote: "FALL SEVEN TIMES AND STAND UP EIGHT",
+        title: "Inspirational Quote",
+        source: "Japanese Proverb",
+        notes: "A quote by Japanese Proverb."
+    },
+    {
+        id: 262,
+        quote: "WHEN ONE DOOR OF HAPPINESS CLOSES ANOTHER OPENS BUT OFTEN WE LOOK SO LONG AT THE CLOSED DOOR THAT WE DO NOT SEE THE ONE THAT HAS BEEN OPENED FOR US",
+        title: "Inspirational Quote",
+        source: "Helen Keller",
+        notes: "A quote by Helen Keller."
+    },
+    {
+        id: 263,
+        quote: "EVERYTHING HAS BEAUTY BUT NOT EVERYONE CAN SEE",
+        title: "Inspirational Quote",
+        source: "Confucius",
+        notes: "A quote by Confucius."
+    },
+    {
+        id: 264,
+        quote: "HOW WONDERFUL IT IS THAT NOBODY NEED WAIT A SINGLE MOMENT BEFORE STARTING TO IMPROVE THE WORLD",
+        title: "Inspirational Quote",
+        source: "Anne Frank",
+        notes: "A quote by Anne Frank."
+    },
+    {
+        id: 265,
+        quote: "WHEN I LET GO OF WHAT I AM I BECOME WHAT I MIGHT BE",
+        title: "Inspirational Quote",
+        source: "Lao Tzu",
+        notes: "A quote by Lao Tzu."
+    },
+    {
+        id: 266,
+        quote: "LIFE IS NOT MEASURED BY THE NUMBER OF BREATHS WE TAKE BUT BY THE MOMENTS THAT TAKE OUR BREATH AWAY",
+        title: "Inspirational Quote",
+        source: "Maya Angelou",
+        notes: "A quote by Maya Angelou."
+    },
+    {
+        id: 267,
+        quote: "HAPPINESS IS NOT SOMETHING READYMADE  IT COMES FROM YOUR OWN ACTIONS",
+        title: "Inspirational Quote",
+        source: "Dalai Lama",
+        notes: "A quote by Dalai Lama."
+    },
+    {
+        id: 268,
+        quote: "IF YOURE OFFERED A SEAT ON A ROCKET SHIP DONT ASK WHAT SEAT JUST GET ON",
+        title: "Inspirational Quote",
+        source: "Sheryl Sandberg",
+        notes: "A quote by Sheryl Sandberg."
+    },
+    {
+        id: 269,
+        quote: "FIRST HAVE A DEFINITE CLEAR PRACTICAL IDEAL A GOAL AN OBJECTIVE SECOND HAVE THE NECESSARY MEANS TO ACHIEVE YOUR ENDS WISDOM MONEY MATERIALS AND METHODS THIRD ADJUST ALL YOUR MEANS TO THAT END",
+        title: "Inspirational Quote",
+        source: "Aristotle",
+        notes: "A quote by Aristotle."
+    },
+    {
+        id: 270,
+        quote: "IF THE WIND WILL NOT SERVE TAKE TO THE OARS",
+        title: "Inspirational Quote",
+        source: "Latin Proverb",
+        notes: "A quote by Latin Proverb."
+    },
+    {
+        id: 271,
+        quote: "YOU CANT FALL IF YOU DONT CLIMB  BUT THERES NO JOY IN LIVING YOUR WHOLE LIFE ON THE GROUND",
+        title: "Inspirational Quote",
+        source: "Unknown",
+        notes: "A quote by Unknown."
+    },
+    {
+        id: 272,
+        quote: "WE MUST BELIEVE THAT WE ARE GIFTED FOR SOMETHING AND THAT THIS THING AT WHATEVER COST MUST BE ATTAINED",
+        title: "Inspirational Quote",
+        source: "Marie Curie",
+        notes: "A quote by Marie Curie."
+    },
+    {
+        id: 273,
+        quote: "TOO MANY OF US ARE NOT LIVING OUR DREAMS BECAUSE WE ARE LIVING OUR FEARS",
+        title: "Inspirational Quote",
+        source: "Les Brown",
+        notes: "A quote by Les Brown."
+    },
+    {
+        id: 274,
+        quote: "CHALLENGES ARE WHAT MAKE LIFE INTERESTING AND OVERCOMING THEM IS WHAT MAKES LIFE MEANINGFUL",
+        title: "Inspirational Quote",
+        source: "Joshua J. Marine",
+        notes: "A quote by Joshua J. Marine."
+    },
+    {
+        id: 275,
+        quote: "IF YOU WANT TO LIFT YOURSELF UP LIFT UP SOMEONE ELSE",
+        title: "Inspirational Quote",
+        source: "Booker T. Washington",
+        notes: "A quote by Booker T. Washington."
+    },
+    {
+        id: 276,
+        quote: "I HAVE BEEN IMPRESSED WITH THE URGENCY OF DOING KNOWING IS NOT ENOUGH WE MUST APPLY BEING WILLING IS NOT ENOUGH WE MUST DO",
+        title: "Inspirational Quote",
+        source: "Leonardo da Vinci",
+        notes: "A quote by Leonardo da Vinci."
+    },
+    {
+        id: 277,
+        quote: "LIMITATIONS LIVE ONLY IN OUR MINDS  BUT IF WE USE OUR IMAGINATIONS OUR POSSIBILITIES BECOME LIMITLESS",
+        title: "Inspirational Quote",
+        source: "Jamie Paolinetti",
+        notes: "A quote by Jamie Paolinetti."
+    },
+    {
+        id: 278,
+        quote: "YOU TAKE YOUR LIFE IN YOUR OWN HANDS AND WHAT HAPPENS A TERRIBLE THING NO ONE TO BLAME",
+        title: "Inspirational Quote",
+        source: "Erica Jong",
+        notes: "A quote by Erica Jong."
+    },
+    {
+        id: 279,
+        quote: "WHATS MONEY A MAN IS A SUCCESS IF HE GETS UP IN THE MORNING AND GOES TO BED AT NIGHT AND IN BETWEEN DOES WHAT HE WANTS TO DO",
+        title: "Inspirational Quote",
+        source: "Bob Dylan",
+        notes: "A quote by Bob Dylan."
+    },
+    {
+        id: 280,
+        quote: "I DIDNT FAIL THE TEST I JUST FOUND 100 WAYS TO DO IT WRONG",
+        title: "Inspirational Quote",
+        source: "Benjamin Franklin",
+        notes: "A quote by Benjamin Franklin."
+    },
+    {
+        id: 281,
+        quote: "IN ORDER TO SUCCEED YOUR DESIRE FOR SUCCESS SHOULD BE GREATER THAN YOUR FEAR OF FAILURE",
+        title: "Inspirational Quote",
+        source: "Bill Cosby",
+        notes: "A quote by Bill Cosby."
+    },
+    {
+        id: 282,
+        quote: "A PERSON WHO NEVER MADE A MISTAKE NEVER TRIED ANYTHING NEW",
+        title: "Inspirational Quote",
+        source: " Albert Einstein",
+        notes: "A quote by  Albert Einstein."
+    },
+    {
+        id: 283,
+        quote: "THE PERSON WHO SAYS IT CANNOT BE DONE SHOULD NOT INTERRUPT THE PERSON WHO IS DOING IT",
+        title: "Inspirational Quote",
+        source: "Chinese Proverb",
+        notes: "A quote by Chinese Proverb."
+    },
+    {
+        id: 284,
+        quote: "THERE ARE NO TRAFFIC JAMS ALONG THE EXTRA MILE",
+        title: "Inspirational Quote",
+        source: "Roger Staubach",
+        notes: "A quote by Roger Staubach."
+    },
+    {
+        id: 285,
+        quote: "IT IS NEVER TOO LATE TO BE WHAT YOU MIGHT HAVE BEEN",
+        title: "Inspirational Quote",
+        source: "George Eliot",
+        notes: "A quote by George Eliot."
+    },
+    {
+        id: 286,
+        quote: "YOU BECOME WHAT YOU BELIEVE",
+        title: "Inspirational Quote",
+        source: "Oprah Winfrey",
+        notes: "A quote by Oprah Winfrey."
+    },
+    {
+        id: 287,
+        quote: "I WOULD RATHER DIE OF PASSION THAN OF BOREDOM",
+        title: "Inspirational Quote",
+        source: "Vincent van Gogh",
+        notes: "A quote by Vincent van Gogh."
+    },
+    {
+        id: 288,
+        quote: "A TRULY RICH MAN IS ONE WHOSE CHILDREN RUN INTO HIS ARMS WHEN HIS HANDS ARE EMPTY",
+        title: "Inspirational Quote",
+        source: "Unknown",
+        notes: "A quote by Unknown."
+    },
+    {
+        id: 289,
+        quote: "IT IS NOT WHAT YOU DO FOR YOUR CHILDREN BUT WHAT YOU HAVE TAUGHT THEM TO DO FOR THEMSELVES THAT WILL MAKE THEM SUCCESSFUL HUMAN BEINGS",
+        title: "Inspirational Quote",
+        source: "Ann Landers",
+        notes: "A quote by Ann Landers."
+    },
+    {
+        id: 290,
+        quote: "IF YOU WANT YOUR CHILDREN TO TURN OUT WELL SPEND TWICE AS MUCH TIME WITH THEM AND HALF AS MUCH MONEY",
+        title: "Inspirational Quote",
+        source: "Abigail Van Buren",
+        notes: "A quote by Abigail Van Buren."
+    },
+    {
+        id: 291,
+        quote: "BUILD YOUR OWN DREAMS OR SOMEONE ELSE WILL HIRE YOU TO BUILD THEIRS",
+        title: "Inspirational Quote",
+        source: "Farrah Gray",
+        notes: "A quote by Farrah Gray."
+    },
+    {
+        id: 292,
+        quote: "THE BATTLES THAT COUNT ARENT THE ONES FOR GOLD MEDALS THE STRUGGLES WITHIN YOURSELF–THE INVISIBLE BATTLES INSIDE ALL OF US–THATS WHERE ITS AT",
+        title: "Inspirational Quote",
+        source: "Jesse Owens",
+        notes: "A quote by Jesse Owens."
+    },
+    {
+        id: 293,
+        quote: "EDUCATION COSTS MONEY  BUT THEN SO DOES IGNORANCE",
+        title: "Inspirational Quote",
+        source: "Sir Claus Moser",
+        notes: "A quote by Sir Claus Moser."
+    },
+    {
+        id: 294,
+        quote: "I HAVE LEARNED OVER THE YEARS THAT WHEN ONES MIND IS MADE UP THIS DIMINISHES FEAR",
+        title: "Inspirational Quote",
+        source: "Rosa Parks",
+        notes: "A quote by Rosa Parks."
+    },
+    {
+        id: 295,
+        quote: "IT DOES NOT MATTER HOW SLOWLY YOU GO AS LONG AS YOU DO NOT STOP",
+        title: "Inspirational Quote",
+        source: "Confucius",
+        notes: "A quote by Confucius."
+    },
+    {
+        id: 296,
+        quote: "IF YOU LOOK AT WHAT YOU HAVE IN LIFE YOULL ALWAYS HAVE MORE IF YOU LOOK AT WHAT YOU DONT HAVE IN LIFE YOULL NEVER HAVE ENOUGH",
+        title: "Inspirational Quote",
+        source: "Oprah Winfrey",
+        notes: "A quote by Oprah Winfrey."
+    },
+    {
+        id: 297,
+        quote: "REMEMBER THAT NOT GETTING WHAT YOU WANT IS SOMETIMES A WONDERFUL STROKE OF LUCK",
+        title: "Inspirational Quote",
+        source: "Dalai Lama",
+        notes: "A quote by Dalai Lama."
+    },
+    {
+        id: 298,
+        quote: "YOU CANT USE UP CREATIVITY  THE MORE YOU USE THE MORE YOU HAVE",
+        title: "Inspirational Quote",
+        source: "Maya Angelou",
+        notes: "A quote by Maya Angelou."
+    },
+    {
+        id: 299,
+        quote: "DREAM BIG AND DARE TO FAIL",
+        title: "Inspirational Quote",
+        source: "Norman Vaughan",
+        notes: "A quote by Norman Vaughan."
+    },
+    {
+        id: 300,
+        quote: "OUR LIVES BEGIN TO END THE DAY WE BECOME SILENT ABOUT THINGS THAT MATTER",
+        title: "Inspirational Quote",
+        source: "Martin Luther King Jr.",
+        notes: "A quote by Martin Luther King Jr."
+    },
+    {
+        id: 301,
+        quote: "DO WHAT YOU CAN WHERE YOU ARE WITH WHAT YOU HAVE",
+        title: "Inspirational Quote",
+        source: "Teddy Roosevelt",
+        notes: "A quote by Teddy Roosevelt."
+    },
+    {
+        id: 302,
+        quote: "IF YOU DO WHAT YOUVE ALWAYS DONE YOULL GET WHAT YOUVE ALWAYS GOTTEN",
+        title: "Inspirational Quote",
+        source: "Tony Robbins",
+        notes: "A quote by Tony Robbins."
+    },
+    {
+        id: 303,
+        quote: "DREAMING AFTER ALL IS A FORM OF PLANNING",
+        title: "Inspirational Quote",
+        source: "Gloria Steinem",
+        notes: "A quote by Gloria Steinem."
+    },
+    {
+        id: 304,
+        quote: "ITS YOUR PLACE IN THE WORLD ITS YOUR LIFE GO ON AND DO ALL YOU CAN WITH IT AND MAKE IT THE LIFE YOU WANT TO LIVE",
+        title: "Inspirational Quote",
+        source: "Mae Jemison",
+        notes: "A quote by Mae Jemison."
+    },
+    {
+        id: 305,
+        quote: "YOU MAY BE DISAPPOINTED IF YOU FAIL BUT YOU ARE DOOMED IF YOU DONT TRY",
+        title: "Inspirational Quote",
+        source: "Beverly Sills",
+        notes: "A quote by Beverly Sills."
+    },
+    {
+        id: 306,
+        quote: "REMEMBER NO ONE CAN MAKE YOU FEEL INFERIOR WITHOUT YOUR CONSENT",
+        title: "Inspirational Quote",
+        source: "Eleanor Roosevelt",
+        notes: "A quote by Eleanor Roosevelt."
+    },
+    {
+        id: 307,
+        quote: "LIFE IS WHAT WE MAKE IT ALWAYS HAS BEEN ALWAYS WILL BE",
+        title: "Inspirational Quote",
+        source: "Grandma Moses",
+        notes: "A quote by Grandma Moses."
+    },
+    {
+        id: 308,
+        quote: "THE QUESTION ISNT WHO IS GOING TO LET ME ITS WHO IS GOING TO STOP ME",
+        title: "Inspirational Quote",
+        source: "Ayn Rand",
+        notes: "A quote by Ayn Rand."
+    },
+    {
+        id: 309,
+        quote: "WHEN EVERYTHING SEEMS TO BE GOING AGAINST YOU REMEMBER THAT THE AIRPLANE TAKES OFF AGAINST THE WIND NOT WITH IT",
+        title: "Inspirational Quote",
+        source: "Henry Ford",
+        notes: "A quote by Henry Ford."
+    },
+    {
+        id: 310,
+        quote: "ITS NOT THE YEARS IN YOUR LIFE THAT COUNT ITS THE LIFE IN YOUR YEARS",
+        title: "Inspirational Quote",
+        source: "Abraham Lincoln",
+        notes: "A quote by Abraham Lincoln."
+    },
+    {
+        id: 311,
+        quote: "CHANGE YOUR THOUGHTS AND YOU CHANGE YOUR WORLD",
+        title: "Inspirational Quote",
+        source: "Norman Vincent Peale",
+        notes: "A quote by Norman Vincent Peale."
+    },
+    {
+        id: 312,
+        quote: "EITHER WRITE SOMETHING WORTH READING OR DO SOMETHING WORTH WRITING",
+        title: "Inspirational Quote",
+        source: "Benjamin Franklin",
+        notes: "A quote by Benjamin Franklin."
+    },
+    {
+        id: 313,
+        quote: "NOTHING IS IMPOSSIBLE THE WORD ITSELF SAYS IM POSSIBLE",
+        title: "Inspirational Quote",
+        source: "–Audrey Hepburn",
+        notes: "A quote by –Audrey Hepburn."
+    },
+    {
+        id: 314,
+        quote: "THE ONLY WAY TO DO GREAT WORK IS TO LOVE WHAT YOU DO",
+        title: "Inspirational Quote",
+        source: "Steve Jobs",
+        notes: "A quote by Steve Jobs."
+    },
+    {
+        id: 315,
+        quote: "IF YOU CAN DREAM IT YOU CAN ACHIEVE IT",
+        title: "Inspirational Quote",
+        source: "Zig Ziglar",
+        notes: "A quote by Zig Ziglar."
     }
-];
-
+]

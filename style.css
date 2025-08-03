@@ -318,6 +318,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     padding: 1rem;
     line-height: 1.5;
     font-family: 'VT323', monospace;
+    justify-content: center; /* Center the words horizontally */
 }
 
 .cryptogram-word {
