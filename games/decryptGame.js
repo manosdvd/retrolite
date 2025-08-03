@@ -4,10 +4,12 @@ const decryptGame = {
     keyboardContainer: null,
     controller: null,
     availablePuzzles: [], // Holds the list of puzzles for the current cycle
+    useAPI: false, // Flag to determine quote source
 
     // Game State
     puzzles: decryptQuotes,
     currentQuote: '',
+    currentSource: '',
     cipherMap: {},
     encryptedQuote: '',
     userMappings: {},
@@ -23,6 +25,7 @@ const decryptGame = {
         gameBoard.innerHTML = '';
         keyboardContainer.innerHTML = '';
         gameTitle.textContent = 'CIPHER';
+        // This initial text will be overwritten by newGame()
         gameRules.textContent = 'Decode the quote. Click a cell to select a letter.';
         document.getElementById('game-container').classList.add('cryptogram-active');
         document.getElementById('game-board-wrapper').classList.add('scroll-indicator-wrapper');
@@ -48,12 +51,22 @@ const decryptGame = {
             }
         });
 
-        buttonContainer.appendChild(createControlButton('Hint', 'btn-blue', decryptGame.giveHint));
+        const apiButton = createControlButton(decryptGame.useAPI ? 'API Mode' : 'Local Mode', decryptGame.useAPI ? 'btn-purple' : 'btn-blue', () => {
+            decryptGame.useAPI = !decryptGame.useAPI;
+            apiButton.textContent = decryptGame.useAPI ? 'API Mode' : 'Local Mode';
+            apiButton.classList.toggle('btn-purple', decryptGame.useAPI);
+            apiButton.classList.toggle('btn-blue', !decryptGame.useAPI);
+            decryptGame.newGame();
+        });
+        buttonContainer.appendChild(apiButton);
+
+        buttonContainer.appendChild(createControlButton('Hint', 'btn-yellow', decryptGame.giveHint));
         buttonContainer.appendChild(createControlButton('Source', 'btn-pink', decryptGame.giveSourceHint));
         buttonContainer.appendChild(createControlButton('New Puzzle', 'btn-green', () => {
             decryptGame.cleanup();
             startGame(gameModes.decryptGame);
         }, 'refresh'));
+
 
         decryptGame.puzzleContainer.addEventListener('click', decryptGame.handleInputClick, { signal });
         window.addEventListener('keydown', decryptGame.handlePhysicalKeyboard, { signal });
@@ -62,7 +75,53 @@ const decryptGame = {
         decryptGame.newGame();
     },
 
+    fetchQuote: async function() {
+        gameRules.textContent = 'Fetching new quote from API...';
+        try {
+            const response = await fetch('https://api.quotable.io/random');
+            if (!response.ok) {
+                // This handles errors from the API, like '404 Not Found' or '500 Server Error'
+                throw new Error(`Network response was not ok: ${response.statusText}`);
+            }
+            const data = await response.json();
+            decryptGame.currentQuote = data.content.toUpperCase();
+            decryptGame.currentSource = data.author;
+            gameRules.textContent = `Source: ${decryptGame.currentSource}`;
+            decryptGame.cipherMap = decryptGame.generateCipherMap();
+            decryptGame.encryptedQuote = decryptGame.encrypt(decryptGame.currentQuote, decryptGame.cipherMap);
+            decryptGame.userMappings = {};
+            decryptGame.activeCipherChar = null;
+            decryptGame.isSolved = false;
+            gameStatus.textContent = '';
+            decryptGame.renderPuzzle();
+            setTimeout(() => {
+                decryptGame.applyInitialHints();
+                decryptGame.updatePuzzleDisplay();
+                decryptGame.updateKeyboard();
+                decryptGame.selectFirstOpenCell();
+                decryptGame.updateScrollIndicator();
+            }, 10);
+        } catch (error) {
+            // This catches network failures (offline) or the error thrown above
+            console.error('Failed to fetch quote:', error);
+            // Provide a clear, direct alert to the user
+            alert('Could not fetch a quote from the API. This may be due to your network connection or the API service being temporarily down. Switching to local mode.');
+            
+            gameStatus.textContent = 'API fetch failed. Switched to local mode.';
+            decryptGame.useAPI = false; // Revert to local mode on failure
+            const apiButton = buttonContainer.querySelector('.btn-purple, .btn-blue');
+            if (apiButton) {
+                apiButton.textContent = 'Local Mode';
+                apiButton.classList.remove('btn-purple');
+                apiButton.classList.add('btn-blue');
+            }
+            // Load a local game as a fallback
+            setTimeout(decryptGame.newGame, 100);
+        }
+    },
+
     cleanup: function() {
+        document.getElementById('game-container').classList.remove('cryptogram-active');
         document.getElementById('game-board-wrapper').classList.remove('scroll-indicator-wrapper', 'has-overflow');
         if (decryptGame.controller) {
             decryptGame.controller.abort();
@@ -70,23 +129,27 @@ const decryptGame = {
     },
 
     newGame: function() {
-        // If the list of available puzzles is empty, refill and shuffle it.
-        // This ensures each puzzle is seen once before any repeats occur.
+        if (decryptGame.useAPI) {
+            decryptGame.fetchQuote();
+            return;
+        }
+
         if (decryptGame.availablePuzzles.length === 0) {
-            // The 'utils' object with shuffleArray is in main.js
             decryptGame.availablePuzzles = utils.shuffleArray([...decryptGame.puzzles]);
         }
         
-        // Pull the next unique puzzle from the shuffled list.
         const puzzleInfo = decryptGame.availablePuzzles.pop();
 
-        decryptGame.currentQuote = puzzleInfo.quote.toUpperCase();
+        decryptGame.currentQuote = puzzleInfo.quote.toUpperCase(); //
+        decryptGame.currentSource = puzzleInfo.source; //
+        // Display the source by default
+        gameRules.textContent = `Source: ${decryptGame.currentSource}`; //
         decryptGame.cipherMap = decryptGame.generateCipherMap();
         decryptGame.encryptedQuote = decryptGame.encrypt(decryptGame.currentQuote, decryptGame.cipherMap);
         decryptGame.userMappings = {};
         decryptGame.activeCipherChar = null;
         decryptGame.isSolved = false;
-        
+
         gameStatus.textContent = '';
 
         decryptGame.renderPuzzle();
@@ -268,12 +331,16 @@ const decryptGame = {
         if (decryptedQuote === decryptGame.currentQuote) {
             decryptGame.isSolved = true;
             decryptGame.setActiveCipherChar(null);
+            
             const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote);
-            const title = puzzleInfo ? puzzleInfo.title : "You Cracked the Code!";
+            const title = puzzleInfo ? puzzleInfo.title : "You Cracked the Code!"; //
             let message = `<p class="mb-2">The quote was:</p><p class="font-bold" style="color: var(--md-sys-color-primary);">"${decryptGame.currentQuote}"</p>`;
-            if (puzzleInfo && puzzleInfo.source) message += `<p class="mt-4 text-sm">Source: ${puzzleInfo.source}</p>`;
+            
+            if (decryptGame.currentSource) {
+                 message += `<p class="mt-4 text-sm">Source: ${decryptGame.currentSource}</p>`;
+            }
 
-            gameRules.textContent = "Congratulations! You solved it!";
+            gameStatus.textContent = "Congratulations! You solved it!";
             showWinModal(title, message);
 
             document.querySelectorAll('.cryptogram-cell[data-cipher]').forEach(cell => cell.classList.add('correct'));
@@ -283,20 +350,24 @@ const decryptGame = {
     },
 
     giveSourceHint: function() {
-        const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote);
-        if (puzzleInfo && puzzleInfo.source) {
-            gameStatus.textContent = `Source: ${puzzleInfo.source}`;
+        if (decryptGame.currentSource) {
+            gameStatus.textContent = `Source: ${decryptGame.currentSource}`;
         } else {
             gameStatus.textContent = "No source information is available.";
         }
     },
 
     giveHint: function() {
-        gameRules.textContent = '';
-        const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote);
+        gameStatus.textContent = '';
+        if (decryptGame.useAPI) {
+            gameStatus.textContent = 'Hints are disabled for API quotes.';
+            return;
+        }
 
-        if (puzzleInfo && puzzleInfo.notes && gameStatus.textContent.indexOf(puzzleInfo.notes) === -1) {
-            gameStatus.textContent = `Hint: ${puzzleInfo.notes}`;
+        const puzzleInfo = decryptGame.puzzles.find(p => p.quote.toUpperCase() === decryptGame.currentQuote); //
+
+        if (puzzleInfo && puzzleInfo.notes && gameStatus.textContent.indexOf(puzzleInfo.notes) === -1) { //
+            gameStatus.textContent = `Hint: ${puzzleInfo.notes}`; //
             return;
         }
 
@@ -309,7 +380,7 @@ const decryptGame = {
         
         const unmappedChars = Object.keys(letterFrequencies);
         if (unmappedChars.length === 0) {
-            gameRules.textContent = "No more hints available!";
+            gameStatus.textContent = "No more hints available!";
             return;
         }
 

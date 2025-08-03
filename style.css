@@ -292,6 +292,25 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 /* Cryptogram (Unmask) Styles          */
 /* =================================== */
 
+#game-container.cryptogram-active {
+    display: flex;
+    flex-direction: column;
+    height: calc(100vh - 1rem); /* Full viewport height minus some padding */
+    max-height: -webkit-fill-available;
+}
+
+#game-container.cryptogram-active #game-board-wrapper {
+    flex-grow: 1; /* Allows the puzzle area to take up available space */
+    overflow-y: auto; /* Enables scrolling for the puzzle */
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 1rem;
+}
+
+#game-container.cryptogram-active #game-controls,
+#game-container.cryptogram-active #keyboard-container {
+    flex-shrink: 0; /* Prevents the controls and keyboard from shrinking */
+}
+
 .cryptogram-puzzle-container {
     display: flex;
     flex-wrap: wrap;
