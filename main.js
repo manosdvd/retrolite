@@ -81,7 +81,7 @@ const gameModes = {
     },
     anxietyLevelUp: {
         name: 'anxietyLevelUp',
-        title: 'LEVEL UP',
+        title: 'Anxiety 2',
         rules: 'Match 3+ colors. Don\'t let the grid fill up!',
         setup: anxietyLevelUpGame.setup.bind(anxietyLevelUpGame),
         handler: null, // Game has its own internal handler
@@ -91,7 +91,7 @@ const gameModes = {
     },
     wordFall: {
         name: 'wordFall',
-        title: 'WORD FALL',
+        title: 'Dyslexia',
         rules: 'Find words of 3+ letters to score points.',
         setup: wordFallGame.setup.bind(wordFallGame),
         handler: null, // Game has its own internal handler

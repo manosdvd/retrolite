@@ -14,7 +14,7 @@ const anxietyLevelUpGame = {
                 <div id="game-container-anxiety" class="game-container p-4 md:p-6 flex flex-col">
                     <div class="flex justify-between items-center mb-4">
                         <div class="flex items-baseline space-x-4">
-                             <h1 class="font-bold text-2xl md:text-3xl tracking-widest text-white">LEVEL UP</h1>
+                             <h1 class="font-bold text-2xl md:text-3xl tracking-widest text-white">ANXIETY 2</h1>
                              <div>
                                 <span class="font-semibold text-lg">LVL:</span>
                                 <span id="level" class="font-bold text-blue-300 text-lg">1</span>

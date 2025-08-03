@@ -15,7 +15,7 @@ const wordFallGame = {
                     <!-- Header -->
                     <div class="flex justify-between items-center mb-4">
                         <div class="flex items-baseline space-x-4">
-                             <h1 class="font-bold text-xl md:text-2xl tracking-widest text-white">WORD FALL</h1>
+                             <h1 class="font-bold text-xl md:text-2xl tracking-widest text-white">DYSLEXIA</h1>
                              <div>
                                 <span class="font-semibold text-lg">LVL:</span>
                                 <span id="level" class="font-bold text-blue-300 text-lg">1</span>
@@ -70,7 +70,7 @@ const wordFallGame = {
             </div>
             <div id="start-modal" class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4 modal">
                 <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-blue-500 max-w-lg">
-                    <h2 class="text-4xl md:text-5xl font-bold text-blue-400 mb-4 tracking-widest">WORD FALL</h2>
+                    <h2 class="text-4xl md:text-5xl font-bold text-blue-400 mb-4 tracking-widest">DYSLEXIA</h2>
                     <p class="text-lg mb-6 text-gray-300">Choose your game mode. Find words of 3+ letters to score points. Don't let the grid fill up!</p>
                     
                     <div class="flex justify-center gap-4 mb-6">
@@ -119,8 +119,8 @@ const wordFallGame = {
         };
         const SCRABBLE_TILE_DISTRIBUTION = "AAAAAAAAABBCCDDDDEEEEEEEEEEEEFFGGGHHIIIIIIIIIJKLLLLMMNNNNNNOOOOOOOOPPQRRRRRRSSSSTTTTTTUUUUVVWWXYYZ".split('');
 
-        // --- Word List (Partial, from original file) ---
-        const wordList = new Set(['ace', 'act', 'add', 'age', 'ago', 'aid', 'aim', 'air', 'all', 'and', 'any', 'ape', 'app', 'apt', 'arc', 'are', 'ark', 'arm', 'art', 'ash', 'ask', 'ate', 'awe', 'axe', 'bad', 'bag', 'ban', 'bar', 'bat', 'bay', 'bed', 'bee', 'beg', 'bet', 'bid', 'big', 'bin', 'bit', 'boa', 'bog', 'boo', 'bow', 'box', 'boy', 'bud', 'bug', 'bun', 'bus', 'but', 'buy', 'bye', 'cab', 'cad', 'cam', 'can', 'cap', 'car', 'cat', 'cod', 'cog', 'con', 'coo', 'cop', 'cot', 'cow', 'coy', 'cry', 'cub', 'cud', 'cup', 'cut', 'dab', 'dad', 'dam', 'day', 'den', 'dew', 'did', 'die', 'dig', 'dim', 'din', 'dip', 'doc', 'doe', 'dog', 'don', 'dot', 'dry', 'dub', 'dud', 'due', 'dug', 'dun', 'duo', 'dye', 'ear', 'eat', 'ebb', 'eel', 'egg', 'ego', 'elf', 'elk', 'end', 'eon', 'era', 'erg', 'eta', 'eve', 'eye', 'fad', 'fag', 'fan', 'far', 'fat', 'fax', 'fay', 'fed', 'fee', 'fen', 'few', 'fey', 'fez', 'fib', 'fig', 'fin', 'fir', 'fit', 'fix', 'flu', 'fly', 'fob', 'foe', 'fog', 'fop', 'for', 'fox', 'fry', 'fun', 'fur', 'gag', 'gal', 'gap', 'gas', 'gay', 'gel', 'gem', 'get', 'gig', 'gin', 'god', 'goo', 'got', 'gum', 'gun', 'gut', 'guy', 'gym', 'had', 'hag', 'ham', 'has', 'hat', 'hay', 'hem', 'hen', 'her', 'hew', 'hex', 'hey', 'hid', 'him', 'hip', 'his', 'hit', 'hob', 'hod', 'hoe', 'hog', 'hop', 'hot', 'how', 'hub', 'hug', 'huh', 'hum', 'hun', 'hut', 'ice', 'icy', 'ill', 'imp', 'ink', 'inn', 'ion', 'ire', 'irk', 'its', 'ivy', 'jab', 'jag', 'jam', 'jar', 'jaw', 'jay', 'jet', 'jew', 'jig', 'job', 'jog', 'jot', 'joy', 'jug', 'jut', 'keg', 'ken', 'key', 'kid', 'kin', 'kit', 'lab', 'lad', 'lag', 'lam', 'lap', 'law', 'lay', 'lea', 'led', 'lee', 'leg', 'let', 'lid', 'lie', 'lip', 'lit', 'log', 'loo', 'lop', 'lot', 'low', 'lug', 'mac', 'mad', 'mag', 'man', 'map', 'mar', 'mas', 'mat', 'maw', 'may', 'men', 'met', 'mew', 'mid', 'mix', 'mob', 'mod', 'moo', 'mop', 'mow', 'mud', 'mug', 'mum', 'nab', 'nag', 'nap', 'nay', 'net', 'new', 'nib', 'nil', 'nip', 'nit', 'nix', 'nob', 'nod', 'nor', 'not']);
+        // --- Word List (from dyslexiaWords.js) ---
+        const wordList = new Set(dyslexiaWords);
 
         // --- DOM Elements ---
         const gridElement = document.getElementById('grid');
