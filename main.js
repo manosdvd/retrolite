@@ -78,6 +78,26 @@ const gameModes = {
         color: '#673ab7', 
         shadow: '#9575cd', 
         cleanup: musicStudioGame.cleanup.bind(musicStudioGame) 
+    },
+    anxietyLevelUp: {
+        name: 'anxietyLevelUp',
+        title: 'LEVEL UP',
+        rules: 'Match 3+ colors. Don\'t let the grid fill up!',
+        setup: anxietyLevelUpGame.setup.bind(anxietyLevelUpGame),
+        handler: null, // Game has its own internal handler
+        cleanup: anxietyLevelUpGame.cleanup.bind(anxietyLevelUpGame),
+        color: '#ff3860',
+        shadow: '#ff6b81'
+    },
+    wordFall: {
+        name: 'wordFall',
+        title: 'WORD FALL',
+        rules: 'Find words of 3+ letters to score points.',
+        setup: wordFallGame.setup.bind(wordFallGame),
+        handler: null, // Game has its own internal handler
+        cleanup: wordFallGame.cleanup.bind(wordFallGame),
+        color: '#4f46e5',
+        shadow: '#a5b4fc'
     }
 };
 
@@ -186,7 +206,8 @@ window.startGame = function(mode) {
     gameBoard.id = 'game-board';
     gameBoardWrapper.appendChild(gameBoard);
 
-    if (mode.name !== 'musicStudio' && mode.name !== 'anxiety') {
+    const selfContainedGames = ['musicStudio', 'anxiety', 'anxietyLevelUp', 'wordFall'];
+    if (!selfContainedGames.includes(mode.name)) {
         gameBoard.className = 'game-grid mb-2';
         if (mode.gridSize || (mode.gridRows && mode.gridCols)) {
             const rows = mode.gridRows || mode.gridSize;

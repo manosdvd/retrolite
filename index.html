@@ -37,6 +37,8 @@
             
             
             <button data-mode="musicStudio" class="menu-button">Music Studio</button>
+            <button data-mode="anxietyLevelUp" class="menu-button">Level Up</button>
+            <button data-mode="wordFall" class="menu-button">Word Fall</button>
             <button data-mode="gauntlet" class="menu-button col-span-2 sm:col-span-3">Gauntlet</button>
         </div>
     </div>
@@ -45,7 +47,7 @@
         <h1 id="game-title" class="text-3xl md:text-4xl font-bold text-center mb-1 tracking-widest" style="transition: all 0.3s ease;"></h1>
         <p id="game-status" class="text-center text-lg text-yellow-300 h-7 mb-2"></p>
         <p id="game-rules" class="text-center text-gray-400 mb-4 h-5"></p>
-        <div id="game-board-wrapper">
+        <div id="game-board-wrapper" class="relative">
             <div id="game-board" class="game-grid mb-2"></div>
         </div>
         <div id="keyboard-container" class="my-2"></div>
@@ -80,6 +82,8 @@
     <script src="games/numberCrunchGame.js"></script>
     <script src="games/fractionFlipperGame.js"></script>
     <script src="games/musicStudioGame.js"></script>
+    <script src="games/anxietyLevelUpGame.js"></script>
+    <script src="games/wordFallGame.js"></script>
 
     <script src="utils/audioManager.js"></script>
     <script src="main.js"></script>
