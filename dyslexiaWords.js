@@ -9087,6 +9087,7 @@ const dyslexiaWords =
   "voyuer",
   "vulnerability",
   "vulnerable",
+  "wag",
   "wage",
   "wages",
   "wagner",
