@@ -17,6 +17,9 @@ const lightsOutGame = {
         if (gameState.isSolving) return;
         const index = parseInt(e.target.dataset.index);
         audioManager.playSound('game', notes[index % 9]);
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
         lightsOutGame.toggle(index, 5, gameState.board);
         gameState.moves++;
         lightsOutGame.updateBoard();

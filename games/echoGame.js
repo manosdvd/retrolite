@@ -46,10 +46,9 @@ const echoGame = {
         light.classList.add(`echo-${index+1}`);
         light.classList.remove('is-off');
         audioManager.playSound('game', notes[index]);
-        setTimeout(() => {
-            light.classList.add('is-off');
-            light.classList.remove(`echo-${index+1}`);
-        }, 300);
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
         
         gameState.playerSequence.push(index);
         const currentMoveIndex = gameState.playerSequence.length - 1;

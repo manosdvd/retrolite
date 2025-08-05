@@ -14,6 +14,9 @@ const musicMachineGame = {
         const index = parseInt(e.target.dataset.index);
         gameState.sequence.push(index);
         audioManager.playSound('game', notes[index]);
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
         const light = e.target;
         light.classList.add('is-highlight', `echo-${index+1}`);
         setTimeout(() => light.classList.remove('is-highlight', `echo-${index+1}`), 300);

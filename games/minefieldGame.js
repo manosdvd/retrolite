@@ -63,6 +63,9 @@ const minefieldGame = {
                 return;
             }
             minefieldGame.revealCell(index);
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
         } else if (eventType === 'contextmenu') {
             if (gameState.revealed[index] && gameState.board[index] > 0) {
                 minefieldGame.chord(index);

@@ -98,6 +98,9 @@ const lineDrawGame = {
             gameState.board[index] = pair.c;
             
             audioManager.playSound('game', notes[(pair.c - 1) % notes.length]);
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
             lineDrawGame.updateBoard();
         }
     },
@@ -129,6 +132,9 @@ const lineDrawGame = {
             currentPath.push(index);
             gameState.board[index] = gameState.currentColor;
             audioManager.playSound('game', notes[(gameState.currentColor - 1) % notes.length]);
+            if (navigator.vibrate) {
+                navigator.vibrate(20);
+            }
             lineDrawGame.updateBoard();
         }
     },

@@ -56,6 +56,9 @@ const blackjackGame = {
         }
         
         audioManager.playSound('game', notes[card] || 'C4', '16n');
+        if (navigator.vibrate) {
+            navigator.vibrate(50);
+        }
         await blackjackGame.updateBoardAndScores();
     },
     updateBoardAndScores: async () => {

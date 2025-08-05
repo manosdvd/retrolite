@@ -195,11 +195,17 @@ const musicStudioGame = {
                 } else {
                     this.synth.triggerAttackRelease(note, '8n');
                 }
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
             }
         } else {
             this.gameState.drums[row][col] = this.gameState.drums[row][col] ? 0 : 1;
             if (this.gameState.drums[row][col]) {
                 this.playDrumSound(row);
+                if (navigator.vibrate) {
+                    navigator.vibrate(50);
+                }
             }
         }
         this.updateBoard();

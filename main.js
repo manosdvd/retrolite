@@ -63,7 +63,7 @@ const gameModes = {
     minefield: { name: 'minefield', title: 'OVER STIMULATION', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af', cleanup: minefieldGame.cleanup },
     fourInARow: { name: 'fourInARow', title: 'BODY DOUBLE', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: connectGame.cleanup },
     colorConnect: { name: 'colorConnect', title: 'FLOW STATE', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf', cleanup: lineDrawGame.cleanup },
-    anxiety: { name: 'anxiety', title: 'ANXIETY', rules: 'Slide blocks to match 3 or more. Dont let the stack reach the top!', setup: anxietyGame.setup, cleanup: anxietyGame.cleanup, color: '#FF4136', shadow: '#FF851B' },
+    
     spellingBee: { name: 'spellingBee', title: 'AUDITORY PROCESS', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup, handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
     decryptGame: { name: 'decryptGame', title: 'UNMASK', setup: decryptGame.setup, handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
     numberCrunch: { name: 'numberCrunch', title: 'EXECUTIVE FUNCTION', rules: 'Use the numbers and operators to hit the target number.', gridSize: 4, setup: numberCrunchGame.setup, handler: numberCrunchGame.handler, color: '#9C27B0', shadow: '#c039d9', cleanup: numberCrunchGame.cleanup },
@@ -134,7 +134,7 @@ function handleBoardContextMenu(e) {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
+function initialize() {
     mainMenu = document.getElementById('main-menu');
     gameContainer = document.getElementById('game-container');
     gameTitle = document.getElementById('game-title');
@@ -151,23 +151,39 @@ document.addEventListener('DOMContentLoaded', () => {
     updateClock();
     setInterval(updateClock, 1000);
 
-    mainMenu.addEventListener('click', async (e) => {
+    // --- MENU CLICK HANDLER ---
+    function handleMenuClick(e) {
         const button = e.target.closest('[data-mode]');
-        if (button) {
-            // Initialize the audio manager on the very first click
-            await audioManager.init();
-            audioManager.playSound('ui', 'C4', '16n'); // Use the new audio manager
+        if (!button) return;
 
-            const modeKey = button.dataset.mode;
-            if (gameModes[modeKey]) {
-                mainMenu.classList.add('hidden');
-                gameContainer.classList.remove('hidden');
-                if (modeKey === 'gauntlet') { gauntlet.start(); } 
-                else { gauntlet.isActive = false; startGame(gameModes[modeKey]); }
+        const modeKey = button.dataset.mode;
+        const gameMode = gameModes[modeKey];
+
+        if (gameMode) {
+            // Initialize audio on the first user interaction
+            if (!audioManager.isInitialized) {
+                audioManager.init();
+            }
+            audioManager.playSound('ui', 'C4', '16n');
+
+            mainMenu.classList.add('hidden');
+            gameContainer.classList.remove('hidden');
+
+            if (modeKey === 'gauntlet') {
+                gauntlet.start();
+            } else {
+                gauntlet.isActive = false;
+                startGame(gameMode);
             }
         }
-    });
-});
+    }
+
+    // Attach the event listener to the main menu
+    mainMenu.addEventListener('click', handleMenuClick);
+}
+
+// --- INITIALIZATION ---
+window.onload = initialize;
 
 window.startGame = function(mode) {
     if (currentMode && typeof currentMode.cleanup === 'function') {
@@ -206,7 +222,7 @@ window.startGame = function(mode) {
     gameBoard.id = 'game-board';
     gameBoardWrapper.appendChild(gameBoard);
 
-    const selfContainedGames = ['musicStudio', 'anxiety', 'anxietyLevelUp', 'wordFall'];
+    const selfContainedGames = ['musicStudio', 'anxietyLevelUp', 'wordFall'];
     if (!selfContainedGames.includes(mode.name)) {
         gameBoard.className = 'game-grid mb-2';
         if (mode.gridSize || (mode.gridRows && mode.gridCols)) {

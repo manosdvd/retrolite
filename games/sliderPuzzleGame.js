@@ -23,6 +23,9 @@ const sliderPuzzleGame = {
         const neighbors = utils.getSliderNeighbors(gameState.emptyIndex, 3);
         if (neighbors.includes(index)) {
             audioManager.playSound('game', notes[index % 9]);
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
             sliderPuzzleGame.swapTiles(index, gameState.emptyIndex);
             gameState.moves++;
             sliderPuzzleGame.updateBoard();

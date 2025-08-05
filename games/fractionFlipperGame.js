@@ -132,11 +132,17 @@ const fractionFlipperGame = {
             this.selectedFractions.splice(index, 1);
             button.classList.remove('opacity-50'); // Make it look active again
             audioManager.playSound('game', 'C3', '8n'); // Sound for removal
+            if (navigator.vibrate) {
+                navigator.vibrate(20);
+            }
         } else {
             // Fraction is not selected, so SELECT it.
             this.selectedFractions.push(fraction);
             button.classList.add('opacity-50'); // Make it look selected
             audioManager.playSound('game', 'C4', '8n');
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
         }
 
         this.updateCurrentSumDisplay();

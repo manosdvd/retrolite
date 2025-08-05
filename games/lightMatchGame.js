@@ -183,8 +183,17 @@ const lightMatchGame = {
     },
 
     animateSwap: async (index1, index2, forward) => {
-        if(forward) audioManager.playSound('game', 'C4', '16n');
-        else audioManager.playSound('game', 'C3', '16n');
+        if(forward) {
+            audioManager.playSound('game', 'C4', '16n');
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
+        } else {
+            audioManager.playSound('game', 'C3', '16n');
+            if (navigator.vibrate) {
+                navigator.vibrate(20);
+            }
+        }
         
         const el1 = gameBoard.querySelector(`[data-index='${index1}']`);
         const el2 = gameBoard.querySelector(`[data-index='${index2}']`);

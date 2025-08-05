@@ -38,6 +38,9 @@ const numberCrunchGame = {
         const eqStrEl = document.getElementById('eq-str');
 
         if (isNumber) {
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
             const number = parseInt(value);
             // Case 1: This is the very first number selected.
             if (gameState.firstOperand === null) {
@@ -62,6 +65,9 @@ const numberCrunchGame = {
                 gameState.currentOperator = null;
             }
         } else { // It's an operator
+            if (navigator.vibrate) {
+                navigator.vibrate(50);
+            }
             // Handle the 'Clear' button
             if (value === 'C') {
                 gameState.firstOperand = null;
