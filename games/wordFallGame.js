@@ -51,9 +51,7 @@ const wordFallGame = {
                          <div id="timer-display-container" class="text-center text-sm text-gray-400 hidden">
                             <p>Next row in: <span id="interval-display" class="font-bold text-cyan-300"></span>s</p>
                         </div>
-                        <button id="add-word-button" class="w-full py-3 mt-2 rounded-lg text-xl font-bold tracking-wider bg-purple-600 hover:bg-purple-500 text-white transition-transform transform hover:scale-105">
-                            ADD WORD
-                        </button>
+                        
                         <button id="pause-button" class="w-full py-3 mt-2 rounded-lg text-xl font-bold tracking-wider bg-gray-600 hover:bg-gray-500 text-white transition-transform transform hover:scale-105">
                             PAUSE
                         </button>
@@ -61,25 +59,7 @@ const wordFallGame = {
                 </div>
             </div>
 
-            <!-- Modals -->
-            <div id="add-word-modal" class="absolute inset-0 z-20 flex-col items-center justify-center text-center p-4 modal hidden">
-                <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-purple-500 max-w-lg">
-                    <h2 class="text-3xl font-bold text-purple-400 mb-4">Add New Word</h2>
-                    <p class="text-sm text-gray-400 mb-4">Words added here are only for the current game session and will not be saved permanently.</p>
-                    <input type="text" id="new-word-input" class="w-full p-3 mb-4 text-lg rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter word (3+ letters)">
-                    <div id="add-word-message" class="text-sm text-red-400 mb-4 hidden"></div>
-                    <div class="flex justify-center gap-4">
-                        <button id="submit-new-word-button" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg text-lg transition-transform transform hover:scale-105">
-                            ADD
-                        </button>
-                        <button id="cancel-add-word-button" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg text-lg transition-transform transform hover:scale-105">
-                            CANCEL
-                        </button>
-                    </div>
-                </div>
-            </div>
-
-            <div id="game-over-modal" class="absolute inset-0 z-20 flex-col items-center justify-center text-center p-4 modal hidden">
+            
                 <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-red-500">
                     <h2 class="text-5xl font-bold text-red-500 mb-4 tracking-widest">GAME OVER</h2>
                     <div class="text-xl space-y-2 mb-6">
@@ -164,13 +144,7 @@ const wordFallGame = {
         const selectManualModeBtn = document.getElementById('select-manual-mode');
         const levelSelectContainer = document.getElementById('level-select-container');
         const levelSelectElement = document.getElementById('level-select');
-        const addWordButton = document.getElementById('add-word-button');
         const pauseButton = document.getElementById('pause-button');
-        const addWordModal = document.getElementById('add-word-modal');
-        const newWordInput = document.getElementById('new-word-input');
-        const submitNewWordButton = document.getElementById('submit-new-word-button');
-        const cancelAddWordButton = document.getElementById('cancel-add-word-button');
-        const addWordMessage = document.getElementById('add-word-message');
 
         // --- Game State ---
         let grid = [], previewRow = [], score = 0, level = 1, selectedCell = null;
@@ -708,37 +682,6 @@ const wordFallGame = {
             levelElement.addEventListener('animationend', () => levelElement.classList.remove('level-up'), {once: true});
         }
 
-        function showAddWordModal() {
-            addWordModal.classList.remove('hidden');
-            addWordModal.classList.add('flex');
-            newWordInput.value = '';
-            addWordMessage.textContent = '';
-            addWordMessage.classList.add('hidden');
-        }
-
-        function hideAddWordModal() {
-            addWordModal.classList.add('hidden');
-            addWordModal.classList.remove('flex');
-        }
-
-        function addWordToGame() {
-            const word = newWordInput.value.trim().toLowerCase();
-            if (word.length < 3) {
-                addWordMessage.textContent = 'Word must be at least 3 letters long.';
-                addWordMessage.classList.remove('hidden');
-                return;
-            }
-            if (wordList.has(word)) {
-                addWordMessage.textContent = `"${word}" is already in the list.`;
-                addWordMessage.classList.remove('hidden');
-                return;
-            }
-            wordList.add(word);
-            addWordMessage.textContent = `"${word}" added successfully for this session!`;
-            addWordMessage.classList.remove('hidden');
-            newWordInput.value = '';
-        }
-
         // --- Event Listeners ---
         gridElement.addEventListener('click', handleCellClick);
         dropButton.addEventListener('click', handleDropClick);
@@ -766,9 +709,6 @@ const wordFallGame = {
             levelSelectContainer.style.display = 'none';
         });
 
-        addWordButton.addEventListener('click', showAddWordModal);
-        submitNewWordButton.addEventListener('click', addWordToGame);
-        cancelAddWordButton.addEventListener('click', hideAddWordModal);
         pauseButton.addEventListener('click', togglePause);
 
         // Initial setup call
