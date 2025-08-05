@@ -25,9 +25,6 @@ const wordFallGame = {
                             <div class="font-semibold text-lg">SCORE</div>
                             <div id="score" class="font-bold text-yellow-300 text-lg">0 / 1500</div>
                         </div>
-                        <button id="fullscreen-button" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-2 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">
-                            FULLSCREEN
-                        </button>
                     </div>
                     
                     <!-- Word Display -->
