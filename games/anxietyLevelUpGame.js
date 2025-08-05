@@ -78,7 +78,7 @@ const anxietyLevelUpGame = {
         const LEVEL_INTERVAL_DECREMENT_MS = 75; // Speed increase per level
         const MIN_INTERVAL_MS = 150;
         const BOARD_CLEAR_BONUS = 10000;
-        const LEVEL_THRESHOLDS = [1500, 4000, 7500, 12000, 20000, 30000, 45000, 60000, 80000, 100000];
+        const LEVEL_THRESHOLDS = [700, 2000, 4500, 6000, 10000, 15000, 25000, 30000, 40000, 50000];
 
         // --- DOM Elements ---
         const gridElement = document.getElementById('grid');
