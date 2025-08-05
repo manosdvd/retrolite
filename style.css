@@ -409,6 +409,11 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     grid-template-rows: repeat(10, 1fr);
     gap: 5px;
     aspect-ratio: 8 / 10;
+    transition: filter 0.3s ease;
+}
+
+.anxiety-level-up-active .grid.paused {
+    filter: brightness(0) grayscale(100%);
 }
 
 .anxiety-level-up-active .cell {
@@ -529,6 +534,11 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     grid-template-rows: repeat(10, 1fr);
     gap: 5px;
     aspect-ratio: 8 / 10;
+    transition: filter 0.3s ease;
+}
+
+.word-fall-active .grid.paused {
+    filter: brightness(0) grayscale(100%);
 }
 
 .word-fall-active .cell {

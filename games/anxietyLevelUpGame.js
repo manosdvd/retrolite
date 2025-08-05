@@ -24,6 +24,9 @@ const anxietyLevelUpGame = {
                             <div class="font-semibold text-lg">SCORE</div>
                             <div id="score" class="font-bold text-yellow-300 text-lg">0 / 1500</div>
                         </div>
+                        <button id="pause-button" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">
+                            PAUSE
+                        </button>
                     </div>
                     <div class="preview-container">
                         <p class="text-center text-sm text-gray-400 mb-2">NEXT</p>
@@ -93,9 +96,11 @@ const anxietyLevelUpGame = {
         const startModal = document.getElementById('start-modal');
         const startButton = document.getElementById('start-button');
         const levelSelectElement = document.getElementById('level-select');
+        const pauseButton = document.getElementById('pause-button');
 
         // --- Game State ---
         let grid = [], previewRow = [], score = 0, level = 1, selectedCell = null;
+        let isPaused = false;
         
         // --- Audio & Haptics ---
         const audio = {
@@ -157,7 +162,27 @@ const anxietyLevelUpGame = {
             createPreviewDOM();
             
             if (self.gameLoopTimeoutId) clearTimeout(self.gameLoopTimeoutId);
+            self.isPaused = false;
+            pauseButton.textContent = 'PAUSE';
+            gridElement.classList.remove('paused');
             self.gameLoopTimeoutId = setTimeout(gameLoop, currentInterval);
+        }
+
+        function togglePause() {
+            if (self.gameOver) return;
+
+            self.isPaused = !self.isPaused;
+
+            if (self.isPaused) {
+                if (self.gameLoopTimeoutId) clearTimeout(self.gameLoopTimeoutId);
+                self.gameLoopTimeoutId = null;
+                gridElement.classList.add('paused');
+                pauseButton.textContent = 'RESUME';
+            } else {
+                gridElement.classList.remove('paused');
+                pauseButton.textContent = 'PAUSE';
+                self.gameLoopTimeoutId = setTimeout(gameLoop, currentInterval);
+            }
         }
 
         function createGridDOM() {
@@ -203,7 +228,7 @@ const anxietyLevelUpGame = {
 
         // --- Action Handlers ---
         async function handleCellClick(event) {
-            if (self.gameOver || self.isProcessing) return;
+            if (self.gameOver || self.isProcessing || self.isPaused) return;
             
             const cellElement = event.target.closest('.cell');
             if (!cellElement || !cellElement.dataset.index) return;
@@ -480,6 +505,7 @@ const anxietyLevelUpGame = {
 
         // --- Event Listeners ---
         gridElement.addEventListener('click', handleCellClick);
+        pauseButton.addEventListener('click', togglePause);
 
         restartButton.addEventListener('click', () => {
             startModal.classList.remove('hidden');

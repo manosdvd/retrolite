@@ -25,6 +25,9 @@ const wordFallGame = {
                             <div class="font-semibold text-lg">SCORE</div>
                             <div id="score" class="font-bold text-yellow-300 text-lg">0 / 1500</div>
                         </div>
+                        <button id="pause-button" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">
+                            PAUSE
+                        </button>
                     </div>
                     
                     <!-- Word Display -->
@@ -51,11 +54,31 @@ const wordFallGame = {
                          <div id="timer-display-container" class="text-center text-sm text-gray-400 hidden">
                             <p>Next row in: <span id="interval-display" class="font-bold text-cyan-300"></span>s</p>
                         </div>
+                        <button id="add-word-button" class="w-full py-3 mt-2 rounded-lg text-xl font-bold tracking-wider bg-purple-600 hover:bg-purple-500 text-white transition-transform transform hover:scale-105">
+                            ADD WORD
+                        </button>
                     </div>
                 </div>
             </div>
 
             <!-- Modals -->
+            <div id="add-word-modal" class="absolute inset-0 z-20 flex-col items-center justify-center text-center p-4 modal hidden">
+                <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-purple-500 max-w-lg">
+                    <h2 class="text-3xl font-bold text-purple-400 mb-4">Add New Word</h2>
+                    <p class="text-sm text-gray-400 mb-4">Words added here are only for the current game session and will not be saved permanently.</p>
+                    <input type="text" id="new-word-input" class="w-full p-3 mb-4 text-lg rounded-lg bg-gray-700 text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Enter word (3+ letters)">
+                    <div id="add-word-message" class="text-sm text-red-400 mb-4 hidden"></div>
+                    <div class="flex justify-center gap-4">
+                        <button id="submit-new-word-button" class="bg-green-600 hover:bg-green-500 text-white font-bold py-2 px-6 rounded-lg text-lg transition-transform transform hover:scale-105">
+                            ADD
+                        </button>
+                        <button id="cancel-add-word-button" class="bg-red-600 hover:bg-red-500 text-white font-bold py-2 px-6 rounded-lg text-lg transition-transform transform hover:scale-105">
+                            CANCEL
+                        </button>
+                    </div>
+                </div>
+            </div>
+
             <div id="game-over-modal" class="absolute inset-0 z-20 flex-col items-center justify-center text-center p-4 modal hidden">
                 <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-red-500">
                     <h2 class="text-5xl font-bold text-red-500 mb-4 tracking-widest">GAME OVER</h2>
@@ -141,11 +164,19 @@ const wordFallGame = {
         const selectManualModeBtn = document.getElementById('select-manual-mode');
         const levelSelectContainer = document.getElementById('level-select-container');
         const levelSelectElement = document.getElementById('level-select');
+        const addWordButton = document.getElementById('add-word-button');
+        const pauseButton = document.getElementById('pause-button');
+        const addWordModal = document.getElementById('add-word-modal');
+        const newWordInput = document.getElementById('new-word-input');
+        const submitNewWordButton = document.getElementById('submit-new-word-button');
+        const cancelAddWordButton = document.getElementById('cancel-add-word-button');
+        const addWordMessage = document.getElementById('add-word-message');
 
         // --- Game State ---
         let grid = [], previewRow = [], score = 0, level = 1, selectedCell = null;
         let gameMode = 'leveling'; // 'leveling' or 'manual'
         let currentInterval = INITIAL_INTERVAL_MS;
+        let isPaused = false; // New state variable for pause functionality
 
         // --- Audio & Haptics ---
         const audio = {
@@ -197,6 +228,9 @@ const wordFallGame = {
             createPreviewDOM();
 
             if (self.gameLoopTimeoutId) clearTimeout(self.gameLoopTimeoutId);
+            self.isPaused = false;
+            pauseButton.textContent = 'PAUSE';
+            gridElement.classList.remove('paused');
             
             if (gameMode === 'leveling') {
                 dropButton.classList.add('hidden');
@@ -207,6 +241,29 @@ const wordFallGame = {
                 dropButton.classList.remove('hidden');
                 timerDisplayContainer.classList.add('hidden');
                 populatePreview();
+            }
+        }
+
+        function togglePause() {
+            if (self.gameOver) return;
+
+            self.isPaused = !self.isPaused;
+
+            if (self.isPaused) {
+                if (self.gameLoopTimeoutId) clearTimeout(self.gameLoopTimeoutId);
+                self.gameLoopTimeoutId = null;
+                gridElement.classList.add('paused');
+                dropButton.disabled = true;
+                addWordButton.disabled = true;
+                pauseButton.textContent = 'RESUME';
+            } else {
+                gridElement.classList.remove('paused');
+                dropButton.disabled = false;
+                addWordButton.disabled = false;
+                pauseButton.textContent = 'PAUSE';
+                if (gameMode === 'leveling') {
+                    self.gameLoopTimeoutId = setTimeout(gameLoop, currentInterval);
+                }
             }
         }
 
@@ -250,7 +307,7 @@ const wordFallGame = {
 
         // --- Action Handlers ---
         async function handleCellClick(event) {
-            if (self.gameOver || self.isProcessing) return;
+            if (self.gameOver || self.isProcessing || self.isPaused) return;
             const cellElement = event.target.closest('.cell');
             if (!cellElement || !cellElement.dataset.index) return;
             const index = parseInt(cellElement.dataset.index, 10);
@@ -289,7 +346,7 @@ const wordFallGame = {
         }
         
         async function handleDropClick() {
-            if (self.gameOver || self.isProcessing) return;
+            if (self.gameOver || self.isProcessing || self.isPaused) return;
             if (!previewRow.every(cell => cell !== null)) return;
             self.isProcessing = true;
             await dropNewRow(true);
@@ -373,88 +430,136 @@ const wordFallGame = {
         }
 
         function findMatches(cellsToFocusOn = null) {
-            const matchCoords = new Set();
-            const wordsFound = new Set();
+            const allFoundWordCandidates = []; // Store { word: string, coords: Array<{x,y}>, score: number }
+
+            // Helper to process a single line (row or column)
+            function processLine(lineString, lineCoords) {
+                const lineCandidates = [];
+                for (let i = 0; i < lineString.length; i++) {
+                    for (let j = i + 3; j <= lineString.length; j++) {
+                        const sub = lineString.substring(i, j).toLowerCase();
+                        if (wordList.has(sub)) {
+                            const wordCoords = lineCoords.slice(i, j);
+                            let wordScore = 0;
+                            for (const charCoord of wordCoords) {
+                                wordScore += SCRABBLE_TILE_VALUES[grid[charCoord.y][charCoord.x].toUpperCase()] || 0;
+                            }
+                            lineCandidates.push({ word: sub, coords: wordCoords, score: wordScore });
+                        }
+                    }
+                }
+
+                // Sort by length (descending) then by score (descending)
+                lineCandidates.sort((a, b) => {
+                    if (b.word.length !== a.word.length) {
+                        return b.word.length - a.word.length;
+                    }
+                    return b.score - a.score;
+                });
+
+                const acceptedCoordsInLine = new Set();
+                const acceptedWordsInLine = [];
+
+                for (const candidate of lineCandidates) {
+                    let overlaps = false;
+                    for (const coord of candidate.coords) {
+                        if (acceptedCoordsInLine.has(`${coord.x},${coord.y}`)) {
+                            overlaps = true;
+                            break;
+                        }
+                    }
+                    if (!overlaps) {
+                        acceptedWordsInLine.push(candidate);
+                        for (const coord of candidate.coords) {
+                            acceptedCoordsInLine.add(`${coord.x},${coord.y}`);
+                        }
+                    }
+                }
+                return acceptedWordsInLine;
+            }
 
             if (cellsToFocusOn) {
-                const coordsToCheck = new Set();
+                const affectedRows = new Set();
+                const affectedCols = new Set();
                 cellsToFocusOn.forEach(cell => {
-                    coordsToCheck.add(`h,${cell.y}`); // Check horizontal row
-                    coordsToCheck.add(`v,${cell.x}`); // Check vertical column
+                    affectedRows.add(cell.y);
+                    affectedCols.add(cell.x);
                 });
 
-                coordsToCheck.forEach(coordKey => {
-                    const [dir, indexStr] = coordKey.split(',');
-                    const index = parseInt(indexStr, 10);
-                    let line = "";
-                    let lineCoords = [];
-
-                    if (dir === 'h') {
-                        for (let x = 0; x < GRID_WIDTH; x++) {
-                            line += grid[index][x] || ' ';
-                            lineCoords.push({x, y: index});
-                        }
-                    } else { // dir === 'v'
-                        for (let y = 0; y < GRID_HEIGHT; y++) {
-                            line += grid[y][index] || ' ';
-                            lineCoords.push({x: index, y});
-                        }
+                affectedRows.forEach(y => {
+                    let rowString = "";
+                    let rowCoords = [];
+                    for (let x = 0; x < GRID_WIDTH; x++) {
+                        rowString += grid[y][x] || ' ';
+                        rowCoords.push({ x, y });
                     }
-
-                    for (let i = 0; i < line.length; i++) {
-                        for (let j = i + 3; j <= line.length; j++) {
-                            const sub = line.substring(i, j).toLowerCase();
-                            if (wordList.has(sub)) {
-                                let intersects = false;
-                                for (let k = 0; k < sub.length; k++) {
-                                    const currentCoord = lineCoords[i + k];
-                                    if (cellsToFocusOn.some(c => c.x === currentCoord.x && c.y === currentCoord.y)) {
-                                        intersects = true;
-                                        break;
-                                    }
-                                }
-                                if (intersects) {
-                                    wordsFound.add(sub.toUpperCase());
-                                    for (let k = 0; k < sub.length; k++) {
-                                        const coord = lineCoords[i + k];
-                                        matchCoords.add(`${coord.x},${coord.y}`);
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    allFoundWordCandidates.push(...processLine(rowString, rowCoords));
                 });
+
+                affectedCols.forEach(x => {
+                    let colString = "";
+                    let colCoords = [];
+                    for (let y = 0; y < GRID_HEIGHT; y++) {
+                        colString += grid[y][x] || ' ';
+                        colCoords.push({ x, y });
+                    }
+                    allFoundWordCandidates.push(...processLine(colString, colCoords));
+                });
+
             } else {
+                // Full grid scan (initial check or after gravity)
                 // Horizontal check
                 for (let y = 0; y < GRID_HEIGHT; y++) {
                     let rowString = "";
-                    for (let x = 0; x < GRID_WIDTH; x++) rowString += grid[y][x] || ' ';
-                    for (let i = 0; i < GRID_WIDTH; i++) {
-                        for (let j = i + 3; j <= GRID_WIDTH; j++) {
-                            const sub = rowString.substring(i, j).toLowerCase();
-                            if (wordList.has(sub)) {
-                                wordsFound.add(sub.toUpperCase());
-                                for (let k = 0; k < sub.length; k++) matchCoords.add(`${i + k},${y}`);
-                            }
-                        }
+                    let rowCoords = [];
+                    for (let x = 0; x < GRID_WIDTH; x++) {
+                        rowString += grid[y][x] || ' ';
+                        rowCoords.push({ x, y });
                     }
+                    allFoundWordCandidates.push(...processLine(rowString, rowCoords));
                 }
                 // Vertical check
                 for (let x = 0; x < GRID_WIDTH; x++) {
                     let colString = "";
-                    for (let y = 0; y < GRID_HEIGHT; y++) colString += grid[y][x] || ' ';
-                    for (let i = 0; i < GRID_HEIGHT; i++) {
-                        for (let j = i + 3; j <= GRID_HEIGHT; j++) {
-                            const sub = colString.substring(i, j).toLowerCase();
-                            if (wordList.has(sub)) {
-                                wordsFound.add(sub.toUpperCase());
-                                for (let k = 0; k < sub.length; k++) matchCoords.add(`${x},${i + k}`);
-                            }
-                        }
+                    let colCoords = [];
+                    for (let y = 0; y < GRID_HEIGHT; y++) {
+                        colString += grid[y][x] || ' ';
+                        colCoords.push({ x, y });
+                    }
+                    allFoundWordCandidates.push(...processLine(colString, colCoords));
+                }
+            }
+
+            const finalMatchCoords = new Set();
+            const finalWords = new Set(); // Use a Set to avoid duplicate word strings
+
+            // Sort all found words (from all lines) by length (descending) then by score (descending)
+            allFoundWordCandidates.sort((a, b) => {
+                if (b.word.length !== a.word.length) {
+                    return b.word.length - a.word.length;
+                }
+                return b.score - a.score;
+            });
+
+            const usedGlobalCoords = new Set(); // Keep track of all coordinates used by accepted words
+
+            for (const candidate of allFoundWordCandidates) {
+                let overlaps = false;
+                for (const coord of candidate.coords) {
+                    if (usedGlobalCoords.has(`${coord.x},${coord.y}`)) {
+                        overlaps = true;
+                        break;
+                    }
+                }
+                if (!overlaps) {
+                    finalWords.add(candidate.word.toUpperCase());
+                    for (const coord of candidate.coords) {
+                        finalMatchCoords.add(`${coord.x},${coord.y}`);
+                        usedGlobalCoords.add(`${coord.x},${coord.y}`);
                     }
                 }
             }
-            return { coords: matchCoords, words: Array.from(wordsFound) };
+            return { coords: finalMatchCoords, words: Array.from(finalWords) };
         }
 
         async function clearMatches(matches) {
@@ -603,6 +708,37 @@ const wordFallGame = {
             levelElement.addEventListener('animationend', () => levelElement.classList.remove('level-up'), {once: true});
         }
 
+        function showAddWordModal() {
+            addWordModal.classList.remove('hidden');
+            addWordModal.classList.add('flex');
+            newWordInput.value = '';
+            addWordMessage.textContent = '';
+            addWordMessage.classList.add('hidden');
+        }
+
+        function hideAddWordModal() {
+            addWordModal.classList.add('hidden');
+            addWordModal.classList.remove('flex');
+        }
+
+        function addWordToGame() {
+            const word = newWordInput.value.trim().toLowerCase();
+            if (word.length < 3) {
+                addWordMessage.textContent = 'Word must be at least 3 letters long.';
+                addWordMessage.classList.remove('hidden');
+                return;
+            }
+            if (wordList.has(word)) {
+                addWordMessage.textContent = `"${word}" is already in the list.`;
+                addWordMessage.classList.remove('hidden');
+                return;
+            }
+            wordList.add(word);
+            addWordMessage.textContent = `"${word}" added successfully for this session!`;
+            addWordMessage.classList.remove('hidden');
+            newWordInput.value = '';
+        }
+
         // --- Event Listeners ---
         gridElement.addEventListener('click', handleCellClick);
         dropButton.addEventListener('click', handleDropClick);
@@ -629,6 +765,11 @@ const wordFallGame = {
             selectLevelingModeBtn.classList.remove('active');
             levelSelectContainer.style.display = 'none';
         });
+
+        addWordButton.addEventListener('click', showAddWordModal);
+        submitNewWordButton.addEventListener('click', addWordToGame);
+        cancelAddWordButton.addEventListener('click', hideAddWordModal);
+        pauseButton.addEventListener('click', togglePause);
 
         // Initial setup call
         init(gameMode, 1);
