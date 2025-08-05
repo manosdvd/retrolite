@@ -24,9 +24,6 @@ const anxietyLevelUpGame = {
                             <div class="font-semibold text-lg">SCORE</div>
                             <div id="score" class="font-bold text-yellow-300 text-lg">0 / 1500</div>
                         </div>
-                        <button id="pause-button" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">
-                            PAUSE
-                        </button>
                     </div>
                     <div class="preview-container">
                         <p class="text-center text-sm text-gray-400 mb-2">NEXT</p>
@@ -35,8 +32,13 @@ const anxietyLevelUpGame = {
                     <div id="grid-wrapper" class="grid-wrapper">
                          <div id="grid" class="grid"></div>
                     </div>
-                    <div class="text-center text-sm text-gray-400 mt-4">
-                        <p>Next row in: <span id="interval-display" class="font-bold text-cyan-300">1.00</span>s</p>
+                    <div id="controls-area" class="mt-4">
+                        <div class="text-center text-sm text-gray-400 mb-2">
+                            <p>Next row in: <span id="interval-display" class="font-bold text-cyan-300">1.00</span>s</p>
+                        </div>
+                        <button id="pause-button" class="w-full py-3 mt-2 rounded-lg text-xl font-bold tracking-wider bg-gray-600 hover:bg-gray-500 text-white transition-transform transform hover:scale-105">
+                            PAUSE
+                        </button>
                     </div>
                 </div>
             </div>

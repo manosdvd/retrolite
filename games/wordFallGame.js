@@ -25,9 +25,6 @@ const wordFallGame = {
                             <div class="font-semibold text-lg">SCORE</div>
                             <div id="score" class="font-bold text-yellow-300 text-lg">0 / 1500</div>
                         </div>
-                        <button id="pause-button" class="bg-gray-600 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded-lg text-lg transition-transform transform hover:scale-105">
-                            PAUSE
-                        </button>
                     </div>
                     
                     <!-- Word Display -->
@@ -56,6 +53,9 @@ const wordFallGame = {
                         </div>
                         <button id="add-word-button" class="w-full py-3 mt-2 rounded-lg text-xl font-bold tracking-wider bg-purple-600 hover:bg-purple-500 text-white transition-transform transform hover:scale-105">
                             ADD WORD
+                        </button>
+                        <button id="pause-button" class="w-full py-3 mt-2 rounded-lg text-xl font-bold tracking-wider bg-gray-600 hover:bg-gray-500 text-white transition-transform transform hover:scale-105">
+                            PAUSE
                         </button>
                     </div>
                 </div>
