@@ -180,6 +180,20 @@ function initialize() {
 
     // Attach the event listener to the main menu
     mainMenu.addEventListener('click', handleMenuClick);
+
+    // --- FULLSCREEN TOGGLE ---
+    const fullscreenButton = document.getElementById('fullscreen-toggle-button');
+    if (fullscreenButton) {
+        fullscreenButton.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error(`Error attempting to enable fullscreen: ${err.message} (${err.name})`);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        });
+    }
 }
 
 // --- INITIALIZATION ---
