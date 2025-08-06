@@ -83,9 +83,9 @@ const gameModes = {
         name: 'anxietyLevelUp',
         title: 'Anxiety 2',
         rules: 'Match 3+ colors. Don\'t let the grid fill up!',
-        setup: anxietyLevelUpGame.setup.bind(anxietyLevelUpGame),
+        setup: anxietyLevelUpGame.setup,
         handler: null, // Game has its own internal handler
-        cleanup: anxietyLevelUpGame.cleanup.bind(anxietyLevelUpGame),
+        cleanup: anxietyLevelUpGame.cleanup,
         color: '#ff3860',
         shadow: '#ff6b81'
     },
