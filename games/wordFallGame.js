@@ -60,6 +60,7 @@ const wordFallGame = {
             </div>
 
             
+                <div id="game-over-modal" class="absolute inset-0 z-20 flex-col items-center justify-center text-center p-4 modal hidden">
                 <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-red-500">
                     <h2 class="text-5xl font-bold text-red-500 mb-4 tracking-widest">GAME OVER</h2>
                     <div class="text-xl space-y-2 mb-6">
