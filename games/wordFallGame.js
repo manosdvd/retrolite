@@ -109,9 +109,9 @@ const wordFallGame = {
         const GRID_WIDTH = 8;
         const GRID_HEIGHT = 10;
         const STARTING_ROWS = 5;
-        const INITIAL_INTERVAL_MS = 1000;
+        const INITIAL_INTERVAL_MS = 5000;
         const LEVEL_INTERVAL_DECREMENT_MS = 75;
-        const MIN_INTERVAL_MS = 150;
+        const MIN_INTERVAL_MS = 500;
         const BOARD_CLEAR_BONUS = 5000;
         const LEVEL_THRESHOLDS = [1500, 4000, 7500, 12000, 20000, 30000, 45000, 60000, 80000, 100000];
         
