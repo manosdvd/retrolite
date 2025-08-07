@@ -68,9 +68,8 @@ const wordFallGame = {
         this.styleElement = document.createElement('style');
         this.styleElement.textContent = `
             .wordfall-game-active { font-family: 'Inter', sans-serif; overflow: hidden; }
-            .game-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
-            #game-container-wordfall { background: linear-gradient(145deg, #1f2937, #374151); border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 500px; height: 95vh; max-height: 900px; }
-            #grid-wordfall { display: grid; grid-template-columns: repeat(${this.cols}, 1fr); grid-template-rows: repeat(${this.rows}, 1fr); gap: 4px; flex-grow: 1; background-color: #111827; border-radius: 0.5rem; padding: 4px; }
+            #game-board-wrapper .game-layout-wordfall { background: linear-gradient(145deg, #1f2937, #374151); border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; height: 100%; }
+            #grid-wordfall { display: grid; grid-template-columns: repeat(${this.cols}, 1fr); grid-template-rows: repeat(${this.rows}, 1fr); gap: 4px; background-color: #111827; border-radius: 0.5rem; padding: 4px; }
             .cell { display: flex; justify-content: center; align-items: center; background-color: #4b5563; border-radius: 4px; color: white; font-weight: 900; font-size: clamp(14px, 4vmin, 28px); text-transform: uppercase; transition: all 0.2s ease-in-out; user-select: none; -webkit-user-select: none; cursor: pointer; }
             .cell.empty { background-color: #374151; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); cursor: default; }
             .cell.selected { background-color: #60a5fa; transform: scale(1.1); box-shadow: 0 0 15px #60a5fa; }
@@ -95,27 +94,39 @@ const wordFallGame = {
     renderGameLayout: function() {
         const gameBoardWrapper = document.getElementById('game-board-wrapper');
         gameBoardWrapper.innerHTML = `
-            <div class="game-wrapper">
-                <div id="game-container-wordfall" class="game-container p-4 flex flex-col">
-                    <div class="flex justify-between items-center mb-2 text-white">
-                        <h1 class="font-black text-3xl tracking-wider">WORDFALL</h1>
-                        <div class="text-right">
-                            <div class="font-semibold">SCORE</div>
-                            <div id="score" class="font-bold text-2xl text-blue-300">0</div>
-                        </div>
+            <div class="game-layout-wordfall flex flex-col p-2 md:p-4">
+                <!-- Stats Container -->
+                <div class="flex justify-between items-center mb-2 text-white">
+                    <div class="text-left">
+                        <div class="font-semibold text-sm">LVL</div>
+                        <div id="level" class="font-bold text-lg text-blue-300">1</div>
                     </div>
-                    <div class="flex justify-between items-center mb-2 text-gray-300">
-                         <div><span class="font-semibold">LVL:</span> <span id="level" class="font-bold text-lg">1</span></div>
-                         <div><span class="font-semibold">WORDS:</span> <span id="words-found" class="font-bold text-lg">0</span></div>
+                    <div class="text-center">
+                        <div class="font-semibold text-sm">WORDS</div>
+                        <div id="words-found" class="font-bold text-lg text-green-300">0</div>
                     </div>
-                    <div id="preview-bar-container"></div>
-                    <div id="grid-wordfall"></div>
-                    <button id="pause-btn" class="mt-2 py-2 px-4 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-colors">PAUSE</button>
+                    <div class="text-right">
+                        <div class="font-semibold text-sm">SCORE</div>
+                        <div id="score" class="font-bold text-lg text-yellow-300">0</div>
+                    </div>
                 </div>
+
+                <!-- Preview Bar -->
+                <div id="preview-bar-container"></div>
+
+                <!-- Grid -->
+                <div id="grid-wordfall" class="flex-grow"></div>
+
+                <!-- Pause Button -->
+                <button id="pause-btn" class="w-full mt-2 py-2 px-4 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-colors">PAUSE</button>
             </div>
+        `;
+        
+        const modalContainer = document.getElementById('modal-container');
+        modalContainer.innerHTML = `
             <div id="start-modal" class="modal fixed inset-0 flex items-center justify-center">
                 <div class="bg-gray-800 p-8 rounded-lg shadow-2xl text-center text-white">
-                    <h2 class="text-3xl font-black mb-4">WORDFALL</h2>
+                    <h2 class="text-3xl font-black mb-4">DYSLEXIA</h2>
                     <p class="mb-6">Swap any two letters to form words. Don't let the grid fill up!</p>
                     <button id="start-btn" class="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 rounded-lg text-xl font-bold transition-colors">START</button>
                 </div>
@@ -244,6 +255,7 @@ const wordFallGame = {
 
     drawGrid: function(wasDrop = false) {
         const gridElement = document.getElementById('grid-wordfall');
+        if (!gridElement) return;
         gridElement.innerHTML = '';
         const fragment = document.createDocumentFragment();
         for (let i = 0; i < this.grid.length; i++) {
@@ -265,6 +277,7 @@ const wordFallGame = {
     
     drawPreviewBar: function(isEmpty = false) {
         const previewBar = document.getElementById('preview-bar-container');
+        if (!previewBar) return;
         previewBar.innerHTML = '';
         for (let i = 0; i < this.cols; i++) {
             const cell = document.createElement('div');
@@ -278,9 +291,12 @@ const wordFallGame = {
     },
 
     updateStats: function() {
-        document.getElementById('score').textContent = this.score;
-        document.getElementById('level').textContent = this.level;
-        document.getElementById('words-found').textContent = this.wordsFoundCount;
+        const scoreEl = document.getElementById('score');
+        const levelEl = document.getElementById('level');
+        const wordsEl = document.getElementById('words-found');
+        if (scoreEl) scoreEl.textContent = this.score;
+        if (levelEl) levelEl.textContent = this.level;
+        if (wordsEl) wordsEl.textContent = this.wordsFoundCount;
     },
 
     handleCellClick: function(e) {
@@ -383,6 +399,7 @@ const wordFallGame = {
     
     clearCells: async function(cellsToClear) {
         const gridElement = document.getElementById('grid-wordfall');
+        if (!gridElement) return;
         cellsToClear.forEach(index => {
             const cellElement = gridElement.querySelector(`[data-index='${index}']`);
             if (cellElement) cellElement.classList.add('clearing');
@@ -428,7 +445,9 @@ const wordFallGame = {
 
     togglePause: function() {
         this.isPaused = !this.isPaused;
-        document.getElementById('pause-btn').textContent = this.isPaused ? 'RESUME' : 'PAUSE';
+        const pauseBtn = document.getElementById('pause-btn');
+        if (pauseBtn) pauseBtn.textContent = this.isPaused ? 'RESUME' : 'PAUSE';
+        
         if (!this.isPaused) {
             this.gameLoop();
         } else {
@@ -442,22 +461,28 @@ const wordFallGame = {
         this.gameOver = true;
         clearTimeout(this.gameLoopTimeoutId);
         clearTimeout(this.previewTimeoutId);
-        document.getElementById('final-score').textContent = this.score;
-        document.getElementById('final-words-found').textContent = this.wordsFoundCount;
-        document.getElementById('game-over-modal').classList.remove('hidden');
-        document.getElementById('game-over-modal').classList.add('flex');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalWordsEl = document.getElementById('final-words-found');
+        const gameOverModal = document.getElementById('game-over-modal');
+
+        if(finalScoreEl) finalScoreEl.textContent = this.score;
+        if(finalWordsEl) finalWordsEl.textContent = this.wordsFoundCount;
+        if(gameOverModal) {
+            gameOverModal.classList.remove('hidden');
+            gameOverModal.classList.add('flex');
+        }
         this.playSound('C3', '2n');
     },
     
     showFoundWordsModal: function() {
         const modalContainer = document.getElementById('modal-container');
         if (!modalContainer) return;
-        modalContainer.innerHTML = '';
-        const modal = document.createElement('div');
-        modal.className = 'modal fixed inset-0 flex items-center justify-center';
+        
+        // Create a temporary div to host the modal content
+        const tempDiv = document.createElement('div');
         
         let wordListHTML = '<dl>';
-        const sortedWords = Array.from(this.foundWords).sort();
+        const sortedWords = Array.from(wordFallGame.foundWords).sort();
         
         sortedWords.forEach(word => {
             const definition = collinsScrabbleWords[word] || 'No definition found.';
@@ -465,19 +490,23 @@ const wordFallGame = {
         });
         wordListHTML += '</dl>';
 
-        modal.innerHTML = `
-            <div class="word-list-modal-content">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-2xl font-bold">Words Found</h2>
-                    <button id="close-word-list" class="text-2xl font-bold">&times;</button>
+        tempDiv.innerHTML = `
+            <div id="word-list-modal" class="modal fixed inset-0 flex items-center justify-center">
+                <div class="word-list-modal-content">
+                    <div class="flex justify-between items-center mb-4">
+                        <h2 class="text-2xl font-bold">Words Found</h2>
+                        <button id="close-word-list" class="text-2xl font-bold">&times;</button>
+                    </div>
+                    ${wordListHTML}
                 </div>
-                ${wordListHTML}
             </div>
         `;
         
-        modalContainer.appendChild(modal);
-        document.getElementById('close-word-list').addEventListener('click', () => {
-            modalContainer.innerHTML = '';
+        const modalElement = tempDiv.firstElementChild;
+        modalContainer.appendChild(modalElement);
+        
+        modalElement.querySelector('#close-word-list').addEventListener('click', () => {
+            modalElement.remove();
         });
     },
 
