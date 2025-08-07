@@ -179,7 +179,7 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
 
 /* Keyframes */
 @keyframes confetti-fall { 0% { transform: translateY(-10vh) rotateZ(0deg); } 100% { transform: translateY(110vh) rotateZ(360deg); } }
-@keyframes draw-line { from { width: 0; } to { width: 100%; } }
+@keyframes draw-line { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes drop { 0% { transform: translateY(-100px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
 @keyframes shake { 10%, 90% { transform: translateX(-1px); } 20%, 80% { transform: translateX(2px); } 30%, 50%, 70% { transform: translateX(-4px); } 40%, 60% { transform: translateX(4px); } }
 

@@ -1,3 +1,5 @@
+let wordSet;
+
 const wordFallGame = {
     gameLoopTimeoutId: null,
     synth: null,
