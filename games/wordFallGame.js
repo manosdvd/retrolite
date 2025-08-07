@@ -1,644 +1,516 @@
 const wordFallGame = {
+    // --- Game State Variables ---
     gameLoopTimeoutId: null,
+    previewTimeoutId: null,
     synth: null,
-    isProcessing: false,
+    isProcessing: false, // Prevents user input during automated sequences (clearing, falling)
     isPaused: false,
     gameOver: false,
-    currentInterval: 1000,
-    styleElement: null,
-
-    setup: function() {
-        // Add styles for the game
-        this.styleElement = document.createElement('style');
-        this.styleElement.textContent = `
-            .word-fall-tile {
-                background: radial-gradient(circle, #4a5568, #2d3748); /* A nice gray gradient */
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-weight: bold;
-                font-size: 1.1rem; /* Make font slightly larger */
-                text-transform: uppercase;
-            }
-            .word-fall-active .game-container {
-                background: linear-gradient(145deg, #1e3a8a, #3b82f6);
-            }
-        `;
-        document.head.appendChild(this.styleElement);
-        document.body.classList.add('word-fall-active');
-
-        const gameBoardWrapper = document.getElementById('game-board-wrapper');
-        // Use a structure similar to anxietyLevelUpGame for the UI
-        gameBoardWrapper.innerHTML = `
-            <div class="game-wrapper">
-                <div id="game-container-wordfall" class="game-container p-4 md:p-6 flex flex-col">
-                    <div class="flex justify-between items-center mb-4">
-                        <div class="flex items-baseline space-x-4">
-                            <h1 class="font-bold text-2xl md:text-3xl tracking-widest text-white">DYSLEXIA</h1>
-                            <div>
-                                <span class="font-semibold text-lg">LVL:</span>
-                                <span id="level" class="font-bold text-blue-300 text-lg">1</span>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="font-semibold text-lg">SCORE</div>
-                            <div id="score" class="font-bold text-yellow-300 text-lg">0 / 1500</div>
-                        </div>
-                    </div>
-                    <div id="word-display-container" class="word-display-container mb-4">
-                        <div id="word-display" class="word-display text-center text-lg text-yellow-200 h-8"></div>
-                    </div>
-                    <div class="preview-container">
-                        <p class="text-center text-sm text-gray-400 mb-2">NEXT</p>
-                        <div id="preview-row" class="preview-row"></div>
-                    </div>
-                    <div id="grid-wrapper" class="grid-wrapper">
-                        <div id="grid" class="grid"></div>
-                    </div>
-                    <div id="controls-area" class="mt-4">
-                         <div id="timer-display-container" class="text-center text-sm text-gray-400 mb-2">
-                            <p>Next row in: <span id="interval-display" class="font-bold text-cyan-300">1.00</span>s</p>
-                        </div>
-                        <button id="pause-button" class="w-full py-3 mt-2 rounded-lg text-xl font-bold tracking-wider bg-gray-600 hover:bg-gray-500 text-white transition-transform transform hover:scale-105">
-                            PAUSE
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div id="game-over-modal" class="absolute inset-0 z-20 flex-col items-center justify-center text-center p-4 modal hidden">
-                <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-red-500">
-                    <h2 class="text-5xl font-bold text-red-500 mb-4 tracking-widest">GAME OVER</h2>
-                    <div class="text-xl space-y-2 mb-6">
-                        <p>Final Level: <span id="final-level" class="font-bold text-white">1</span></p>
-                        <p>Final Score: <span id="final-score" class="font-bold text-yellow-300">0</span></p>
-                    </div>
-                     <button id="view-words-button" class="bg-purple-600 hover:bg-purple-500 text-white font-bold py-3 px-8 rounded-lg text-xl transition-transform transform hover:scale-105 mb-4">
-                        VIEW FOUND WORDS
-                    </button>
-                    <button id="restart-button" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-lg text-xl transition-transform transform hover:scale-105">
-                        RESTART
-                    </button>
-                </div>
-            </div>
-            <div id="start-modal" class="absolute inset-0 z-20 flex flex-col items-center justify-center text-center p-4 modal">
-                <div class="bg-gray-800 p-8 rounded-2xl shadow-2xl border-2 border-blue-500 max-w-lg">
-                    <h2 class="text-4xl md:text-5xl font-bold text-blue-400 mb-4 tracking-widest">DYSLEXIA</h2>
-                    <p class="text-lg mb-6 text-gray-300">Find words of 3+ letters to score points. Don't let the grid fill up!</p>
-                    <div class="mb-8">
-                        <label for="level-select" class="text-gray-400 mr-2 text-lg">STARTING LEVEL:</label>
-                        <select id="level-select" class="bg-gray-700 text-white p-2 rounded-lg text-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                            <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
-                            <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
-                        </select>
-                    </div>
-                    <button id="start-button" class="bg-green-600 hover:bg-green-500 text-white font-bold py-3 px-8 rounded-lg text-2xl transition-transform transform hover:scale-105">
-                        START GAME
-                    </button>
-                </div>
-            </div>
-        `;
-
-        const self = this;
-
-        // --- Game Configuration ---
-        const GRID_WIDTH = 8;
-        const GRID_HEIGHT = 10;
-        const STARTING_ROWS = 5;
-        const INITIAL_INTERVAL_MS = 1500; // Slower start
-        const LEVEL_INTERVAL_DECREMENT_MS = 100;
-        const MIN_INTERVAL_MS = 400;
-        const BOARD_CLEAR_BONUS = 5000;
-        const LEVEL_THRESHOLDS = [1500, 4000, 7500, 12000, 20000, 30000, 45000, 60000];
-        const SCRABBLE_TILE_DISTRIBUTION = "AAAAAAAAABBCCDDDDEEEEEEEEEEEEFFGGGHHIIIIIIIIIJKLLLLMMNNNNNNOOOOOOOOPPQRRRRRRSSSSTTTTTTUUUUVVWWXYYZ".split('');
-        const SCRABBLE_TILE_VALUES = { 'A': 1, 'B': 3, 'C': 3, 'D': 2, 'E': 1, 'F': 4, 'G': 2, 'H': 4, 'I': 1, 'J': 8, 'K': 5, 'L': 1, 'M': 3, 'N': 1, 'O': 1, 'P': 3, 'Q': 10, 'R': 1, 'S': 1, 'T': 1, 'U': 1, 'V': 4, 'W': 4, 'X': 8, 'Y': 4, 'Z': 10 };
-        const wordList = new Set(dyslexiaWords);
-        let foundWordsDuringGameplay = new Set();
-
-
-        // --- DOM Elements ---
-        const gridElement = document.getElementById('grid');
-        const previewRowElement = document.getElementById('preview-row');
-        const scoreElement = document.getElementById('score');
-        const levelElement = document.getElementById('level');
-        const intervalDisplayElement = document.getElementById('interval-display');
-        const gameOverModal = document.getElementById('game-over-modal');
-        const finalScoreElement = document.getElementById('final-score');
-        const finalLevelElement = document.getElementById('final-level');
-        const restartButton = document.getElementById('restart-button');
-        const viewWordsButton = document.getElementById('view-words-button');
-        const startModal = document.getElementById('start-modal');
-        const startButton = document.getElementById('start-button');
-        const wordDisplay = document.getElementById('word-display');
-        const levelSelectElement = document.getElementById('level-select');
-        const pauseButton = document.getElementById('pause-button');
-
-
-        // --- Game State ---
-        let grid = [], previewRow = [], score = 0, level = 1, selectedCell = null;
-
-        // --- Audio & Haptics (borrowed from Anxiety 2) ---
-        const audio = {
-            start: () => { try { if (Tone.context.state !== 'running') { Tone.start(); } self.synth = new Tone.PolySynth(Tone.Synth).toDestination(); } catch (e) { console.error('Audio context failed to start.'); } },
-            select: () => self.synth?.triggerAttackRelease('C5', '8n'),
-            swap: () => self.synth?.triggerAttackRelease('G4', '8n'),
-            levelUp: () => self.synth?.triggerAttackRelease(['C5', 'G5', 'C6'], '4n'),
-            clear: (count) => { const notes = ['C4', 'E4', 'G4', 'A4', 'C5']; const now = Tone.now(); for (let i = 0; i < Math.min(count, notes.length); i++) { self.synth?.triggerAttackRelease(notes[i], '16n', now + i * 0.07); } },
-            drop: () => self.synth?.triggerAttackRelease('C3', '8n'),
-            gameOver: () => self.synth?.triggerAttackRelease(['C4', 'F#3', 'C3'], '1n'),
-            boardClear: () => self.synth?.triggerAttackRelease(['C5', 'E5', 'G5', 'C6'], '0.5n'),
-        };
-        const haptics = {
-            vibrate: (pattern) => { if (navigator.vibrate) navigator.vibrate(pattern); },
-            select: () => haptics.vibrate(20),
-            swap: () => haptics.vibrate(30),
-            levelUp: () => haptics.vibrate([100, 50, 100]),
-            clear: () => haptics.vibrate([50, 30, 50]),
-            drop: () => haptics.vibrate(75),
-            gameOver: () => haptics.vibrate([100, 50, 100, 50, 200]),
-        };
-
-        // --- Core Game Logic ---
-        function init(startingLevel = 1) {
-            level = startingLevel;
-            score = level > 1 ? LEVEL_THRESHOLDS[level - 2] : 0;
-            self.gameOver = false;
-            self.isPaused = false;
-            self.isProcessing = false;
-            selectedCell = null;
-            foundWordsDuringGameplay.clear();
-
-
-            updateLevelDisplay();
-            updateScoreDisplay();
-            updateIntervalForLevel();
-
-
-            gameOverModal.classList.add('hidden');
-            pauseButton.textContent = 'PAUSE';
-            gridElement.classList.remove('paused');
-            wordDisplay.textContent = '';
-
-
-            grid = Array.from({ length: GRID_HEIGHT }, () => Array(GRID_WIDTH).fill(null));
-            previewRow = Array(GRID_WIDTH).fill(null);
-
-
-            for (let y = GRID_HEIGHT - STARTING_ROWS; y < GRID_HEIGHT; y++) {
-                for (let x = 0; x < GRID_WIDTH; x++) {
-                    grid[y][x] = SCRABBLE_TILE_DISTRIBUTION[Math.floor(Math.random() * SCRABBLE_TILE_DISTRIBUTION.length)];
-                }
-            }
-
-
-            createGridDOM();
-            createPreviewDOM();
-            renderGrid();
-
-
-            if (self.gameLoopTimeoutId) clearTimeout(self.gameLoopTimeoutId);
-            self.gameLoopTimeoutId = setTimeout(gameLoop, self.currentInterval);
-        }
-
-
-        function handleCellClick(event) {
-             if (self.gameOver || self.isProcessing || self.isPaused) return;
-
-
-            const cellElement = event.target.closest('.cell');
-            if (!cellElement || !cellElement.dataset.index) return;
-
-
-            const index = parseInt(cellElement.dataset.index, 10);
-            const x = index % GRID_WIDTH;
-            const y = Math.floor(index / GRID_WIDTH);
-
-
-            if (selectedCell) {
-                const { x: selX, y: selY } = selectedCell;
-
-
-                const prevSelIndex = selY * GRID_WIDTH + selX;
-                gridElement.children[prevSelIndex]?.classList.remove('selected-outline');
-
-
-                if ((selX === x && selY === y) || grid[y][x] === null) {
-                    selectedCell = null;
-                } else {
-                    haptics.swap();
-                    audio.swap();
-
-
-                    [grid[selY][selX], grid[y][x]] = [grid[y][x], grid[selY][selX]];
-
-
-                    renderGrid();
-
-
-                    selectedCell = null;
-
-
-                    self.isProcessing = true;
-                    setTimeout(processGameTurn, 50);
-                }
-            } else {
-                if (grid[y][x] !== null) {
-                    haptics.select();
-                    audio.select();
-                    selectedCell = { x, y };
-                    cellElement.classList.add('selected-outline');
-                }
-            }
-        }
-
-
-        async function processGameTurn() {
-            await checkClearAndDropLoop();
-            if (!self.gameOver) {
-                self.isProcessing = false;
-            }
-        }
-
-
-        function gameLoop() {
-            if (self.gameOver || self.isPaused) return;
-
-
-            addBlockToPreview();
-
-
-            if (previewRow.indexOf(null) === -1) { // When preview row is full
-                self.isProcessing = true;
-
-
-                if (grid[0].some((cell, index) => cell !== null && previewRow[index] !== null)) {
-                    triggerGameOver();
-                    return;
-                }
-
-
-                audio.drop();
-                haptics.drop();
-
-
-                // Shift everything down
-                for (let y = GRID_HEIGHT - 1; y > 0; y--) {
-                    grid[y] = [...grid[y-1]];
-                }
-                grid[0] = [...previewRow];
-
-
-                previewRow = Array(GRID_WIDTH).fill(null);
-                renderPreview();
-
-
-                renderGrid({ animateTopRow: true });
-
-
-                setTimeout(processGameTurn, 250);
-            }
-
-
-            if (!self.gameOver && !self.isPaused) {
-                self.gameLoopTimeoutId = setTimeout(gameLoop, self.currentInterval);
-            }
-        }
-
-
-        async function checkClearAndDropLoop() {
-            let chain = 0;
-            let allWordsThisTurn = new Set();
-            while (!self.gameOver) {
-                const { coords, words } = findMatches();
-                if (coords.size === 0) break;
-
-
-                chain++;
-                words.forEach(word => allWordsThisTurn.add(word));
-                haptics.clear();
-                audio.clear(coords.size);
-                updateScore(words, chain);
-                displayFoundWords(Array.from(allWordsThisTurn));
-
-
-                await clearMatches(coords);
-                await new Promise(r => setTimeout(r, 250));
-
-
-                await applyGravity();
-                await new Promise(r => setTimeout(r, 250));
-            }
-             if (allWordsThisTurn.size === 0) {
-                 wordDisplay.textContent = '';
-             }
-            await checkForBoardClear();
-        }
-
-
-        function findMatches() {
-            const coords = new Set();
-            const words = new Set();
-
-
-            // Horizontal check
-            for (let y = 0; y < GRID_HEIGHT; y++) {
-                let rowStr = '';
-                for (let x = 0; x < GRID_WIDTH; x++) {
-                    rowStr += grid[y][x] || ' ';
-                }
-                for (const word of wordList) {
-                    if (word.length < 3) continue;
-                    let i = -1;
-                    while ((i = rowStr.indexOf(word, i + 1)) !== -1) {
-                        words.add(word);
-                        foundWordsDuringGameplay.add(word);
-                        for (let j = 0; j < word.length; j++) {
-                            coords.add(`${i + j},${y}`);
-                        }
-                    }
-                }
-            }
-
-
-            // Vertical check
-            for (let x = 0; x < GRID_WIDTH; x++) {
-                let colStr = '';
-                for (let y = 0; y < GRID_HEIGHT; y++) {
-                    colStr += grid[y][x] || ' ';
-                }
-                 for (const word of wordList) {
-                    if (word.length < 3) continue;
-                    let i = -1;
-                    while ((i = colStr.indexOf(word, i + 1)) !== -1) {
-                        words.add(word);
-                        foundWordsDuringGameplay.add(word);
-                        for (let j = 0; j < word.length; j++) {
-                            coords.add(`${x},${i + j}`);
-                        }
-                    }
-                }
-            }
-
-
-            return { coords, words: Array.from(words) };
-        }
-
-
-         function clearMatches(matches) {
-            matches.forEach(coord => {
-                const [x, y] = coord.split(',').map(Number);
-                grid[y][x] = null;
-            });
-            renderGrid({ clearingCoords: matches });
-        }
-
-
-        function applyGravity() {
-            for (let x = 0; x < GRID_WIDTH; x++) {
-                let emptyRow = GRID_HEIGHT - 1;
-                for (let y = GRID_HEIGHT - 1; y >= 0; y--) {
-                    if (grid[y][x]) {
-                        [grid[emptyRow][x], grid[y][x]] = [grid[y][x], grid[emptyRow][x]];
-                        emptyRow--;
-                    }
-                }
-            }
-            renderGrid();
-        }
-
-
-
-
-        async function checkForBoardClear() {
-            const isClear = grid.every(row => row.every(cell => cell === null));
-            if (isClear) {
-                audio.boardClear();
-                score += BOARD_CLEAR_BONUS;
-                updateScoreDisplay();
-                displayFoundWords(["BOARD CLEAR!"]);
-            }
-        }
-
-
-        function createGridDOM() {
-            gridElement.innerHTML = '';
-            for (let i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.index = i;
-                gridElement.appendChild(cell);
-            }
-        }
-
-
-        function createPreviewDOM() {
-            previewRowElement.innerHTML = '';
-            for (let i = 0; i < GRID_WIDTH; i++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                previewRowElement.appendChild(cell);
-            }
-        }
-
-
-        function renderGrid(options = {}) {
-            const { animateTopRow = false, clearingCoords = new Set() } = options;
-
-
-            for (let y = 0; y < GRID_HEIGHT; y++) {
-                for (let x = 0; x < GRID_WIDTH; x++) {
-                    const index = y * GRID_WIDTH + x;
-                    const cell = gridElement.children[index];
-                    if (!cell) continue;
-                    cell.innerHTML = '';
-                    const letter = grid[y][x];
-
-
-                    if (clearingCoords.has(`${x},${y}`)) {
-                        const tempLight = document.createElement('div');
-                        tempLight.className = `light clearing word-fall-tile`;
-                        tempLight.textContent = letter;
-                        cell.appendChild(tempLight);
-                    } else if (letter) {
-                        const light = document.createElement('div');
-                        light.className = 'light word-fall-tile'; // <-- THE FIX IS HERE!
-                        light.textContent = letter;
-                        if (animateTopRow && y === 0) {
-                            light.classList.add('dropping');
-                        }
-                        cell.appendChild(light);
-                    }
-                }
-            }
-        }
-
-
-
-
-        function addBlockToPreview() {
-            if (self.gameOver) return;
-            const emptyIndex = previewRow.indexOf(null);
-            if (emptyIndex !== -1) {
-                previewRow[emptyIndex] = SCRABBLE_TILE_DISTRIBUTION[Math.floor(Math.random() * SCRABBLE_TILE_DISTRIBUTION.length)];
-                renderPreview();
-            }
-        }
-
-
-        function renderPreview() {
-            for (let x = 0; x < GRID_WIDTH; x++) {
-                const cell = previewRowElement.children[x];
-                if (!cell) continue;
-                const letter = previewRow[x];
-                let light = cell.querySelector('.light');
-                if (letter) {
-                    if (!light) {
-                        light = document.createElement('div');
-                        light.classList.add('light');
-                        cell.appendChild(light);
-                    }
-                    light.className = 'light word-fall-tile';
-                    light.textContent = letter;
-                } else if (light) {
-                    cell.removeChild(light);
-                }
-            }
-        }
-
-
-        function updateScore(words, chain) {
-            let turnScore = 0;
-            words.forEach(word => {
-                let wordScore = 0;
-                for (const letter of word) {
-                    wordScore += SCRABBLE_TILE_VALUES[letter.toUpperCase()] || 0;
-                }
-                if (word.length >= 7) wordScore += 50;
-                turnScore += wordScore;
-            });
-            const chainBonus = (chain > 1) ? turnScore * (chain - 1) * 0.5 : 0;
-            score += turnScore + chainBonus;
-            updateScoreDisplay();
-            checkLevelUp();
-        }
-        
-        function displayFoundWords(words) {
-            wordDisplay.textContent = words.join(', ');
-        }
-
-
-        function checkLevelUp() {
-            if (level - 1 < LEVEL_THRESHOLDS.length && score >= LEVEL_THRESHOLDS[level - 1]) {
-                level++;
-                audio.levelUp();
-                haptics.levelUp();
-                updateLevelDisplay();
-                updateIntervalForLevel();
-            }
-        }
-
-
-        function updateScoreDisplay() {
-            const nextThreshold = LEVEL_THRESHOLDS[level - 1] || 'MAX';
-            scoreElement.textContent = `${Math.round(score)} / ${nextThreshold}`;
-        }
-
-
-        function updateLevelDisplay() {
-            levelElement.textContent = level;
-        }
-
-
-        function updateIntervalForLevel() {
-            self.currentInterval = Math.max(MIN_INTERVAL_MS, INITIAL_INTERVAL_MS - (level - 1) * LEVEL_INTERVAL_DECREMENT_MS);
-            intervalDisplayElement.textContent = (self.currentInterval / 1000).toFixed(2);
-        }
-
-
-        function triggerGameOver() {
-            if (self.gameOver) return;
-            self.gameOver = true;
-            self.isProcessing = true;
-            if (self.gameLoopTimeoutId) clearTimeout(self.gameLoopTimeoutId);
-
-
-            audio.gameOver();
-            haptics.gameOver();
-
-
-            finalLevelElement.textContent = level;
-            finalScoreElement.textContent = Math.round(score);
-
-
-            gameOverModal.classList.remove('hidden');
-            gameOverModal.classList.add('flex');
-        }
-
-
-        function togglePause() {
-            if (self.gameOver) return;
-            self.isPaused = !self.isPaused;
-            if (self.isPaused) {
-                clearTimeout(self.gameLoopTimeoutId);
-                pauseButton.textContent = 'RESUME';
-                gridElement.classList.add('paused');
-            } else {
-                pauseButton.textContent = 'PAUSE';
-                gridElement.classList.remove('paused');
-                self.gameLoopTimeoutId = setTimeout(gameLoop, self.currentInterval);
-            }
-        }
-        
-        function showFoundWordsModal() {
-            // This is a simplified example; you can build a more complex modal.
-            const words = Array.from(foundWordsDuringGameplay).sort().join(', ');
-            alert(`Words Found: ${words || 'None'}`);
-        }
-
-
-        // --- Event Listeners ---
-        startButton.addEventListener('click', () => {
-            audio.start();
-            startModal.classList.add('hidden');
-            const startingLevel = parseInt(levelSelectElement.value, 10);
-            init(startingLevel);
-        });
-
-
-        restartButton.addEventListener('click', () => {
-            gameOverModal.classList.add('hidden');
-            startModal.classList.remove('hidden');
-            startModal.classList.add('flex');
-        });
-        
-        viewWordsButton.addEventListener('click', showFoundWordsModal);
-
-
-        pauseButton.addEventListener('click', togglePause);
-        gridElement.addEventListener('click', handleCellClick);
+    currentInterval: 8000, // Time for the full preview bar to generate
+    score: 0,
+    level: 1,
+    wordsFoundCount: 0,
+    
+    // --- Game Data ---
+    grid: [],
+    rows: 12, 
+    cols: 8,
+    previewRow: [],
+    firstSelectedCell: null, // For swapping
+    foundWords: new Set(),
+    dyslexiaWordSet: null,
+    letterDistribution: [],
+    
+    // --- Scrabble Tile Data ---
+    scrabbleTiles: {
+        'A': { score: 1, count: 9 }, 'B': { score: 3, count: 2 }, 'C': { score: 3, count: 2 },
+        'D': { score: 2, count: 4 }, 'E': { score: 1, count: 12 }, 'F': { score: 4, count: 2 },
+        'G': { score: 2, count: 3 }, 'H': { score: 4, count: 2 }, 'I': { score: 1, count: 9 },
+        'J': { score: 8, count: 1 }, 'K': { score: 5, count: 1 }, 'L': { score: 1, count: 4 },
+        'M': { score: 3, count: 2 }, 'N': { score: 1, count: 6 }, 'O': { score: 1, count: 8 },
+        'P': { score: 3, count: 2 }, 'Q': { score: 10, count: 1 }, 'R': { score: 1, count: 6 },
+        'S': { score: 1, count: 4 }, 'T': { score: 1, count: 6 }, 'U': { score: 1, count: 4 },
+        'V': { score: 4, count: 2 }, 'W': { score: 4, count: 2 }, 'X': { score: 8, count: 1 },
+        'Y': { score: 4, count: 2 }, 'Z': { score: 10, count: 1 }
     },
 
+    // --- DOM Elements ---
+    styleElement: null,
+    fontLink1: null,
+    fontLink2: null,
+    fontLink3: null,
+    
+    // --- Game Setup ---
+    setup: function() {
+        this.injectFontsAndStyles();
+        this.renderGameLayout();
+        this.initializeData();
+        this.addEventListeners();
+    },
+
+    injectFontsAndStyles: function() {
+        this.fontLink1 = document.createElement('link');
+        this.fontLink1.rel = 'preconnect';
+        this.fontLink1.href = 'https://fonts.googleapis.com';
+        document.head.appendChild(this.fontLink1);
+
+        this.fontLink2 = document.createElement('link');
+        this.fontLink2.rel = 'preconnect';
+        this.fontLink2.href = 'https://fonts.gstatic.com';
+        this.fontLink2.crossOrigin = 'anonymous';
+        document.head.appendChild(this.fontLink2);
+        
+        this.fontLink3 = document.createElement('link');
+        this.fontLink3.rel = 'stylesheet';
+        this.fontLink3.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap';
+        document.head.appendChild(this.fontLink3);
+
+        this.styleElement = document.createElement('style');
+        this.styleElement.textContent = `
+            .wordfall-game-active { font-family: 'Inter', sans-serif; overflow: hidden; }
+            .game-wrapper { width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+            #game-container-wordfall { background: linear-gradient(145deg, #1f2937, #374151); border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.3); width: 100%; max-width: 500px; height: 95vh; max-height: 900px; }
+            #grid-wordfall { display: grid; grid-template-columns: repeat(${this.cols}, 1fr); grid-template-rows: repeat(${this.rows}, 1fr); gap: 4px; flex-grow: 1; background-color: #111827; border-radius: 0.5rem; padding: 4px; }
+            .cell { display: flex; justify-content: center; align-items: center; background-color: #4b5563; border-radius: 4px; color: white; font-weight: 900; font-size: clamp(14px, 4vmin, 28px); text-transform: uppercase; transition: all 0.2s ease-in-out; user-select: none; -webkit-user-select: none; cursor: pointer; }
+            .cell.empty { background-color: #374151; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); cursor: default; }
+            .cell.selected { background-color: #60a5fa; transform: scale(1.1); box-shadow: 0 0 15px #60a5fa; }
+            .cell.clearing { animation: pulse-green 0.4s ease-in-out; }
+            @keyframes pulse-green { 0%, 100% { background-color: #4ade80; transform: scale(1.05); } 50% { background-color: #86efac; transform: scale(1.15); } }
+            .cell.falling { animation: drop-glow 0.8s ease-out; }
+            @keyframes drop-glow { 0% { box-shadow: 0 0 15px #a7f3d0; } 100% { box-shadow: none; } }
+            #preview-bar-container { display: flex; gap: 4px; margin-bottom: 8px; padding: 4px; background-color: #111827; border-radius: 0.5rem; height: 2rem; }
+            .preview-cell { flex: 1; height: 1.5rem; background-color: #374151; border-radius: 4px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size: 1rem; transition: background-color 0.2s; }
+            .preview-cell.filled { background-color: #4b5563; }
+            .modal { background-color: rgba(17, 24, 39, 0.8); backdrop-filter: blur(5px); }
+            .word-list-modal-content { background-color: #1f2937; padding: 1.5rem; border-radius: 1rem; border: 2px solid #3b82f6; width: 90vw; max-width: 600px; height: 80vh; display: flex; flex-direction: column; }
+            .word-list-modal-content h2 { color: #93c5fd; }
+            .word-list-modal-content dl { color: #d1d5db; overflow-y: auto; }
+            .word-list-modal-content dt { font-weight: 700; color: #ffffff; margin-top: 0.75rem; }
+            .word-list-modal-content dd { font-size: 0.875rem; color: #9ca3af; margin-left: 1rem; }
+        `;
+        document.head.appendChild(this.styleElement);
+        document.body.classList.add('wordfall-game-active');
+    },
+
+    renderGameLayout: function() {
+        const gameBoardWrapper = document.getElementById('game-board-wrapper');
+        gameBoardWrapper.innerHTML = `
+            <div class="game-wrapper">
+                <div id="game-container-wordfall" class="game-container p-4 flex flex-col">
+                    <div class="flex justify-between items-center mb-2 text-white">
+                        <h1 class="font-black text-3xl tracking-wider">WORDFALL</h1>
+                        <div class="text-right">
+                            <div class="font-semibold">SCORE</div>
+                            <div id="score" class="font-bold text-2xl text-blue-300">0</div>
+                        </div>
+                    </div>
+                    <div class="flex justify-between items-center mb-2 text-gray-300">
+                         <div><span class="font-semibold">LVL:</span> <span id="level" class="font-bold text-lg">1</span></div>
+                         <div><span class="font-semibold">WORDS:</span> <span id="words-found" class="font-bold text-lg">0</span></div>
+                    </div>
+                    <div id="preview-bar-container"></div>
+                    <div id="grid-wordfall"></div>
+                    <button id="pause-btn" class="mt-2 py-2 px-4 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-colors">PAUSE</button>
+                </div>
+            </div>
+            <div id="start-modal" class="modal fixed inset-0 flex items-center justify-center">
+                <div class="bg-gray-800 p-8 rounded-lg shadow-2xl text-center text-white">
+                    <h2 class="text-3xl font-black mb-4">WORDFALL</h2>
+                    <p class="mb-6">Swap any two letters to form words. Don't let the grid fill up!</p>
+                    <button id="start-btn" class="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 rounded-lg text-xl font-bold transition-colors">START</button>
+                </div>
+            </div>
+            <div id="game-over-modal" class="modal fixed inset-0 hidden items-center justify-center">
+                <div class="bg-gray-800 p-8 rounded-lg shadow-2xl text-center text-white">
+                    <h2 class="text-4xl font-black text-red-500 mb-4">GAME OVER</h2>
+                    <p class="mb-2 text-xl">Final Score: <span id="final-score" class="font-bold"></span></p>
+                    <p class="mb-6 text-xl">Words Found: <span id="final-words-found" class="font-bold"></span></p>
+                    <div class="flex flex-col space-y-2">
+                        <button id="view-words-btn" class="py-2 px-4 bg-green-500 hover:bg-green-600 rounded-lg font-bold transition-colors">View Words</button>
+                        <button id="restart-btn" class="py-2 px-4 bg-blue-600 hover:bg-blue-700 rounded-lg font-bold transition-colors">RESTART</button>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+
+    initializeData: function() {
+        this.dyslexiaWordSet = new Set(dyslexiaWords.map(word => word.toUpperCase()));
+        this.letterDistribution = [];
+        for (const letter in this.scrabbleTiles) {
+            for (let i = 0; i < this.scrabbleTiles[letter].count; i++) {
+                this.letterDistribution.push(letter);
+            }
+        }
+    },
+
+    addEventListeners: function() {
+        document.getElementById('start-btn').addEventListener('click', () => this.init());
+        document.getElementById('restart-btn').addEventListener('click', () => {
+            document.getElementById('game-over-modal').classList.add('hidden');
+            document.getElementById('start-modal').classList.remove('hidden');
+        });
+        document.getElementById('pause-btn').addEventListener('click', () => this.togglePause());
+        document.getElementById('grid-wordfall').addEventListener('click', (e) => this.handleCellClick(e));
+        document.getElementById('view-words-btn').addEventListener('click', () => this.showFoundWordsModal());
+    },
+
+    init: function() {
+        document.getElementById('start-modal').classList.add('hidden');
+        this.score = 0;
+        this.level = 1;
+        this.wordsFoundCount = 0;
+        this.currentInterval = 8000;
+        this.isPaused = false;
+        this.gameOver = false;
+        this.firstSelectedCell = null;
+        this.foundWords.clear();
+        this.updateStats();
+
+        this.grid = Array(this.rows * this.cols).fill(null);
+        for (let r = this.rows - 5; r < this.rows; r++) {
+            for (let c = 0; c < this.cols; c++) {
+                this.grid[r * this.cols + c] = this.getRandomLetter();
+            }
+        }
+        
+        this.drawGrid();
+        this.drawPreviewBar(true); // Initial empty bar
+
+        if (this.gameLoopTimeoutId) clearTimeout(this.gameLoopTimeoutId);
+        this.gameLoop();
+    },
+    
+    gameLoop: function() {
+        if (this.isPaused || this.gameOver || this.isProcessing) {
+            this.gameLoopTimeoutId = setTimeout(() => this.gameLoop(), 100); // Check again soon
+            return;
+        }
+        this.animatePreviewBar();
+    },
+    
+    animatePreviewBar: function(previewIndex = 0) {
+        if (this.isPaused || this.gameOver) return;
+
+        if (previewIndex === 0) {
+            this.previewRow = [];
+            this.drawPreviewBar(true); // Clear bar visually
+        }
+
+        if (previewIndex < this.cols) {
+            const newLetter = this.getRandomLetter();
+            this.previewRow.push(newLetter);
+            this.drawPreviewBar();
+
+            const delay = this.currentInterval / this.cols;
+            this.previewTimeoutId = setTimeout(() => this.animatePreviewBar(previewIndex + 1), delay);
+        } else {
+            // Preview is full, now drop the row
+            this.dropRow();
+        }
+    },
+
+    dropRow: async function() {
+        this.isProcessing = true;
+        
+        // Check for game over condition (top row is blocked)
+        for(let c = 0; c < this.cols; c++) {
+            if (this.grid[c] !== null) {
+                this.gameOver = true;
+                this.handleGameOver();
+                return;
+            }
+        }
+
+        // Shift entire grid down one row
+        for (let i = this.grid.length - 1; i >= this.cols; i--) {
+            this.grid[i] = this.grid[i - this.cols];
+        }
+
+        // Add preview row to the top
+        for (let c = 0; c < this.cols; c++) {
+            this.grid[c] = this.previewRow[c];
+        }
+        
+        this.playSound('C4', '16n');
+        this.drawGrid(true); // Redraw with falling animation hint
+        
+        await this.applyGravity();
+        await this.processMatches();
+        
+        this.isProcessing = false;
+        this.gameLoopTimeoutId = setTimeout(() => this.gameLoop(), 500); // Start next cycle
+    },
+
+    drawGrid: function(wasDrop = false) {
+        const gridElement = document.getElementById('grid-wordfall');
+        gridElement.innerHTML = '';
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < this.grid.length; i++) {
+            const cell = document.createElement('div');
+            cell.dataset.index = i;
+            cell.classList.add('cell');
+            if (this.grid[i]) {
+                cell.textContent = this.grid[i];
+                if (wasDrop && i < this.cols) { // Animate only the top row that just dropped
+                    cell.classList.add('falling');
+                }
+            } else {
+                cell.classList.add('empty');
+            }
+            fragment.appendChild(cell);
+        }
+        gridElement.appendChild(fragment);
+    },
+    
+    drawPreviewBar: function(isEmpty = false) {
+        const previewBar = document.getElementById('preview-bar-container');
+        previewBar.innerHTML = '';
+        for (let i = 0; i < this.cols; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('preview-cell');
+            if (!isEmpty && this.previewRow[i]) {
+                cell.textContent = this.previewRow[i];
+                cell.classList.add('filled');
+            }
+            previewBar.appendChild(cell);
+        }
+    },
+
+    updateStats: function() {
+        document.getElementById('score').textContent = this.score;
+        document.getElementById('level').textContent = this.level;
+        document.getElementById('words-found').textContent = this.wordsFoundCount;
+    },
+
+    handleCellClick: function(e) {
+        if (this.isProcessing || this.isPaused || this.gameOver) return;
+        const target = e.target.closest('.cell');
+        if (!target || target.classList.contains('empty')) return;
+
+        const index = parseInt(target.dataset.index);
+
+        if (this.firstSelectedCell === null) {
+            this.firstSelectedCell = { index, element: target };
+            target.classList.add('selected');
+            this.playSound('E5', '16n');
+        } else {
+            if (this.firstSelectedCell.index === index) {
+                this.firstSelectedCell.element.classList.remove('selected');
+                this.firstSelectedCell = null;
+            } else {
+                this.firstSelectedCell.element.classList.remove('selected');
+                this.swapCells(this.firstSelectedCell.index, index);
+                this.firstSelectedCell = null;
+            }
+        }
+    },
+
+    swapCells: async function(index1, index2) {
+        this.isProcessing = true;
+        this.playSound('A4', '16n');
+        [this.grid[index1], this.grid[index2]] = [this.grid[index2], this.grid[index1]];
+        this.drawGrid();
+        
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        await this.processMatches();
+        this.isProcessing = false;
+    },
+    
+    processMatches: async function() {
+        let foundAnyWords;
+        do {
+            const wordsToClear = this.findAllWords();
+            if (wordsToClear.size > 0) {
+                foundAnyWords = true;
+                this.playSound('G5', '8n');
+                await this.clearCells(wordsToClear);
+                await this.applyGravity();
+            } else {
+                foundAnyWords = false;
+            }
+        } while (foundAnyWords);
+    },
+
+    findAllWords: function() {
+        const cellsToClear = new Set();
+        const checkLine = (line) => {
+            const lineStr = line.map(cell => cell.letter || ' ').join('');
+            for (const word of this.dyslexiaWordSet) {
+                if (word.length < 3) continue;
+                let startIndex = lineStr.indexOf(word);
+                while (startIndex !== -1) {
+                    for (let i = 0; i < word.length; i++) {
+                        cellsToClear.add(line[startIndex + i].index);
+                    }
+                    if (!this.foundWords.has(word)) {
+                        this.foundWords.add(word);
+                        this.wordsFoundCount++;
+                        let wordScore = 0;
+                        for(const letter of word) {
+                            wordScore += this.scrabbleTiles[letter].score;
+                        }
+                        this.score += wordScore * word.length;
+                    }
+                    startIndex = lineStr.indexOf(word, startIndex + 1);
+                }
+            }
+        };
+
+        for (let r = 0; r < this.rows; r++) {
+            const row = Array.from({length: this.cols}, (_, c) => {
+                const index = r * this.cols + c;
+                return { letter: this.grid[index], index };
+            });
+            checkLine(row);
+        }
+
+        for (let c = 0; c < this.cols; c++) {
+            const col = Array.from({length: this.rows}, (_, r) => {
+                const index = r * this.cols + c;
+                return { letter: this.grid[index], index };
+            });
+            checkLine(col);
+        }
+        
+        if (cellsToClear.size > 0) {
+             this.updateStats();
+             this.checkLevelUp();
+        }
+        return cellsToClear;
+    },
+    
+    clearCells: async function(cellsToClear) {
+        const gridElement = document.getElementById('grid-wordfall');
+        cellsToClear.forEach(index => {
+            const cellElement = gridElement.querySelector(`[data-index='${index}']`);
+            if (cellElement) cellElement.classList.add('clearing');
+        });
+        
+        await new Promise(resolve => setTimeout(resolve, 400));
+        
+        cellsToClear.forEach(index => { this.grid[index] = null; });
+    },
+
+    applyGravity: async function() {
+        let fell = false;
+        for (let c = 0; c < this.cols; c++) {
+            for (let r = this.rows - 2; r >= 0; r--) {
+                let fallToRow = r;
+                while (fallToRow + 1 < this.rows && this.grid[(fallToRow + 1) * this.cols + c] === null) {
+                    fallToRow++;
+                }
+                if (fallToRow !== r) {
+                    const fallingIndex = r * this.cols + c;
+                    const landingIndex = fallToRow * this.cols + c;
+                    this.grid[landingIndex] = this.grid[fallingIndex];
+                    this.grid[fallingIndex] = null;
+                    fell = true;
+                }
+            }
+        }
+        if (fell) {
+            this.drawGrid();
+            await new Promise(resolve => setTimeout(resolve, 200)); // Animation time for falling
+        }
+    },
+    
+    checkLevelUp: function() {
+        const newLevel = Math.floor(this.score / 1500) + 1;
+        if (newLevel > this.level) {
+            this.level = newLevel;
+            this.currentInterval = Math.max(2000, this.currentInterval * 0.9);
+            this.updateStats();
+            this.playSound('C6', '8n');
+        }
+    },
+
+    togglePause: function() {
+        this.isPaused = !this.isPaused;
+        document.getElementById('pause-btn').textContent = this.isPaused ? 'RESUME' : 'PAUSE';
+        if (!this.isPaused) {
+            this.gameLoop();
+        } else {
+            clearTimeout(this.gameLoopTimeoutId);
+            clearTimeout(this.previewTimeoutId);
+        }
+    },
+    
+    handleGameOver: function() {
+        if (this.gameOver) return;
+        this.gameOver = true;
+        clearTimeout(this.gameLoopTimeoutId);
+        clearTimeout(this.previewTimeoutId);
+        document.getElementById('final-score').textContent = this.score;
+        document.getElementById('final-words-found').textContent = this.wordsFoundCount;
+        document.getElementById('game-over-modal').classList.remove('hidden');
+        document.getElementById('game-over-modal').classList.add('flex');
+        this.playSound('C3', '2n');
+    },
+    
+    showFoundWordsModal: function() {
+        const modalContainer = document.getElementById('modal-container');
+        if (!modalContainer) return;
+        modalContainer.innerHTML = '';
+        const modal = document.createElement('div');
+        modal.className = 'modal fixed inset-0 flex items-center justify-center';
+        
+        let wordListHTML = '<dl>';
+        const sortedWords = Array.from(this.foundWords).sort();
+        
+        sortedWords.forEach(word => {
+            const definition = collinsScrabbleWords[word] || 'No definition found.';
+            wordListHTML += `<dt>${word}</dt><dd>${definition}</dd>`;
+        });
+        wordListHTML += '</dl>';
+
+        modal.innerHTML = `
+            <div class="word-list-modal-content">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-bold">Words Found</h2>
+                    <button id="close-word-list" class="text-2xl font-bold">&times;</button>
+                </div>
+                ${wordListHTML}
+            </div>
+        `;
+        
+        modalContainer.appendChild(modal);
+        document.getElementById('close-word-list').addEventListener('click', () => {
+            modalContainer.innerHTML = '';
+        });
+    },
+
+    getRandomLetter: function() {
+        return this.letterDistribution[Math.floor(Math.random() * this.letterDistribution.length)];
+    },
+    
+    playSound: function(note, duration) {
+        if (!this.synth) {
+            try {
+                this.synth = new Tone.Synth().toDestination();
+            } catch (e) {
+                console.error("Tone.js synth could not be created.", e);
+                return;
+            }
+        }
+        this.synth.triggerAttackRelease(note, duration);
+    },
 
     cleanup: function() {
-        if (this.gameLoopTimeoutId) {
-            clearTimeout(this.gameLoopTimeoutId);
-            this.gameLoopTimeoutId = null;
-        }
-        if (this.synth) {
-            this.synth.dispose();
-            this.synth = null;
-        }
+        clearTimeout(this.gameLoopTimeoutId);
+        clearTimeout(this.previewTimeoutId);
+        if (this.synth) this.synth.dispose();
         this.gameOver = true;
-        if (this.styleElement) {
-            document.head.removeChild(this.styleElement);
-            this.styleElement = null;
-        }
-        document.body.classList.remove('word-fall-active');
-
-
+        if (this.styleElement) this.styleElement.remove();
+        if (this.fontLink1) this.fontLink1.remove();
+        if (this.fontLink2) this.fontLink2.remove();
+        if (this.fontLink3) this.fontLink3.remove();
+        this.styleElement = this.fontLink1 = this.fontLink2 = this.fontLink3 = null;
+        document.body.classList.remove('wordfall-game-active');
         const gameBoardWrapper = document.getElementById('game-board-wrapper');
-        if (gameBoardWrapper) {
-            gameBoardWrapper.innerHTML = '';
-        }
+        if (gameBoardWrapper) gameBoardWrapper.innerHTML = '';
+        const modalContainer = document.getElementById('modal-container');
+        if(modalContainer) modalContainer.innerHTML = '';
     }
 };
