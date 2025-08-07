@@ -697,3 +697,258 @@ button:disabled, input:disabled { opacity: 0.5; cursor: not-allowed; }
     border-color: #a5b4fc;
 }
 
+
+/* =================================== */
+/* Fix for Word Fall Game Style Mismatch */
+/* =================================== */
+
+.word-fall-active .game-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.word-fall-active .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.word-fall-active .header-left {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+}
+
+.word-fall-active .header-right {
+    text-align: right;
+}
+
+.word-fall-active .header h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: white;
+}
+
+.word-fall-active .info-label {
+    font-weight: 600;
+    font-size: 1.125rem;
+}
+
+.word-fall-active .info-value {
+    font-weight: 700;
+    font-size: 1.125rem;
+}
+
+.word-fall-active #level.info-value { color: #7dd3fc; }
+.word-fall-active #score.info-value { color: #fde047; }
+
+.word-fall-active .word-display-container { margin-bottom: 1rem; }
+
+.word-fall-active .preview-title {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #9ca3af;
+    margin-bottom: 0.5rem;
+}
+
+.word-fall-active .controls-area { margin-top: 1rem; }
+
+.word-fall-active .pause-button {
+    width: 100%;
+    padding: 0.75rem 0;
+    margin-top: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 1.25rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    background-color: #4b5563;
+    color: white;
+    transition: transform 0.2s, background-color 0.2s;
+    border: none;
+    cursor: pointer;
+}
+.word-fall-active .pause-button:hover {
+    background-color: #6b7280;
+    transform: scale(1.05);
+}
+
+.word-fall-active .timer-display-container {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #9ca3af;
+}
+.word-fall-active .timer-display-container.hidden { display: none; }
+
+
+.word-fall-active #interval-display {
+    font-weight: 700;
+    color: #67e8f9;
+}
+
+.word-fall-active .modal {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 20;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 1rem;
+}
+.word-fall-active .modal.hidden { display: none; }
+
+
+.word-fall-active .modal-content {
+    background-color: #1f2937;
+    padding: 2rem;
+    border-radius: 1rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    border-width: 2px;
+    border-style: solid;
+    max-width: 32rem;
+}
+
+.word-fall-active #game-over-modal .modal-content { border-color: #ef4444; }
+.word-fall-active #start-modal .modal-content { border-color: #3b82f6; }
+
+.word-fall-active .modal-title {
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 1rem;
+}
+
+.word-fall-active #game-over-modal .modal-title {
+    font-size: 3rem;
+    color: #ef4444;
+}
+
+.word-fall-active #start-modal .modal-title {
+    font-size: 2.25rem;
+    color: #60a5fa;
+}
+
+.word-fall-active .modal-body {
+    font-size: 1.25rem;
+    margin-bottom: 1.5rem;
+}
+.word-fall-active .modal-body p { margin-bottom: 0.5rem; }
+.word-fall-active .modal-body .final-score-value {
+    font-weight: 700;
+    color: #fde047;
+}
+.word-fall-active .modal-body .start-description {
+    color: #d1d5db;
+    font-size: 1.125rem;
+    margin-bottom: 1.5rem;
+}
+
+
+.word-fall-active .modal-button {
+    font-weight: 700;
+    padding: 0.75rem 2rem;
+    border-radius: 0.5rem;
+    font-size: 1.25rem;
+    transition: transform 0.2s, background-color 0.2s;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+.word-fall-active .modal-button:hover { transform: scale(1.05); }
+
+.word-fall-active #view-words-button {
+    background-color: #9333ea;
+    margin-bottom: 1rem;
+}
+.word-fall-active #view-words-button:hover { background-color: #a855f7; }
+
+.word-fall-active #restart-button { background-color: #2563eb; }
+.word-fall-active #restart-button:hover { background-color: #3b82f6; }
+
+.word-fall-active #start-button {
+    background-color: #16a34a;
+    font-size: 1.5rem;
+}
+.word-fall-active #start-button:hover { background-color: #22c55e; }
+
+.word-fall-active .mode-selection {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.word-fall-active .mode-selector {
+    padding: 1rem;
+    width: 10rem;
+    cursor: pointer;
+    border-radius: 0.5rem;
+}
+.word-fall-active .mode-selector h3 {
+    font-weight: 700;
+    font-size: 1.25rem;
+}
+.word-fall-active .mode-selector p {
+    font-size: 0.875rem;
+    color: #d1d5db;
+}
+
+.word-fall-active #level-select-container { margin-bottom: 2rem; }
+.word-fall-active #level-select-container label {
+    color: #9ca3af;
+    margin-right: 0.5rem;
+    font-size: 1.125rem;
+}
+.word-fall-active #level-select {
+    background-color: #374151;
+    color: white;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    font-size: 1.125rem;
+    border: none;
+}
+.word-fall-active #level-select:focus { outline: 2px solid #3b82f6; }
+
+.word-list-modal-content {
+    background-color: #1f2937;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    border: 2px solid #3b82f6;
+    max-width: 90vw;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+.modal-backdrop {
+    display: none; /* controlled by JS */
+}
+.modal-backdrop.flex {
+    display: flex;
+}
+.word-list-scroll-container {
+    overflow-y: auto;
+    max-height: 60vh;
+    padding: 0.5rem;
+    border-radius: 0.25rem;
+    background-color: #374151;
+}
+#found-words-list {
+    list-style-type: disc;
+    list-style-position: inside;
+    text-align: left;
+}
+#close-word-list-modal {
+    background-color: #2563eb;
+    color: white;
+    font-weight: 700;
+    padding: 0.5rem 1rem;
+    border-radius: 0.5rem;
+    margin-top: 1rem;
+    border: none;
+    cursor: pointer;
+}
+#close-word-list-modal:hover {
+    background-color: #3b82f6;
+}

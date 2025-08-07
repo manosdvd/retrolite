@@ -197,7 +197,7 @@ function initialize() {
 }
 
 // --- INITIALIZATION ---
-window.onload = initialize;
+document.addEventListener('DOMContentLoaded', initialize);
 
 window.startGame = function(mode) {
     if (currentMode && typeof currentMode.cleanup === 'function') {
