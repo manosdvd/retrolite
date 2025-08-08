@@ -1,19 +1,4 @@
-<<<<<<< Updated upstream
-=======
-// Provide a fallback set of musical notes in case the global `notes` array is not defined.
-const fallbackNotes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
-
-// Utility to safely fetch a musical note by index. If `notes` is defined globally (as in main.js)
-// it will be used; otherwise the fallback array above is used. The function wraps indices
-// automatically to the length of the chosen array.
-function getNoteByIndex(idx) {
-    const scale = (typeof notes !== 'undefined' && Array.isArray(notes)) ? notes : fallbackNotes;
-    const i = idx % scale.length;
-    return scale[i];
-}
-
->>>>>>> Stashed changes
-export const lineDrawGame = {
+const lineDrawGame = {
     setup: () => {
         const size = currentMode.gridSize;
         const puzzle = lineDrawGame.generatePuzzle(size);
@@ -112,8 +97,7 @@ export const lineDrawGame = {
             gameState.paths[pair.c] = [index];
             gameState.board[index] = pair.c;
             
-            // Play a note for the starting node. Use a safe fallback if the global `notes` array is unavailable.
-            audioManager.playSound('game', getNoteByIndex(pair.c - 1));
+            audioManager.playSound('game', notes[(pair.c - 1) % notes.length]);
             if (navigator.vibrate) {
                 navigator.vibrate(50);
             }
@@ -134,10 +118,9 @@ export const lineDrawGame = {
         if (currentPath.length > 1 && index === currentPath[currentPath.length - 2]) {
             gameState.board[lastIndex] = 0;
             currentPath.pop();
-            // When backtracking, play a lower note. Compute the base note safely.
-            const originalNote = getNoteByIndex(gameState.currentColor - 1);
-            const noteName = originalNote.slice(0, -1);
-            const octave = parseInt(originalNote.slice(-1));
+            const note = notes[(gameState.currentColor - 1) % notes.length];
+            const noteName = note.slice(0, -1);
+            const octave = parseInt(note.slice(-1));
             audioManager.playSound('game', `${noteName}${octave - 1}`);
             lineDrawGame.updateBoard();
             return;
@@ -148,7 +131,7 @@ export const lineDrawGame = {
         if (isValidMove) {
             currentPath.push(index);
             gameState.board[index] = gameState.currentColor;
-            audioManager.playSound('game', getNoteByIndex(gameState.currentColor - 1));
+            audioManager.playSound('game', notes[(gameState.currentColor - 1) % notes.length]);
             if (navigator.vibrate) {
                 navigator.vibrate(20);
             }
@@ -212,46 +195,8 @@ export const lineDrawGame = {
         const isBoardFull = !gameState.board.includes(0);
 
         if (allPaired && isBoardFull) {
-            // Mark the game as over so no further interactions occur
-            gameState.gameOver = true;
-
-            // Update the board immediately to reflect the completed paths before showing the modal
-            lineDrawGame.updateBoard();
-
-            /*
-             * Increase difficulty for the Flow State (colorConnect) game.
-             *
-             * The game mode information is stored in the global `currentMode` object. Each
-             * game starts with a base grid size (e.g. 6×6). To make puzzles progressively
-             * harder, bump the `gridSize` property up by one each time the player wins.
-             * When the Play Again button is clicked in the win modal, `startGame(currentMode)`
-             * will reload the game using the updated grid size. A max size is enforced to
-             * prevent the board from becoming unreasonably large.
-             */
-            try {
-                // Only modify the colorConnect game. Other games should keep their original sizes.
-                if (typeof currentMode !== 'undefined' && currentMode.name === 'colorConnect') {
-                    const MAX_GRID_SIZE = 10; // Prevent runaway growth – adjust as needed
-                    // If this is the first win, initialise a level counter on the mode
-                    if (currentMode.level == null) {
-                        currentMode.level = 1;
-                    }
-                    currentMode.level++;
-                    // Increment the grid size up to the defined maximum
-                    if (typeof currentMode.gridSize === 'number' && currentMode.gridSize < MAX_GRID_SIZE) {
-                        currentMode.gridSize += 1;
-                    }
-                    // Optionally update the on‑screen status to show the current level
-                    if (typeof updateStats === 'function') {
-                        updateStats(`Level: ${currentMode.level}`);
-                    }
-                }
-            } catch (e) {
-                // Silently ignore any errors if currentMode is not accessible. The win will still be shown.
-                console.error('Error increasing lineDrawGame difficulty:', e);
-            }
-
-            // Show a win modal. The Play Again button will trigger startGame(currentMode) and use the updated size.
+            gameState.gameOver = true;    // Set the win state
+            lineDrawGame.updateBoard();   // Redraw the board immediately with the glow
             showWinModal('You Win!', 'You connected all the dots!');
         }
     },

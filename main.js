@@ -2,10 +2,29 @@ import { Keyboard } from './utils/keyboard.js';
 import { AudioManager } from './utils/audioManager.js';
 
 // --- Globally Scoped Variables, Constants, and Game Objects ---
-let gameBoard, buttonContainer, statsContainer, gameStatus, keyboardContainer, modalContainer, gameTitle, gameRules, root, mainMenu, gameContainer;
+//
+// NOTE:
+// This application dynamically imports individual game modules which expect to
+// reference various stateful objects (gameBoard, gameState, etc.) and helper
+// functions (updateStats, createControlButton, etc.) without explicitly
+// importing them. When `main.js` is loaded as an ES module these variables
+// are scoped to the module and are not automatically exposed on the global
+// `window` object. As a result, the game modules would throw `ReferenceError`
+// when trying to access these identifiers. To preserve backwards
+// compatibility with the existing game modules we define the variables as
+// usual and then mirror them onto `window` after they have been created.
+
+let gameBoard, buttonContainer, statsContainer, gameStatus, keyboardContainer,
+    modalContainer, gameTitle, gameRules, root, mainMenu, gameContainer;
+// gameState stores per‑game state; exported onto the global object below.
 let gameState = {};
 let currentMode = null;
+<<<<<<< Updated upstream
+=======
+// Musical notes used by several games.
+>>>>>>> Stashed changes
 const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
+// Player constants used by various board games.
 const P1 = 1, P2 = -1, EMPTY = 0, AI = -1, HUMAN = 1;
 
 const utils = {
@@ -219,6 +238,22 @@ function initialize() {
     keyboardContainer = document.getElementById('keyboard-container');
     root = document.documentElement;
 
+    // Expose core DOM references on the global object so they can be
+    // referenced by dynamically loaded game modules. See top‑level comment
+    // for more context.
+    Object.assign(window, {
+        mainMenu,
+        gameContainer,
+        gameTitle,
+        gameStatus,
+        gameRules,
+        modalContainer,
+        statsContainer,
+        buttonContainer,
+        keyboardContainer,
+        root
+    });
+
     const clockElement = document.getElementById('digital-clock');
     function updateClock() { if (!clockElement) return; const now = new Date(); const hours = String(now.getHours()).padStart(2, '0'); const minutes = String(now.getMinutes()).padStart(2, '0'); const seconds = String(now.getSeconds()).padStart(2, '0'); clockElement.textContent = `${hours}:${minutes}:${seconds}`; }
     updateClock();
@@ -294,6 +329,8 @@ window.startGame = function(mode) {
     gameStatus.textContent = '';
     
     currentMode = mode;
+    // Expose currentMode on the global object so modules can read it
+    window.currentMode = currentMode;
     
     // --- Set container classes for styling ---
     const keyboardGames = ['wordGuess', 'spellingBee', 'decryptGame'];
@@ -315,6 +352,8 @@ window.startGame = function(mode) {
     gameBoard = document.createElement('div');
     gameBoard.id = 'game-board';
     gameBoardWrapper.appendChild(gameBoard);
+    // Expose the new gameBoard so game modules can access it
+    window.gameBoard = gameBoard;
 
     const selfContainedGames = ['musicStudio', 'anxietyLevelUp', 'wordFall'];
     if (!selfContainedGames.includes(mode.name)) {
@@ -361,4 +400,44 @@ window.startGame = function(mode) {
 export { updateStats, delay, createControlButton, createModal, showWinModal, getValidColumns, handleBoardClick, handleBoardContextMenu, notes, P1, P2, EMPTY, AI, HUMAN };
 
 const audioManager = new AudioManager();
+<<<<<<< Updated upstream
 let keyboard;
+=======
+let keyboard;
+
+// -----------------------------------------------------------------------------
+// Expose key variables and helpers on the global object.  Many of the game
+// modules are dynamically imported and refer to these identifiers without
+// importing them, assuming they live on the global scope.  Without these
+// assignments the application would throw `ReferenceError` when a game
+// module attempted to access (for example) `updateStats` or `gameState`.
+//
+// Note: assignment happens after creation of audioManager so that it too is
+// available globally.  Variables like `gameBoard` are set during
+// `initialize()`/`startGame()` and are updated there (see the assignments
+// inside those functions).
+Object.assign(window, {
+    // game state and mode tracking
+    gameState,
+    currentMode,
+    gauntlet,
+    // audio manager
+    audioManager,
+    // helper functions exported from this module
+    updateStats,
+    delay,
+    createControlButton,
+    createModal,
+    showWinModal,
+    getValidColumns,
+    handleBoardClick,
+    handleBoardContextMenu,
+    // constants used by games
+    notes,
+    P1,
+    P2,
+    EMPTY,
+    AI,
+    HUMAN
+});
+>>>>>>> Stashed changes
