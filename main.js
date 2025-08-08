@@ -19,10 +19,7 @@ let gameBoard, buttonContainer, statsContainer, gameStatus, keyboardContainer,
 // gameState stores per‑game state; exported onto the global object below.
 let gameState = {};
 let currentMode = null;
-<<<<<<< Updated upstream
-=======
 // Musical notes used by several games.
->>>>>>> Stashed changes
 const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
 // Player constants used by various board games.
 const P1 = 1, P2 = -1, EMPTY = 0, AI = -1, HUMAN = 1;
@@ -400,9 +397,6 @@ window.startGame = function(mode) {
 export { updateStats, delay, createControlButton, createModal, showWinModal, getValidColumns, handleBoardClick, handleBoardContextMenu, notes, P1, P2, EMPTY, AI, HUMAN };
 
 const audioManager = new AudioManager();
-<<<<<<< Updated upstream
-let keyboard;
-=======
 let keyboard;
 
 // -----------------------------------------------------------------------------
@@ -440,4 +434,3 @@ Object.assign(window, {
     AI,
     HUMAN
 });
->>>>>>> Stashed changes
