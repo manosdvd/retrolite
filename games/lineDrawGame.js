@@ -1,4 +1,4 @@
-const lineDrawGame = {
+export const lineDrawGame = {
     setup: () => {
         const size = currentMode.gridSize;
         const puzzle = lineDrawGame.generatePuzzle(size);

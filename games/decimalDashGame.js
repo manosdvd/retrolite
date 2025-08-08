@@ -1,4 +1,4 @@
-const decimalDashGame = {
+export const decimalDashGame = {
     // --- PROPERTIES ---
     targetDecimal: 0,
     currentCondition: '', // 'greater', 'less', 'equal'

@@ -1,4 +1,4 @@
-const anxietyLevelUpGame = {
+export const anxietyLevelUpGame = {
     gameLoopTimeoutId: null,
     synth: null,
     isProcessing: false,
@@ -282,7 +282,10 @@ const anxietyLevelUpGame = {
 
         // --- Core Game Logic ---
         function init(startingLevel = 1) {
-            level = startingLevel;
+            // Ensure audio context is running
+            if (!audioManager.isInitialized) {
+                audioManager.init();
+            }
             score = level > 1 ? LEVEL_THRESHOLDS[level - 2] : 0;
             self.gameOver = false;
             self.isPaused = false;
@@ -619,7 +622,7 @@ const anxietyLevelUpGame = {
             self.isProcessing = true;
             if (self.gameLoopTimeoutId) clearTimeout(self.gameLoopTimeoutId);
             
-            audio.gameOver();
+            audioManager.playSound('game', 'C4', '1n');
             haptics.gameOver();
 
             finalLevelElement.textContent = level;

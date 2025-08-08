@@ -1,4 +1,4 @@
-const wordFallGame = {
+export const wordFallGame = {
     // --- Game State Variables ---
     gameLoopTimeoutId: null,
     previewTimeoutId: null,
@@ -485,8 +485,7 @@ const wordFallGame = {
         const sortedWords = Array.from(wordFallGame.foundWords).sort();
         
         sortedWords.forEach(word => {
-            const definition = collinsScrabbleWords[word] || 'No definition found.';
-            wordListHTML += `<dt>${word}</dt><dd>${definition}</dd>`;
+            wordListHTML += `<dt>${word}</dt>`;
         });
         wordListHTML += '</dl>';
 
@@ -529,7 +528,6 @@ const wordFallGame = {
     cleanup: function() {
         clearTimeout(this.gameLoopTimeoutId);
         clearTimeout(this.previewTimeoutId);
-        if (this.synth) this.synth.dispose();
         this.gameOver = true;
         if (this.styleElement) this.styleElement.remove();
         if (this.fontLink1) this.fontLink1.remove();

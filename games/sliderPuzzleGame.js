@@ -1,4 +1,4 @@
-const sliderPuzzleGame = {
+export const sliderPuzzleGame = {
     setup: () => {
         gameState = { board: [1, 2, 3, 4, 5, 6, 7, 8, EMPTY], emptyIndex: 8, moves: 0 };
         sliderPuzzleGame.shuffle();

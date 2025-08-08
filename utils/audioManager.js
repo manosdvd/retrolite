@@ -5,7 +5,7 @@
  * all sound effects and music using Tone.js. This ensures a reliable
  * and consistent audio experience across all games.
  */
-class AudioManager {
+export class AudioManager {
     constructor() {
         // A collection of synthesizers for different sound categories.
         // Using PolySynth allows multiple sounds to play at once without cutting each other off.

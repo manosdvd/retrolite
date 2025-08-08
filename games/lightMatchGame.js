@@ -1,4 +1,4 @@
-const lightMatchGame = {
+export const lightMatchGame = {
     controller: null,
 
     setup: () => {
@@ -220,7 +220,7 @@ const lightMatchGame = {
             
             if (cellsToClear.size === 0) break;
             
-            audioManager.playSound('positive', notes[chain % notes.length], '8n');
+            audioManager.playSound('positive', 'G5', '8n');
             gameState.score += cellsToClear.size * 10 * chain;
             updateStats(`Score: ${gameState.score}`);
 

@@ -1,4 +1,4 @@
-const musicStudioGame = {
+export const musicStudioGame = {
     // --- PROPERTIES ---
     synth: null,
     drumKit: null,
@@ -255,12 +255,12 @@ const musicStudioGame = {
                     }
                 }, time);
                 // Trigger audio
-                if (this.instrumentPresets[instrumentName].pitchShift) {
-                    this.synth.set({ detune: -1200 });
-                    this.synth.triggerAttackRelease(note, '16n', time);
-                    this.synth.set({ detune: 0 });
+                if (this.instrumentPresets[this.gameState.currentInstrument].pitchShift) {
+                    audioManager.setSynthDetune(this.synth, -1200);
+                    audioManager.playSynth(this.synth, note, '16n', time);
+                    audioManager.setSynthDetune(this.synth, 0);
                 } else {
-                    this.synth.triggerAttackRelease(note, '16n', time);
+                    audioManager.playSynth(this.synth, note, '16n', time);
                 }
             }
             if (this.gameState.drums[row][step]) {

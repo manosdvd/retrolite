@@ -1,4 +1,4 @@
-const echoGame = {
+export const echoGame = {
     controller: null,
     setup: () => {
         if (echoGame.controller) {

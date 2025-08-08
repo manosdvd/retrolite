@@ -1,4 +1,4 @@
-const shapeSurveyorGame = {
+export const shapeSurveyorGame = {
     // --- PROPERTIES ---
     shape: {}, // Stores type, dimensions, and correct answer
     questionType: '', // 'area' or 'perimeter'

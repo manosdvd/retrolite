@@ -1,4 +1,4 @@
-const ticTacToeGame = {
+export const ticTacToeGame = {
     setup: () => {
         gameState = { 
             board: Array(9).fill(EMPTY), 

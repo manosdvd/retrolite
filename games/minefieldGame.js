@@ -1,4 +1,4 @@
-const minefieldGame = {
+export const minefieldGame = {
     setup: () => {
         const newGameButton = createControlButton('New Game', 'btn-green', () => {
             startGame(currentMode); // Restart the game

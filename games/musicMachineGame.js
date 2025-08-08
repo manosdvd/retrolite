@@ -1,4 +1,4 @@
-const musicMachineGame = {
+export const musicMachineGame = {
     controller: null,
     setup: () => {
         if (musicMachineGame.controller) {
@@ -34,6 +34,7 @@ const musicMachineGame = {
 
         for (const noteIndex of gameState.sequence) {
             if (signal.aborted) {
+                gameState.isPlaying = false; 
                 break; 
             }
             const light = gameBoard.querySelector(`[data-index='${noteIndex}']`);

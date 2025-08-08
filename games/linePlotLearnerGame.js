@@ -1,4 +1,4 @@
-const linePlotLearnerGame = {
+export const linePlotLearnerGame = {
     // --- PROPERTIES ---
     dataset: [], // The data points for the line plot
     numberLineRange: { min: 0, max: 5, step: 0.5 },

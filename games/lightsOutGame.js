@@ -1,4 +1,4 @@
-const lightsOutGame = {
+export const lightsOutGame = {
     setup: () => {
         gameState = { board: Array(25).fill(0), moves: 0 };
         // Ensure a solvable board by starting from a solved state and pressing buttons

@@ -1,6 +1,6 @@
 // retrogame/games/spellingBeeGame.js
 
-const spellingBeeGame = {
+export const spellingBeeGame = {
     words: spellingWords,
     currentWord: null,
     score: 0,
@@ -54,7 +54,17 @@ const spellingBeeGame = {
     },
 
     // --- Core Game Flow ---
-    setup: function() {
+    setup: async function() {
+        if (!spellingBeeGame.words || spellingBeeGame.words.length === 0) {
+            try {
+                const response = await fetch('../spellingwords.json');
+                spellingBeeGame.words = await response.json();
+            } catch (error) {
+                console.error('Failed to load spelling words:', error);
+                return;
+            }
+        }
+
         gameBoard.innerHTML = '';
         keyboardContainer.innerHTML = '';
         gameBoard.className = 'flex flex-col items-center justify-center gap-4 p-4';

@@ -1,4 +1,4 @@
-const patternPaloozaGame = {
+export const patternPaloozaGame = {
     // --- PROPERTIES ---
     pattern: [], // The current pattern sequence
     question: {}, // The question about the pattern

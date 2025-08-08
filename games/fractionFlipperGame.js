@@ -1,4 +1,4 @@
-const fractionFlipperGame = {
+export const fractionFlipperGame = {
     // --- PROPERTIES ---
     targetFraction: { num: 0, den: 0 },
     selectedFractions: [],

@@ -1,4 +1,4 @@
-const blackjackGame = {
+export const blackjackGame = {
     setup: () => {
         gameState = {
             deck: [], playerHand: [], cpuHand: [], gameOver: false, playerTurn: true,
@@ -141,10 +141,10 @@ const blackjackGame = {
         }
         
         await blackjackGame.updateBoardAndScores();
-        await delay(1000);
+        await delay(1000, blackjackGame.controller.signal);
 
         while (blackjackGame.calculateHandValue(gameState.cpuHand.map(c => c.card)) < 17 && gameState.deck.length > 0) {
-            await delay(800);
+            await delay(800, blackjackGame.controller.signal);
             await blackjackGame.dealCard(AI);
         }
 

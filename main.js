@@ -1,10 +1,10 @@
+import { Keyboard } from './utils/keyboard.js';
+import { AudioManager } from './utils/audioManager.js';
+
 // --- Globally Scoped Variables, Constants, and Game Objects ---
 let gameBoard, buttonContainer, statsContainer, gameStatus, keyboardContainer, modalContainer, gameTitle, gameRules, root, mainMenu, gameContainer;
 let gameState = {};
 let currentMode = null;
-// --- CENTRALIZED AUDIO MANAGER ---
-const audioManager = new AudioManager();
-let keyboard; // Global keyboard variable
 const notes = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4', 'C5', 'D5', 'E5', 'F5'];
 const P1 = 1, P2 = -1, EMPTY = 0, AI = -1, HUMAN = 1;
 
@@ -51,41 +51,37 @@ const utils = {
 };
 
 const gameModes = {
-    lightPuzzle: { name: 'lightPuzzle', title: 'DOPAMINE SWITCH', rules: 'Turn all the lights off.', gridSize: 5, setup: lightsOutGame.setup, handler: lightsOutGame.handler, color: '#ef4444', shadow: '#f87171', cleanup: lightsOutGame.cleanup },
-    magicSquare: { name: 'magicSquare', title: 'HYPER FOCUS', rules: 'Make a square of lights around the edge.', gridSize: 3, setup: magicSquareGame.setup, handler: magicSquareGame.handler, color: '#8b5cf6', shadow: '#a78bfa', cleanup: magicSquareGame.cleanup },
-    ticTacToe: { name: 'ticTacToe', title: 'PARALLEL PLAY', rules: 'Get three in a row.', gridSize: 3, setup: ticTacToeGame.setup, handler: ticTacToeGame.handler, color: '#3b82f6', shadow: '#60a5fa', cleanup: ticTacToeGame.cleanup },
-    sequence: { name: 'sequence', title: 'WORKING MEMORY', rules: 'Repeat the sequence. Survive for 1 minute!', gridSize: 3, setup: echoGame.setup, handler: echoGame.handler, color: '#22c55e', shadow: '#4ade80', cleanup: echoGame.cleanup },
-    wordGuess: { name: 'wordGuess', title: 'REJECTION SENSITIVITY', rules: 'Guess the 5-letter word.', gridRows: 6, gridCols: 5, setup: wordleGame.setup, handler: wordleGame.handler, color: '#f97316', shadow: '#fb923c', cleanup: wordleGame.cleanup, createCell: wordleGame.createCell },
-    blackjack: { name: 'blackjack', title: 'DOPAMINE CHASE', rules: 'Get 21, or survive for 1 minute!', gridRows: 4, gridCols: 4, setup: blackjackGame.setup, handler: null, color: '#06b6d4', shadow: '#22d3ee', cleanup: blackjackGame.cleanup },
-    lightMatch: { name: 'lightMatch', title: 'DOPAMINE HIT', rules: 'Match 3+ lights. Form special combos for bombs!', gridSize: 8, setup: lightMatchGame.setup, handler: null, color: '#f43f5e', shadow: '#fb7185', cleanup: lightMatchGame.cleanup },
-    musicMachine: { name: 'musicMachine', title: 'AUDIO STIM', rules: 'Compose a tune.', gridSize: 3, setup: musicMachineGame.setup, handler: musicMachineGame.handler, color: '#d946ef', shadow: '#e879f9', cleanup: musicMachineGame.cleanup },
-    sliderPuzzle: { name: 'sliderPuzzle', title: 'TASK SWITCH', rules: 'Order the tiles from 1 to 8.', gridSize: 3, setup: sliderPuzzleGame.setup, handler: sliderPuzzleGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: sliderPuzzleGame.cleanup },
-    minefield: { name: 'minefield', title: 'OVER STIMULATION', rules: 'Clear the board without hitting a mine.', setup: minefieldGame.setup, handler: minefieldGame.handler, color: '#6b7280', shadow: '#9ca3af', cleanup: minefieldGame.cleanup },
-    fourInARow: { name: 'fourInARow', title: 'BODY DOUBLE', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, setup: connectGame.setup, handler: connectGame.handler, color: '#ec4899', shadow: '#f472b6', cleanup: connectGame.cleanup },
-    colorConnect: { name: 'colorConnect', title: 'FLOW STATE', rules: 'Connect matching colors without crossing.', gridSize: 6, setup: lineDrawGame.setup, handler: null, color: '#14b8a6', shadow: '#2dd4bf', cleanup: lineDrawGame.cleanup },
+    lightPuzzle: { name: 'lightPuzzle', title: 'DOPAMINE SWITCH', rules: 'Turn all the lights off.', gridSize: 5, module: './games/lightsOutGame.js', color: '#ef4444', shadow: '#f87171' },
+    magicSquare: { name: 'magicSquare', title: 'HYPER FOCUS', rules: 'Make a square of lights around the edge.', gridSize: 3, module: './games/magicSquareGame.js', color: '#8b5cf6', shadow: '#a78bfa' },
+    ticTacToe: { name: 'ticTacToe', title: 'PARALLEL PLAY', rules: 'Get three in a row.', gridSize: 3, module: './games/ticTacToeGame.js', color: '#3b82f6', shadow: '#60a5fa' },
+    sequence: { name: 'sequence', title: 'WORKING MEMORY', rules: 'Repeat the sequence. Survive for 1 minute!', gridSize: 3, module: './games/echoGame.js', color: '#22c55e', shadow: '#4ade80' },
+    wordGuess: { name: 'wordGuess', title: 'REJECTION SENSITIVITY', rules: 'Guess the 5-letter word.', gridRows: 6, gridCols: 5, module: './games/wordleGame.js', color: '#f97316', shadow: '#fb923c' },
+    blackjack: { name: 'blackjack', title: 'DOPAMINE CHASE', rules: 'Get 21, or survive for 1 minute!', gridRows: 4, gridCols: 4, module: './games/blackjackGame.js', color: '#06b6d4', shadow: '#22d3ee' },
+    lightMatch: { name: 'lightMatch', title: 'DOPAMINE HIT', rules: 'Match 3+ lights. Form special combos for bombs!', gridSize: 8, module: './games/lightMatchGame.js', color: '#f43f5e', shadow: '#fb7185' },
+    musicMachine: { name: 'musicMachine', title: 'AUDIO STIM', rules: 'Compose a tune.', gridSize: 3, module: './games/musicMachineGame.js', color: '#d946ef', shadow: '#e879f9' },
+    sliderPuzzle: { name: 'sliderPuzzle', title: 'TASK SWITCH', rules: 'Order the tiles from 1 to 8.', gridSize: 3, module: './games/sliderPuzzleGame.js', color: '#ec4899', shadow: '#f472b6' },
+    minefield: { name: 'minefield', title: 'OVER STIMULATION', rules: 'Clear the board without hitting a mine.', module: './games/minefieldGame.js', color: '#6b7280', shadow: '#9ca3af' },
+    fourInARow: { name: 'fourInARow', title: 'BODY DOUBLE', rules: 'Get four in a row against the AI.', gridRows: 6, gridCols: 7, module: './games/connectGame.js', color: '#ec4899', shadow: '#f472b6' },
+    colorConnect: { name: 'colorConnect', title: 'FLOW STATE', rules: 'Connect matching colors without crossing.', gridSize: 6, module: './games/lineDrawGame.js', color: '#14b8a6', shadow: '#2dd4bf' },
     
-    spellingBee: { name: 'spellingBee', title: 'AUDITORY PROCESS', rules: 'Listen to the word and type it correctly.', setup: spellingBeeGame.setup, handler: null, cleanup: spellingBeeGame.cleanup, color: '#4f46e5', shadow: '#6366f1' },
-    decryptGame: { name: 'decryptGame', title: 'UNMASK', setup: decryptGame.setup, handler: null, cleanup: decryptGame.cleanup, color: '#3d342a', shadow: '#5c5248' },
-    numberCrunch: { name: 'numberCrunch', title: 'EXECUTIVE FUNCTION', rules: 'Use the numbers and operators to hit the target number.', gridSize: 4, setup: numberCrunchGame.setup, handler: numberCrunchGame.handler, color: '#9C27B0', shadow: '#c039d9', cleanup: numberCrunchGame.cleanup },
-    fractionFlipper: { name: 'fractionFlipper', title: 'TASK INITIATION', rules: 'Add fractions to match the target value.', setup: fractionFlipperGame.setup, handler: null, color: '#10b981', shadow: '#34d399', cleanup: fractionFlipperGame.cleanup },
+    spellingBee: { name: 'spellingBee', title: 'AUDITORY PROCESS', rules: 'Listen to the word and type it correctly.', module: './games/spellingBeeGame.js', color: '#4f46e5', shadow: '#6366f1' },
+    decryptGame: { name: 'decryptGame', title: 'UNMASK', module: './games/decryptGame.js', color: '#3d342a', shadow: '#5c5248' },
+    numberCrunch: { name: 'numberCrunch', title: 'EXECUTIVE FUNCTION', rules: 'Use the numbers and operators to hit the target number.', gridSize: 4, module: './games/numberCrunchGame.js', color: '#9C27B0', shadow: '#c039d9' },
+    fractionFlipper: { name: 'fractionFlipper', title: 'TASK INITIATION', rules: 'Add fractions to match the target value.', module: './games/fractionFlipperGame.js', color: '#10b981', shadow: '#34d399' },
     gauntlet: { name: 'gauntlet', title: 'SURVIVAL MODE', rules: 'Survive as long as you can!', setup: () => gauntlet.start(), handler: null, color: '#facc15', shadow: '#fde047', cleanup: () => gauntlet.end() },
     musicStudio: { 
         name: 'musicStudio', 
         title: 'MUSIC STUDIO', 
         rules: 'Create melodies and drum beats.', 
-        setup: musicStudioGame.setup.bind(musicStudioGame), 
-        handler: musicStudioGame.handler.bind(musicStudioGame), 
+        module: './games/musicStudioGame.js', 
         color: '#673ab7', 
-        shadow: '#9575cd', 
-        cleanup: musicStudioGame.cleanup.bind(musicStudioGame) 
+        shadow: '#9575cd'
     },
     anxietyLevelUp: {
         name: 'anxietyLevelUp',
         title: 'Anxiety 2',
         rules: 'Match 3+ colors. Don\'t let the grid fill up!',
-        setup: anxietyLevelUpGame.setup,
-        handler: null, // Game has its own internal handler
-        cleanup: anxietyLevelUpGame.cleanup,
+        module: './games/anxietyLevelUpGame.js',
         color: '#ff3860',
         shadow: '#ff6b81'
     },
@@ -93,9 +89,7 @@ const gameModes = {
         name: 'wordFall',
         title: 'Dyslexia',
         rules: 'Find words of 3+ letters to score points.',
-        setup: wordFallGame.setup.bind(wordFallGame),
-        handler: null, // Game has its own internal handler
-        cleanup: wordFallGame.cleanup.bind(wordFallGame),
+        module: './games/wordFallGame.js',
         color: '#4f46e5',
         shadow: '#a5b4fc'
     }
@@ -107,16 +101,95 @@ const gauntlet = {
     clearTimer: function() { clearInterval(this.timerInterval); },
     start: function() { this.isActive = true; this.score = 0; this.availableGames = Object.keys(gameModes).filter(k => k !== 'musicMachine' && k !== 'gauntlet' && k !== 'musicStudio'); utils.shuffleArray(this.availableGames); this.nextGame(); },
     shuffleGames: function() { utils.shuffleArray(this.availableGames); },
-    nextGame: function() { if (!this.isActive) return; if (this.availableGames.length === 0) this.shuffleGames(); const nextGameKey = this.availableGames.pop(); startGame(gameModes[nextGameKey]); },
+        nextGame: async function() { 
+        if (!this.isActive) return; 
+        if (this.availableGames.length === 0) this.shuffleGames(); 
+        const nextGameKey = this.availableGames.pop(); 
+        const gameMode = gameModes[nextGameKey];
+        try {
+            const module = await import(gameMode.module);
+            const game = Object.values(module)[0];
+            const mode = { ...gameMode, ...game };
+            startGame(mode);
+        } catch (error) {
+            console.error(`Failed to load game module: ${gameMode.module}`, error);
+        }
+    },
     onGameComplete: function(isSuccess) { if (!this.isActive) return; this.clearTimer(); if (isSuccess) { this.score++; audioManager.playSound('positive', 'G5', '8n'); const successModal = createModal('success-modal', 'SUCCESS!', `<p class="text-2xl">Score: ${this.score}</p>`, 'Next Game', () => { successModal.remove(); this.nextGame(); }, 'arrow_forward', 'btn-green'); setTimeout(() => successModal.classList.add('is-visible'), 10); } else { audioManager.playSound('negative', 'C3', '2n'); this.end(); } },
     end: function() { const finalScore = this.score; this.isActive = false; this.score = 0; this.clearTimer(); const endModal = createModal('gauntlet-over-modal', 'Gauntlet Over', `<p class="text-2xl">Your final score is ${finalScore}.</p>`, 'Main Menu', () => { endModal.remove(); document.getElementById('game-container').classList.add('hidden'); document.getElementById('main-menu').classList.remove('hidden'); currentMode = null; }, 'menu', 'btn-red'); setTimeout(() => endModal.classList.add('is-visible'), 10); }
 };
 
 function updateStats(text) { if (statsContainer) statsContainer.textContent = text; }
 function delay(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
-function createControlButton(text, colorClass, onClick, iconName = null) { const button = document.createElement('button'); if (iconName) { button.className = `control-button-icon ${colorClass}`; const icon = document.createElement('span'); icon.className = 'material-symbols-outlined'; icon.textContent = iconName; button.appendChild(icon); button.setAttribute('aria-label', text); } else { button.textContent = text; button.classList.add('control-button', colorClass); } button.addEventListener('click', onClick); return button; }
-function createModal(id, title, content, buttonText, onButtonClick, iconName = null, buttonColor = 'btn-green') { const modal = document.createElement('div'); modal.id = id; modal.className = 'modal-backdrop'; let buttonHtml; if (iconName) { buttonHtml = `<button id="${id}-button" class="control-button-icon ${buttonColor}" aria-label="${buttonText}"><span class="material-symbols-outlined">${iconName}</span></button>`; } else { buttonHtml = `<button id="${id}-button" class="menu-button" style="width: auto; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);">${buttonText}</button>`; } modal.innerHTML = `<div class="modal-content" style="background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface);"><div class="confetti-container"></div><h2 class="text-4xl font-bold mb-4">${title}</h2><div id="${id}-content" class="text-lg mb-6">${content}</div>${buttonHtml}</div>`; modalContainer.appendChild(modal); document.getElementById(`${id}-button`).addEventListener('click', onButtonClick); return modal; }
-function showWinModal(title, message) { const winModal = createModal('win-modal', title, `<p>${message}</p>`, 'Play Again', () => { winModal.remove(); if (currentMode) startGame(currentMode); }, 'refresh', 'btn-green'); if(title.toLowerCase().includes('win')) { const confettiContainer = winModal.querySelector('.confetti-container'); for (let i = 0; i < 50; i++) { const confetti = document.createElement('div'); confetti.className = 'confetti'; confetti.style.left = `${Math.random() * 100}%`; confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; confetti.style.animationDuration = `${Math.random() * 3 + 2}s`; confetti.style.animationDelay = `${Math.random() * 2}s`; confettiContainer.appendChild(confetti); } } else { winModal.querySelector('.modal-content').classList.add('shake'); } setTimeout(() => winModal.classList.add('is-visible'), 10); }
+function createControlButton(text, colorClass, onClick, iconName = null) { const button = document.createElement('button'); button.setAttribute('aria-label', text); if (iconName) { button.className = `control-button-icon ${colorClass}`; const icon = document.createElement('span'); icon.className = 'material-symbols-outlined'; icon.textContent = iconName; button.appendChild(icon); } else { button.textContent = text; button.classList.add('control-button', colorClass); } button.addEventListener('click', onClick); return button; }
+let currentlyFocusedElement = null;
+const focusableElementsString = 'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]';
+
+function createModal(id, title, content, buttonText, onButtonClick, iconName = null, buttonColor = 'btn-green') {
+    currentlyFocusedElement = document.activeElement; // Save the currently focused element
+
+    const modal = document.createElement('div');
+    modal.id = id;
+    modal.className = 'modal-backdrop';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', `${id}-title`);
+
+    let buttonHtml;
+    if (iconName) {
+        buttonHtml = `<button id="${id}-button" class="control-button-icon ${buttonColor}" aria-label="${buttonText}"><span class="material-symbols-outlined">${iconName}</span></button>`;
+    } else {
+        buttonHtml = `<button id="${id}-button" class="menu-button" style="width: auto; background-color: var(--md-sys-color-primary); color: var(--md-sys-color-on-primary);">${buttonText}</button>`;
+    }
+
+    modal.innerHTML = `<div class="modal-content" style="background-color: var(--md-sys-color-surface-container-high); color: var(--md-sys-color-on-surface);"><div class="confetti-container"></div><h2 id="${id}-title" class="text-4xl font-bold mb-4">${title}</h2><div id="${id}-content" class="text-lg mb-6">${content}</div>${buttonHtml}</div>`;
+    modalContainer.appendChild(modal);
+
+    const modalButton = document.getElementById(`${id}-button`);
+    modalButton.addEventListener('click', () => {
+        onButtonClick();
+        if (currentlyFocusedElement) {
+            currentlyFocusedElement.focus(); // Restore focus to the element that opened the modal
+        }
+    });
+
+    // Focus trapping
+    const focusableElements = modal.querySelectorAll(focusableElementsString);
+    const firstFocusableElement = focusableElements[0];
+    const lastFocusableElement = focusableElements[focusableElements.length - 1];
+
+    modal.addEventListener('keydown', function(e) {
+        const isTabPressed = (e.key === 'Tab' || e.keyCode === 9);
+
+        if (!isTabPressed) {
+            return;
+        }
+
+        if (e.shiftKey) { // if shift key pressed for shift + tab combination
+            if (document.activeElement === firstFocusableElement) {
+                lastFocusableElement.focus(); // add focus to the last focusable element
+                e.preventDefault();
+            }
+        } else { // if tab key is pressed
+            if (document.activeElement === lastFocusableElement) {
+                firstFocusableElement.focus(); // add focus to the first focusable element
+                e.preventDefault();
+            }
+        }
+    });
+
+    // Set initial focus
+    setTimeout(() => {
+        if (firstFocusableElement) {
+            firstFocusableElement.focus();
+        } else {
+            modalButton.focus(); // Fallback to the modal's primary button if no other focusable elements
+        }
+    }, 0);
+
+    return modal;
+}
+function showWinModal(title, message) { const winModal = createModal('win-modal', title, `<p>${message}</p>`, 'Play Again', () => { winModal.remove(); if (currentMode) startGame(currentMode); const confettiContainer = winModal.querySelector('.confetti-container'); if (confettiContainer) confettiContainer.innerHTML = ''; }, 'refresh', 'btn-green'); if(title.toLowerCase().includes('win')) { const confettiContainer = winModal.querySelector('.confetti-container'); for (let i = 0; i < 50; i++) { const confetti = document.createElement('div'); confetti.className = 'confetti'; confetti.style.left = `${Math.random() * 100}%`; confetti.style.backgroundColor = `hsl(${Math.random() * 360}, 100%, 50%)`; confetti.style.animationDuration = `${Math.random() * 3 + 2}s`; confetti.style.animationDelay = `${Math.random() * 2}s`; confettiContainer.appendChild(confetti); } } else { winModal.querySelector('.modal-content').classList.add('shake'); } setTimeout(() => winModal.classList.add('is-visible'), 10); }
 function getValidColumns(board) { const W = 7; const validCols = []; for (let c = 0; c < W; c++) { if (board[c] === EMPTY) { validCols.push(c); } } return validCols; }
 
 // --- CLICK HANDLER FIX ---
@@ -152,7 +225,7 @@ function initialize() {
     setInterval(updateClock, 1000);
 
     // --- MENU CLICK HANDLER ---
-    function handleMenuClick(e) {
+    async function handleMenuClick(e) {
         const button = e.target.closest('[data-mode]');
         if (!button) return;
 
@@ -173,7 +246,14 @@ function initialize() {
                 gauntlet.start();
             } else {
                 gauntlet.isActive = false;
-                startGame(gameMode);
+                try {
+                    const module = await import(gameMode.module);
+                    const game = Object.values(module)[0];
+                    const mode = { ...gameMode, ...game };
+                    startGame(mode);
+                } catch (error) {
+                    console.error(`Failed to load game module: ${gameMode.module}`, error);
+                }
             }
         }
     }
@@ -277,3 +357,8 @@ window.startGame = function(mode) {
     gameBoardWrapperRef.addEventListener('click', handleBoardClick);
     gameBoardWrapperRef.addEventListener('contextmenu', handleBoardContextMenu);
 }
+
+export { updateStats, delay, createControlButton, createModal, showWinModal, getValidColumns, handleBoardClick, handleBoardContextMenu, notes, P1, P2, EMPTY, AI, HUMAN };
+
+const audioManager = new AudioManager();
+let keyboard;

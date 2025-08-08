@@ -1,4 +1,4 @@
-class Keyboard {
+export class Keyboard {
     constructor(keyLayout, onKeyPress) {
         this.keyLayout = keyLayout;
         this.onKeyPress = onKeyPress;
@@ -24,6 +24,7 @@ class Keyboard {
 
                 keyEl.textContent = displayText;
                 keyEl.dataset.key = dataKey;
+                keyEl.setAttribute('aria-label', key === 'Enter' ? 'Enter key' : key === 'Backspace' ? 'Backspace key' : `Key ${key}`);
 
                 if (key === 'Enter' || key === 'Backspace') {
                     keyEl.classList.add('key-large');

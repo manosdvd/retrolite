@@ -1,4 +1,4 @@
-const decryptGame = {
+export const decryptGame = {
     // --- PROPERTIES ---
     puzzleContainer: null,
     keyboardContainer: null,
@@ -16,7 +16,18 @@ const decryptGame = {
     isSolved: false,
 
     // --- METHODS ---
-    setup: function() {
+    setup: async function() {
+        if (!decryptGame.puzzles || decryptGame.puzzles.length === 0) {
+            try {
+                const response = await fetch('../decryptQuotes.json');
+                decryptGame.puzzles = await response.json();
+            } catch (error) {
+                console.error('Failed to load decrypt quotes:', error);
+                // Handle error, e.g., show a message to the user
+                return;
+            }
+        }
+
         if (decryptGame.controller) decryptGame.controller.abort();
         decryptGame.controller = new AbortController();
         const { signal } = decryptGame.controller;

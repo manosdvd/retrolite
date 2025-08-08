@@ -1,4 +1,4 @@
-const numberCrunchGame = {
+export const numberCrunchGame = {
     setup: () => {
         // A new element is added to hold the equation string
         gameStatus.innerHTML = `

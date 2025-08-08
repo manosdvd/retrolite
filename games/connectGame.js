@@ -1,4 +1,4 @@
-const connectGame = {
+export const connectGame = {
     setup: () => {
         gameState = { board: Array(42).fill(EMPTY), currentPlayer: HUMAN, gameOver: false, difficulty: 'Hard' };
         const easyBtn = createControlButton('Easy', 'btn-green', () => { gameState.difficulty = 'Easy'; gameStatus.textContent = 'Difficulty: Easy'; });
@@ -52,7 +52,7 @@ const connectGame = {
         const winLine = utils.checkConnectWin(gameState.board, player);
         if (winLine) {
             gameState.gameOver = true;
-            gameStatus.textContent = player === HUMAN ? "You Win!" : "AI Wins!";
+            showWinModal(player === HUMAN ? "You Win!" : "AI Wins!", "");
             winLine.forEach(index => {
                 const light = gameBoard.querySelector(`[data-index="${index}"]`);
                 if (light) {

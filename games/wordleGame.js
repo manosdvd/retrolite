@@ -1,4 +1,4 @@
-const wordleGame = {
+export const wordleGame = {
     // Controller to manage event listeners
     controller: null,
     availableWords: [],
@@ -110,7 +110,7 @@ const wordleGame = {
         }
         const guess = gameState.board[gameState.currentRow].join('');
         
-        if (!expandedWordList.includes(guess)) {
+        if (!wordleGame.wordList.includes(guess)) {
             gameStatus.textContent = "Not in word list";
             const rowCells = Array.from(gameBoard.children).slice(gameState.currentRow * 5, gameState.currentRow * 5 + 5);
             rowCells.forEach(cell => cell.classList.add('shake'));

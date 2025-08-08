@@ -1,4 +1,4 @@
-const measureMasterGame = {
+export const measureMasterGame = {
     // --- PROPERTIES ---
     question: {}, // Stores the measurement, target unit, and correct answer
     score: 0,

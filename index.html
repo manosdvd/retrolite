@@ -17,31 +17,31 @@
     <div id="main-menu" class="w-full mx-auto">
         <h1 class="text-4xl md:text-5xl font-bold text-center mb-6 tracking-widest text-red-400" style="text-shadow: 0 0 10px #f87171;">GAME COLLECTION</h1>
         <div class="px-4 grid grid-cols-2 sm:grid-cols-3 gap-x-4">
-            <button data-mode="lightPuzzle" class="menu-button">Dopamine Switch</button>
-            <button data-mode="magicSquare" class="menu-button">Hyper Focus</button>
-            <button data-mode="ticTacToe" class="menu-button">Parallel Play</button>
-            <button data-mode="sequence" class="menu-button">Working Memory</button>
-            <button data-mode="wordGuess" class="menu-button">Rejection Sensitivity</button>
-            <button data-mode="blackjack" class="menu-button">Dopamine Chase</button>
-            <button data-mode="sliderPuzzle" class="menu-button">Task Switch</button>
-            <button data-mode="minefield" class="menu-button">Over Stimulation</button>
-            <button data-mode="fourInARow" class="menu-button">Body Double</button>
-            <button data-mode="colorConnect" class="menu-button">Flow State</button>
-            <button data-mode="lightMatch" class="menu-button">Dopamine Hit</button>
+            <button data-mode="lightPuzzle" class="menu-button" aria-label="Dopamine Switch game">Dopamine Switch</button>
+            <button data-mode="magicSquare" class="menu-button" aria-label="Hyper Focus game">Hyper Focus</button>
+            <button data-mode="ticTacToe" class="menu-button" aria-label="Parallel Play game">Parallel Play</button>
+            <button data-mode="sequence" class="menu-button" aria-label="Working Memory game">Working Memory</button>
+            <button data-mode="wordGuess" class="menu-button" aria-label="Rejection Sensitivity game">Rejection Sensitivity</button>
+            <button data-mode="blackjack" class="menu-button" aria-label="Dopamine Chase game">Dopamine Chase</button>
+            <button data-mode="sliderPuzzle" class="menu-button" aria-label="Task Switch game">Task Switch</button>
+            <button data-mode="minefield" class="menu-button" aria-label="Over Stimulation game">Over Stimulation</button>
+            <button data-mode="fourInARow" class="menu-button" aria-label="Body Double game">Body Double</button>
+            <button data-mode="colorConnect" class="menu-button" aria-label="Flow State game">Flow State</button>
+            <button data-mode="lightMatch" class="menu-button" aria-label="Dopamine Hit game">Dopamine Hit</button>
             
-            <button data-mode="musicMachine" class="menu-button">Audio Stim</button>
-            <button data-mode="spellingBee" class="menu-button">Auditory Process</button>
-            <button data-mode="decryptGame" class="menu-button">Unmask</button>
-            <button data-mode="numberCrunch" class="menu-button">Executive Function</button>
-            <button data-mode="fractionFlipper" class="menu-button">Task Initiation</button>
+            <button data-mode="musicMachine" class="menu-button" aria-label="Audio Stim game">Audio Stim</button>
+            <button data-mode="spellingBee" class="menu-button" aria-label="Auditory Process game">Auditory Process</button>
+            <button data-mode="decryptGame" class="menu-button" aria-label="Unmask game">Unmask</button>
+            <button data-mode="numberCrunch" class="menu-button" aria-label="Executive Function game">Executive Function</button>
+            <button data-mode="fractionFlipper" class="menu-button" aria-label="Task Initiation game">Task Initiation</button>
             
             
-            <button data-mode="musicStudio" class="menu-button">Music Studio</button>
-            <button data-mode="anxietyLevelUp" class="menu-button">Anxiety 2</button>
-            <button data-mode="wordFall" class="menu-button">Dyslexia</button>
-            <button data-mode="gauntlet" class="menu-button col-span-2 sm:col-span-3">Gauntlet</button>
+            <button data-mode="musicStudio" class="menu-button" aria-label="Music Studio game">Music Studio</button>
+            <button data-mode="anxietyLevelUp" class="menu-button" aria-label="Anxiety 2 game">Anxiety 2</button>
+            <button data-mode="wordFall" class="menu-button" aria-label="Dyslexia game">Dyslexia</button>
+            <button data-mode="gauntlet" class="menu-button col-span-2 sm:col-span-3" aria-label="Gauntlet game">Gauntlet</button>
         </div>
-        <button id="fullscreen-toggle-button" class="w-full py-3 mt-4 rounded-lg text-xl font-bold tracking-wider bg-blue-600 hover:bg-blue-500 text-white transition-transform transform hover:scale-105">
+        <button id="fullscreen-toggle-button" class="w-full py-3 mt-4 rounded-lg text-xl font-bold tracking-wider bg-blue-600 hover:bg-blue-500 text-white transition-transform transform hover:scale-105" aria-label="Toggle Fullscreen">
             TOGGLE FULLSCREEN
         </button>
     </div>
@@ -65,29 +65,9 @@
 
     
     
-    <script src="games/lightsOutGame.js"></script>
-    <script src="games/magicSquareGame.js"></script>
-    <script src="games/ticTacToeGame.js"></script>
-    <script src="games/echoGame.js"></script>
-    <script src="utils/keyboard.js"></script>
-    <script src="games/wordleGame.js"></script>
-    <script src="games/blackjackGame.js"></script>
-    <script src="games/sliderPuzzleGame.js"></script>
-    <script src="games/minefieldGame.js"></script>
-    <script src="games/connectGame.js"></script>
-    <script src="games/lineDrawGame.js"></script>
-    <script src="games/musicMachineGame.js"></script>
-    <script src="games/lightMatchGame.js"></script>
     
-    <script src="games/spellingBeeGame.js"></script>
-    <script src="games/decryptGame.js"></script>
-    <script src="games/numberCrunchGame.js"></script>
-    <script src="games/fractionFlipperGame.js"></script>
-    <script src="games/musicStudioGame.js"></script>
-    <script src="games/anxietyLevelUpGame.js"></script>
-    <script src="games/wordFallGame.js"></script>
 
-    <script src="utils/audioManager.js"></script>
-    <script src="main.js"></script>
+    <script src="utils/audioManager.js" defer></script>
+    <script src="main.js" type="module" defer></script>
 </body>
 </html>

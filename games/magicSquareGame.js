@@ -1,4 +1,6 @@
-const magicSquareGame = {
+import { updateStats, createControlButton, showWinModal, audioManager, notes } from '../main.js';
+
+export const magicSquareGame = {
     setup: () => {
         const merlinToggles = [
             [0, 1, 3], [0, 1, 2, 4], [1, 2, 5], [0, 3, 4, 6], [1, 3, 4, 5, 7],
