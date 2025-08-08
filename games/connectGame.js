@@ -71,18 +71,61 @@ const connectGame = {
         buttonContainer.appendChild(newGameButton);
     },
     findBestMove: (board) => {
-        // AI logic remains complex and unchanged
         const validCols = getValidColumns(board);
-        if (gameState.difficulty === 'Easy') return validCols[Math.floor(Math.random() * validCols.length)];
+        if (gameState.difficulty === 'Easy') {
+            return validCols[Math.floor(Math.random() * validCols.length)];
+        }
+
         let bestScore = -Infinity;
-        let bestMove = -1;
+        let bestMove = validCols[0];
+        const depth = 5; // Adjust depth for difficulty
+
         for (const col of validCols) {
             let tempBoard = [...board];
             connectGame.dropPiece(tempBoard, col, AI);
-            let score = connectGame.scorePosition(tempBoard, AI);
-            if (score > bestScore) { bestScore = score; bestMove = col; }
+            let score = connectGame.minimax(tempBoard, depth, -Infinity, Infinity, false);
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = col;
+            }
         }
-        return bestMove !== -1 ? bestMove : validCols[0];
+        return bestMove;
+    },
+
+    minimax: (board, depth, alpha, beta, isMaximizingPlayer) => {
+        if (depth === 0 || utils.checkConnectWin(board, HUMAN) || utils.checkConnectWin(board, AI) || utils.isDraw(board)) {
+            return connectGame.scorePosition(board, AI);
+        }
+
+        const validCols = getValidColumns(board);
+
+        if (isMaximizingPlayer) {
+            let maxEval = -Infinity;
+            for (const col of validCols) {
+                let tempBoard = [...board];
+                connectGame.dropPiece(tempBoard, col, AI);
+                let anEval = connectGame.minimax(tempBoard, depth - 1, alpha, beta, false);
+                maxEval = Math.max(maxEval, anEval);
+                alpha = Math.max(alpha, anEval);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return maxEval;
+        } else {
+            let minEval = Infinity;
+            for (const col of validCols) {
+                let tempBoard = [...board];
+                connectGame.dropPiece(tempBoard, col, HUMAN);
+                let anEval = connectGame.minimax(tempBoard, depth - 1, alpha, beta, true);
+                minEval = Math.min(minEval, anEval);
+                beta = Math.min(beta, anEval);
+                if (beta <= alpha) {
+                    break;
+                }
+            }
+            return minEval;
+        }
     },
     scorePosition: (board, player) => {
         let score = 0;
@@ -121,6 +164,8 @@ const connectGame = {
         });
     },
     cleanup: () => {
-        // No specific cleanup needed as event listeners are managed by main.js
+        if (connectGame.controller) {
+            connectGame.controller.abort();
+        }
     }
 };

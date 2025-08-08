@@ -173,6 +173,8 @@ const blackjackGame = {
         showWinModal(message, `Final Scores - You: ${finalPlayerScore}, CPU: ${finalCpuScore}`);
     },
     cleanup: () => {
-        // No specific cleanup needed
+        if (blackjackGame.controller) {
+            blackjackGame.controller.abort();
+        }
     }
 };

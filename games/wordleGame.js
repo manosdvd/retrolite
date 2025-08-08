@@ -184,7 +184,7 @@ const wordleGame = {
     },
 
     scrollActiveRowIntoView: () => {
-        if (!currentMode || currentMode.name !== 'wordle' || !gameBoard.children.length) return;
+        if (!currentMode || currentMode.name !== 'wordGuess' || !gameBoard.children.length) return;
         const activeCell = gameBoard.children[gameState.currentRow * 5];
         if (activeCell) {
             activeCell.scrollIntoView({ behavior: 'smooth', block: 'nearest' });

@@ -75,7 +75,7 @@ const ticTacToeGame = {
         for (let i = 0; i < 9; i++) {
             if (board[i] === EMPTY) {
                 board[i] = AI;
-                let moveVal = ticTacToeGame.minimax(board, 0, false);
+                let moveVal = ticTacToeGame.minimax(board, 0, false, -Infinity, Infinity);
                 board[i] = EMPTY;
                 if (moveVal > bestVal) {
                     move = i;
@@ -85,7 +85,7 @@ const ticTacToeGame = {
         }
         return move;
     },
-    minimax: (board, depth, isMax) => {
+    minimax: (board, depth, isMax, alpha, beta) => {
         const score = ticTacToeGame.evaluate(board);
         if (score === 10) return score - depth;
         if (score === -10) return score + depth;
@@ -96,8 +96,10 @@ const ticTacToeGame = {
             for (let i = 0; i < 9; i++) {
                 if (board[i] === EMPTY) {
                     board[i] = AI;
-                    best = Math.max(best, ticTacToeGame.minimax(board, depth + 1, !isMax));
+                    best = Math.max(best, ticTacToeGame.minimax(board, depth + 1, !isMax, alpha, beta));
                     board[i] = EMPTY;
+                    alpha = Math.max(alpha, best);
+                    if (beta <= alpha) break;
                 }
             }
             return best;
@@ -106,8 +108,10 @@ const ticTacToeGame = {
             for (let i = 0; i < 9; i++) {
                 if (board[i] === EMPTY) {
                     board[i] = HUMAN;
-                    best = Math.min(best, ticTacToeGame.minimax(board, depth + 1, !isMax));
+                    best = Math.min(best, ticTacToeGame.minimax(board, depth + 1, !isMax, alpha, beta));
                     board[i] = EMPTY;
+                    beta = Math.min(beta, best);
+                    if (beta <= alpha) break;
                 }
             }
             return best;
@@ -163,6 +167,8 @@ const ticTacToeGame = {
         gameBoard.appendChild(lineEl);
     },
     cleanup: () => {
-        // No specific cleanup needed as event listeners are managed by main.js
+        if (ticTacToeGame.controller) {
+            ticTacToeGame.controller.abort();
+        }
     }
 };

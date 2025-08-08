@@ -1,6 +1,12 @@
 const musicMachineGame = {
+    controller: null,
     setup: () => {
-        gameState = { sequence: [] };
+        if (musicMachineGame.controller) {
+            musicMachineGame.controller.abort();
+        }
+        musicMachineGame.controller = new AbortController();
+
+        gameState = { sequence: [], isPlaying: false };
         musicMachineGame.updateBoard();
         const playButton = createControlButton('Play Song', 'btn-green', musicMachineGame.playSequence, 'play_circle');
         const clearButton = createControlButton('Clear', 'btn-yellow', () => {
@@ -24,17 +30,27 @@ const musicMachineGame = {
     playSequence: async () => {
         if (gameState.isPlaying) return;
         gameState.isPlaying = true;
+        const { signal } = musicMachineGame.controller;
+
         for (const noteIndex of gameState.sequence) {
+            if (signal.aborted) {
+                break; 
+            }
             const light = gameBoard.querySelector(`[data-index='${noteIndex}']`);
-            light.classList.add('is-highlight', `echo-${noteIndex+1}`);
-            audioManager.playSound('game', notes[noteIndex]);
-            await delay(300);
-            light.classList.remove('is-highlight', `echo-${noteIndex+1}`);
+            if (light) {
+                light.classList.add('is-highlight', `echo-${noteIndex+1}`);
+                audioManager.playSound('game', notes[noteIndex]);
+                await delay(300);
+                light.classList.remove('is-highlight', `echo-${noteIndex+1}`);
+            }
         }
         gameState.isPlaying = false;
     },
     updateBoard: () => {},
     cleanup: () => {
-        // No specific cleanup needed as event listeners are managed by main.js
+        if (musicMachineGame.controller) {
+            musicMachineGame.controller.abort();
+        }
+        gameState.isPlaying = false;
     }
 };

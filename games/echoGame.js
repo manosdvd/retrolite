@@ -1,5 +1,11 @@
 const echoGame = {
+    controller: null,
     setup: () => {
+        if (echoGame.controller) {
+            echoGame.controller.abort();
+        }
+        echoGame.controller = new AbortController();
+
         gameState = { sequence: [], playerSequence: [], level: 1, state: 'WATCH' };
         gameBoard.querySelectorAll('.light').forEach(light => light.classList.add('is-off'));
         const startButton = createControlButton('Start', 'btn-green', () => {
@@ -23,20 +29,27 @@ const echoGame = {
         gameState.state = 'WATCH';
         gameStatus.textContent = "Watch carefully...";
         gameBoard.style.pointerEvents = 'none';
+        const { signal } = echoGame.controller;
+
         for (const index of gameState.sequence) {
+            if (signal.aborted) break;
             const light = gameBoard.querySelector(`[data-index='${index}']`);
-            light.classList.add(`echo-${index+1}`);
-            light.classList.remove('is-off');
-            audioManager.playSound('game', notes[index]);
-            await delay(400);
-            light.classList.add('is-off');
-            light.classList.remove(`echo-${index+1}`);
-            await delay(200);
+            if (light) {
+                light.classList.add(`echo-${index+1}`);
+                light.classList.remove('is-off');
+                audioManager.playSound('game', notes[index]);
+                await delay(400);
+                light.classList.add('is-off');
+                light.classList.remove(`echo-${index+1}`);
+                await delay(200);
+            }
         }
-        gameState.state = 'PLAY';
-        gameStatus.textContent = "Your turn!";
-        gameState.playerSequence = [];
-        gameBoard.style.pointerEvents = 'auto';
+        if (!signal.aborted) {
+            gameState.state = 'PLAY';
+            gameStatus.textContent = "Your turn!";
+            gameState.playerSequence = [];
+            gameBoard.style.pointerEvents = 'auto';
+        }
     },
     handler: (e) => {
         if (gameState.state !== 'PLAY') return;
@@ -68,6 +81,8 @@ const echoGame = {
         }
     },
     cleanup: () => {
-        // No specific cleanup needed as event listeners are managed by main.js
+        if (echoGame.controller) {
+            echoGame.controller.abort();
+        }
     }
 };
