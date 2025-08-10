@@ -1,4 +1,4 @@
-import { updateStats, createControlButton, showWinModal, audioManager, notes } from '../main.js';
+
 
 export const magicSquareGame = {
     setup: () => {

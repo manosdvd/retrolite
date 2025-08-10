@@ -1,7 +1,7 @@
 // retrogame/games/spellingBeeGame.js
 
 export const spellingBeeGame = {
-    words: spellingWords,
+    words: [],
     currentWord: null,
     score: 0,
     wordsAttempted: 0,

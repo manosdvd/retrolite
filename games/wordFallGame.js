@@ -41,10 +41,10 @@ export const wordFallGame = {
     fontLink3: null,
     
     // --- Game Setup ---
-    setup: function() {
+    setup: async function() { // Make setup async
         this.injectFontsAndStyles();
         this.renderGameLayout();
-        this.initializeData();
+        await this.initializeData(); // Await the data loading
         this.addEventListeners();
     },
 
@@ -145,8 +145,16 @@ export const wordFallGame = {
         `;
     },
 
-    initializeData: function() {
-        this.dyslexiaWordSet = new Set(dyslexiaWords.map(word => word.toUpperCase()));
+    initializeData: async function() { // Make this function async
+        try {
+            const response = await fetch('../dyslexiaWords.json');
+            const dyslexiaWords = await response.json();
+            this.dyslexiaWordSet = new Set(dyslexiaWords.map(word => word.toUpperCase()));
+        } catch (error) {
+            console.error('Failed to load dyslexia words:', error);
+            this.dyslexiaWordSet = new Set(); // Fallback
+        }
+        
         this.letterDistribution = [];
         for (const letter in this.scrabbleTiles) {
             for (let i = 0; i < this.scrabbleTiles[letter].count; i++) {

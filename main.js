@@ -415,6 +415,8 @@ Object.assign(window, {
     gameState,
     currentMode,
     gauntlet,
+    // utils
+    utils,
     // audio manager
     audioManager,
     // helper functions exported from this module

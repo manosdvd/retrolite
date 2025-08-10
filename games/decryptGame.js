@@ -6,7 +6,7 @@ export const decryptGame = {
     availablePuzzles: [], // Holds the list of puzzles for the current cycle
 
     // Game State
-    puzzles: decryptQuotes,
+    puzzles: [],
     currentQuote: '',
     currentSource: '',
     cipherMap: {},
