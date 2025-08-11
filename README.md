@@ -27,7 +27,7 @@ This collection features a variety of games to test your logic, memory, and stra
 * **Polished UI/UX:** Consistent design and intuitive controls across all games.  
 * **Enhanced Gameplay:** Smart AI, quality-of-life features, and more strategic depth in classic games.  
 * **Audio Feedback:** Sound effects powered by **Tone.js** provide an immersive experience.  
-* **Zero Dependencies:** Built purely with browser-native technologies. No complex setup required.  
+* **Zero Dependencies:** Relies only on lightweight browser-based libraries like Tailwind CSS and Tone.js and requires no build tools.
 * **Fully Responsive:** Play on any device, from desktop to mobile.
 
 ## **🚀 How to Play**
