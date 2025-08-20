@@ -9,7 +9,7 @@ export const minefieldGame = {
     start: (width, height, mines) => {
         if (mines >= width * height) { gameStatus.textContent = "Too many mines!"; return; }
         
-        gameState = { firstClick: true, width, height, mines, flagged: 0, gameOver: false };
+        Object.assign(gameState, { firstClick: true, width, height, mines, flagged: 0, gameOver: false });
         gameBoard.innerHTML = '';
         gameBoard.style.gridTemplateColumns = `repeat(${width}, 1fr)`;
         gameBoard.classList.toggle('large-grid', width > 5 || height > 5);

@@ -2,7 +2,6 @@ export const wordleGame = {
     // Controller to manage event listeners
     controller: null,
     availableWords: [],
-    wordList: [], // Add a property to hold all valid words
 
     // Creates a single cell for the Wordle grid
     createCell: (index) => {
@@ -14,28 +13,20 @@ export const wordleGame = {
     },
 
     // Sets up a new game
-    setup: async function() { // Make setup async
+    setup: () => {
+        // Abort any previous game listeners to prevent duplicates
         if (wordleGame.controller) wordleGame.controller.abort();
         wordleGame.controller = new AbortController();
         const { signal } = wordleGame.controller;
 
-        // Fetch and load the word list
-        if (wordleGame.wordList.length === 0) {
-            try {
-                const response = await fetch('../words.json');
-                wordleGame.wordList = await response.json();
-                // Use the full list for validation, and a separate shuffled list for picking secret words
-                wordleGame.availableWords = utils.shuffleArray([...wordleGame.wordList]);
-            } catch (error) {
-                console.error('Failed to load word list:', error);
-            }
-        } else {
-             wordleGame.availableWords = utils.shuffleArray([...wordleGame.wordList]);
+        // If the list of available words is empty, refill and shuffle it
+        if (wordleGame.availableWords.length === 0) {
+            wordleGame.availableWords = utils.shuffleArray([...expandedWordList]);
         }
 
         const { gridRows, gridCols } = currentMode;
         // Initialize the game state
-        gameState = {
+        Object.assign(gameState, {
             // Pop a word from the shuffled list
             secretWord: wordleGame.availableWords.pop(),
             currentRow: 0,
@@ -43,7 +34,7 @@ export const wordleGame = {
             board: Array(gridRows).fill().map(() => Array(gridCols).fill('')),
             gameOver: false,
             keyColors: {} // Stores the color status of each keyboard key
-        };
+        });
 
         gameBoard.classList.add('wordle-grid');
         

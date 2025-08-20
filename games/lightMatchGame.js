@@ -8,10 +8,10 @@ export const lightMatchGame = {
 
         const size = 8;
         const numColors = 6;
-        gameState = {
+        Object.assign(gameState, {
             size, numColors, board: [], selected: null, isAnimating: false, score: 0,
-            touchStartIndex: null, touchStartX: 0, touchStartY: 0,
-        };
+            touchStartIndex: null, touchStartX: 0, touchStartY: 0
+        });
         
         gameBoard.classList.add('large-grid');
 

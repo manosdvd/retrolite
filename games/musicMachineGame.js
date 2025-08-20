@@ -6,7 +6,7 @@ export const musicMachineGame = {
         }
         musicMachineGame.controller = new AbortController();
 
-        gameState = { sequence: [], isPlaying: false };
+        Object.assign(gameState, { sequence: [], isPlaying: false });
         musicMachineGame.updateBoard();
         const playButton = createControlButton('Play Song', 'btn-green', musicMachineGame.playSequence, 'play_circle');
         const clearButton = createControlButton('Clear', 'btn-yellow', () => {

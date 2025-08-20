@@ -1,6 +1,6 @@
 export const connectGame = {
     setup: () => {
-        gameState = { board: Array(42).fill(EMPTY), currentPlayer: HUMAN, gameOver: false, difficulty: 'Hard' };
+        Object.assign(gameState, { board: Array(42).fill(EMPTY), currentPlayer: HUMAN, gameOver: false, difficulty: 'Hard' });
         const easyBtn = createControlButton('Easy', 'btn-green', () => { gameState.difficulty = 'Easy'; gameStatus.textContent = 'Difficulty: Easy'; });
         const hardBtn = createControlButton('Hard', 'btn-blue', () => { gameState.difficulty = 'Hard'; gameStatus.textContent = 'Difficulty: Hard'; });
         buttonContainer.prepend(hardBtn);

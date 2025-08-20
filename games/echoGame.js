@@ -6,7 +6,7 @@ export const echoGame = {
         }
         echoGame.controller = new AbortController();
 
-        gameState = { sequence: [], playerSequence: [], level: 1, state: 'WATCH' };
+        Object.assign(gameState, { sequence: [], playerSequence: [], level: 1, state: 'WATCH' });
         gameBoard.querySelectorAll('.light').forEach(light => light.classList.add('is-off'));
         const startButton = createControlButton('Start', 'btn-green', () => {
             if (gameState.state === 'WATCH') {

@@ -1,4 +1,4 @@
-
+import { updateStats, showWinModal, audioManager, notes } from '../main.js';
 
 export const magicSquareGame = {
     setup: () => {
@@ -6,7 +6,11 @@ export const magicSquareGame = {
             [0, 1, 3], [0, 1, 2, 4], [1, 2, 5], [0, 3, 4, 6], [1, 3, 4, 5, 7],
             [2, 4, 5, 8], [3, 6, 7], [4, 6, 7, 8], [5, 7, 8]
         ];
-        gameState = { board: [1, 1, 1, 1, 0, 1, 1, 1, 1], moves: 0, toggles: merlinToggles };
+        Object.assign(gameState, {
+            board: [1, 1, 1, 1, 0, 1, 1, 1, 1],
+            moves: 0,
+            toggles: merlinToggles
+        });
         const scrambleMoves = Math.floor(Math.random() * 5) + 5;
         for (let i = 0; i < scrambleMoves; i++) {
             const randomIndex = Math.floor(Math.random() * 9);

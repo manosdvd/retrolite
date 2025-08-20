@@ -1,6 +1,6 @@
 export const sliderPuzzleGame = {
     setup: () => {
-        gameState = { board: [1, 2, 3, 4, 5, 6, 7, 8, EMPTY], emptyIndex: 8, moves: 0 };
+        Object.assign(gameState, { board: [1, 2, 3, 4, 5, 6, 7, 8, EMPTY], emptyIndex: 8, moves: 0 });
         sliderPuzzleGame.shuffle();
         const shuffleButton = createControlButton('Shuffle', 'btn-yellow', () => {
             sliderPuzzleGame.shuffle();

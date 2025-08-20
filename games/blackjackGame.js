@@ -1,8 +1,8 @@
 export const blackjackGame = {
     setup: () => {
-        gameState = {
-            deck: [], playerHand: [], cpuHand: [], gameOver: false, playerTurn: true,
-        };
+        Object.assign(gameState, {
+            deck: [], playerHand: [], cpuHand: [], gameOver: false, playerTurn: true
+        });
         // 1 is Ace, 2-10 are numbers, 10 is J/Q/K
         for (let s = 0; s < 4; s++) { // 4 suits
             for (let i = 1; i <= 10; i++) gameState.deck.push(i);

@@ -7,12 +7,12 @@ export const numberCrunchGame = {
                 <span>Equation: <span id="eq-str" class="text-cyan-400">0</span></span>
             </div>
         `;
-        gameState = {
+        Object.assign(gameState, {
             targetNumber: 0,
             firstOperand: null,
             currentOperator: null,
             moves: 0
-        };
+        });
         numberCrunchGame.newRound();
         updateStats(`Moves: 0`);
     },

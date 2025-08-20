@@ -1,6 +1,6 @@
 export const lightsOutGame = {
     setup: () => {
-        gameState = { board: Array(25).fill(0), moves: 0 };
+        Object.assign(gameState, { board: Array(25).fill(0), moves: 0 });
         // Ensure a solvable board by starting from a solved state and pressing buttons
         for (let i = 0; i < 15; i++) {
             const randomIndex = Math.floor(Math.random() * 25);

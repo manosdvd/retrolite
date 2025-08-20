@@ -3,7 +3,7 @@ export const wordFallGame = {
     gameLoopTimeoutId: null,
     previewTimeoutId: null,
     synth: null,
-    isProcessing: false, // Prevents user input during automated sequences (clearing, falling)
+    isProcessing: false, // Prevents user input during automated sequences
     isPaused: false,
     gameOver: false,
     currentInterval: 8000, // Time for the full preview bar to generate
@@ -16,7 +16,8 @@ export const wordFallGame = {
     rows: 12, 
     cols: 8,
     previewRow: [],
-    firstSelectedCell: null, // For swapping
+    selectedLetters: [], // Array of { index: number }
+    currentWord: '',
     foundWords: new Set(),
     dyslexiaWordSet: null,
     letterDistribution: [],
@@ -41,10 +42,10 @@ export const wordFallGame = {
     fontLink3: null,
     
     // --- Game Setup ---
-    setup: async function() { // Make setup async
+    async setup() {
         this.injectFontsAndStyles();
         this.renderGameLayout();
-        await this.initializeData(); // Await the data loading
+        await this.initializeData();
         this.addEventListeners();
     },
 
@@ -72,7 +73,7 @@ export const wordFallGame = {
             #grid-wordfall { display: grid; grid-template-columns: repeat(${this.cols}, 1fr); grid-template-rows: repeat(${this.rows}, 1fr); gap: 4px; background-color: #111827; border-radius: 0.5rem; padding: 4px; }
             .cell { display: flex; justify-content: center; align-items: center; background-color: #4b5563; border-radius: 4px; color: white; font-weight: 900; font-size: clamp(14px, 4vmin, 28px); text-transform: uppercase; transition: all 0.2s ease-in-out; user-select: none; -webkit-user-select: none; cursor: pointer; }
             .cell.empty { background-color: #374151; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); cursor: default; }
-            .cell.selected { background-color: #60a5fa; transform: scale(1.1); box-shadow: 0 0 15px #60a5fa; }
+            .cell.selected { background-color: #f59e0b; transform: scale(1.1); box-shadow: 0 0 15px #f59e0b; }
             .cell.clearing { animation: pulse-green 0.4s ease-in-out; }
             @keyframes pulse-green { 0%, 100% { background-color: #4ade80; transform: scale(1.05); } 50% { background-color: #86efac; transform: scale(1.15); } }
             .cell.falling { animation: drop-glow 0.8s ease-out; }
@@ -80,6 +81,13 @@ export const wordFallGame = {
             #preview-bar-container { display: flex; gap: 4px; margin-bottom: 8px; padding: 4px; background-color: #111827; border-radius: 0.5rem; height: 2rem; }
             .preview-cell { flex: 1; height: 1.5rem; background-color: #374151; border-radius: 4px; display:flex; align-items:center; justify-content:center; color:white; font-weight:bold; font-size: 1rem; transition: background-color 0.2s; }
             .preview-cell.filled { background-color: #4b5563; }
+            #current-word-display { background-color: #111827; color: white; text-align: center; padding: 8px; font-size: 1.25rem; font-weight: bold; border-radius: 0.5rem; margin-bottom: 8px; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+            .action-buttons { display: flex; gap: 8px; margin-top: 8px; }
+            .action-buttons button { flex: 1; padding: 10px; font-weight: bold; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s; border: none; color: white; }
+            #submit-word-btn { background-color: #10b981; }
+            #submit-word-btn:disabled { background-color: #4b5563; cursor: not-allowed; }
+            #clear-selection-btn { background-color: #ef4444; }
+            #clear-selection-btn:disabled { background-color: #4b5563; cursor: not-allowed; }
             .modal { background-color: rgba(17, 24, 39, 0.8); backdrop-filter: blur(5px); }
             .word-list-modal-content { background-color: #1f2937; padding: 1.5rem; border-radius: 1rem; border: 2px solid #3b82f6; width: 90vw; max-width: 600px; height: 80vh; display: flex; flex-direction: column; }
             .word-list-modal-content h2 { color: #93c5fd; }
@@ -114,8 +122,17 @@ export const wordFallGame = {
                 <!-- Preview Bar -->
                 <div id="preview-bar-container"></div>
 
+                <!-- Current Word Display -->
+                <div id="current-word-display"></div>
+
                 <!-- Grid -->
                 <div id="grid-wordfall" class="flex-grow"></div>
+
+                <!-- Action Buttons -->
+                <div class="action-buttons">
+                    <button id="submit-word-btn">SUBMIT</button>
+                    <button id="clear-selection-btn">CLEAR</button>
+                </div>
 
                 <!-- Pause Button -->
                 <button id="pause-btn" class="w-full mt-2 py-2 px-4 bg-gray-600 text-white font-bold rounded-lg shadow-md hover:bg-gray-700 transition-colors">PAUSE</button>
@@ -126,8 +143,8 @@ export const wordFallGame = {
         modalContainer.innerHTML = `
             <div id="start-modal" class="modal fixed inset-0 flex items-center justify-center">
                 <div class="bg-gray-800 p-8 rounded-lg shadow-2xl text-center text-white">
-                    <h2 class="text-3xl font-black mb-4">DYSLEXIA</h2>
-                    <p class="mb-6">Swap any two letters to form words. Don't let the grid fill up!</p>
+                    <h2 class="text-3xl font-black mb-4">WORD FALL</h2>
+                    <p class="mb-6">Tap letters to form words and submit them. Don't let the grid fill up!</p>
                     <button id="start-btn" class="w-full py-3 px-6 bg-blue-600 hover:bg-blue-700 rounded-lg text-xl font-bold transition-colors">START</button>
                 </div>
             </div>
@@ -145,16 +162,22 @@ export const wordFallGame = {
         `;
     },
 
-    initializeData: async function() { // Make this function async
+    initializeData: async function() {
         try {
-            const response = await fetch('../dyslexiaWords.json');
-            const dyslexiaWords = await response.json();
-            this.dyslexiaWordSet = new Set(dyslexiaWords.map(word => word.toUpperCase()));
-        } catch (error) {
-            console.error('Failed to load dyslexia words:', error);
-            this.dyslexiaWordSet = new Set(); // Fallback
+            const response = await fetch('dyslexiaWords.json');
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const words = await response.json();
+            this.dyslexiaWordSet = new Set(words.map(word => word.toUpperCase()));
+            console.log(`Loaded ${this.dyslexiaWordSet.size} words.`);
+        } catch (e) {
+            console.error("Failed to load dyslexia word list. Game will not be playable.", e);
+            this.dyslexiaWordSet = new Set(); // Prevent crashing
+            const display = document.getElementById('current-word-display');
+            if(display) display.textContent = "Error: Could not load word list.";
         }
-        
+
         this.letterDistribution = [];
         for (const letter in this.scrabbleTiles) {
             for (let i = 0; i < this.scrabbleTiles[letter].count; i++) {
@@ -172,6 +195,8 @@ export const wordFallGame = {
         document.getElementById('pause-btn').addEventListener('click', () => this.togglePause());
         document.getElementById('grid-wordfall').addEventListener('click', (e) => this.handleCellClick(e));
         document.getElementById('view-words-btn').addEventListener('click', () => this.showFoundWordsModal());
+        document.getElementById('submit-word-btn').addEventListener('click', () => this.submitWord());
+        document.getElementById('clear-selection-btn').addEventListener('click', () => this.clearSelection());
     },
 
     init: function() {
@@ -182,8 +207,8 @@ export const wordFallGame = {
         this.currentInterval = 8000;
         this.isPaused = false;
         this.gameOver = false;
-        this.firstSelectedCell = null;
         this.foundWords.clear();
+        this.clearSelection();
         this.updateStats();
 
         this.grid = Array(this.rows * this.cols).fill(null);
@@ -202,7 +227,7 @@ export const wordFallGame = {
     
     gameLoop: function() {
         if (this.isPaused || this.gameOver || this.isProcessing) {
-            this.gameLoopTimeoutId = setTimeout(() => this.gameLoop(), 100); // Check again soon
+            this.gameLoopTimeoutId = setTimeout(() => this.gameLoop(), 100);
             return;
         }
         this.animatePreviewBar();
@@ -213,7 +238,7 @@ export const wordFallGame = {
 
         if (previewIndex === 0) {
             this.previewRow = [];
-            this.drawPreviewBar(true); // Clear bar visually
+            this.drawPreviewBar(true);
         }
 
         if (previewIndex < this.cols) {
@@ -224,7 +249,6 @@ export const wordFallGame = {
             const delay = this.currentInterval / this.cols;
             this.previewTimeoutId = setTimeout(() => this.animatePreviewBar(previewIndex + 1), delay);
         } else {
-            // Preview is full, now drop the row
             this.dropRow();
         }
     },
@@ -232,7 +256,6 @@ export const wordFallGame = {
     dropRow: async function() {
         this.isProcessing = true;
         
-        // Check for game over condition (top row is blocked)
         for(let c = 0; c < this.cols; c++) {
             if (this.grid[c] !== null) {
                 this.gameOver = true;
@@ -241,24 +264,21 @@ export const wordFallGame = {
             }
         }
 
-        // Shift entire grid down one row
         for (let i = this.grid.length - 1; i >= this.cols; i--) {
             this.grid[i] = this.grid[i - this.cols];
         }
 
-        // Add preview row to the top
         for (let c = 0; c < this.cols; c++) {
             this.grid[c] = this.previewRow[c];
         }
         
         this.playSound('C4', '16n');
-        this.drawGrid(true); // Redraw with falling animation hint
+        this.drawGrid(true);
         
         await this.applyGravity();
-        await this.processMatches();
         
         this.isProcessing = false;
-        this.gameLoopTimeoutId = setTimeout(() => this.gameLoop(), 500); // Start next cycle
+        this.gameLoopTimeoutId = setTimeout(() => this.gameLoop(), 500);
     },
 
     drawGrid: function(wasDrop = false) {
@@ -272,7 +292,7 @@ export const wordFallGame = {
             cell.classList.add('cell');
             if (this.grid[i]) {
                 cell.textContent = this.grid[i];
-                if (wasDrop && i < this.cols) { // Animate only the top row that just dropped
+                if (wasDrop && i < this.cols) {
                     cell.classList.add('falling');
                 }
             } else {
@@ -281,6 +301,11 @@ export const wordFallGame = {
             fragment.appendChild(cell);
         }
         gridElement.appendChild(fragment);
+        // Re-apply selection styles
+        this.selectedLetters.forEach(({index}) => {
+            const cell = gridElement.querySelector(`[data-index='${index}']`);
+            if(cell) cell.classList.add('selected');
+        });
     },
     
     drawPreviewBar: function(isEmpty = false) {
@@ -307,102 +332,88 @@ export const wordFallGame = {
         if (wordsEl) wordsEl.textContent = this.wordsFoundCount;
     },
 
+    updateCurrentWordDisplay: function() {
+        const display = document.getElementById('current-word-display');
+        if (display) {
+            display.textContent = this.currentWord || 'Select letters...';
+        }
+    },
+
+    updateActionButtons: function() {
+        const submitBtn = document.getElementById('submit-word-btn');
+        const clearBtn = document.getElementById('clear-selection-btn');
+        if (submitBtn) submitBtn.disabled = this.currentWord.length < 3;
+        if (clearBtn) clearBtn.disabled = this.currentWord.length === 0;
+    },
+
     handleCellClick: function(e) {
         if (this.isProcessing || this.isPaused || this.gameOver) return;
         const target = e.target.closest('.cell');
         if (!target || target.classList.contains('empty')) return;
 
         const index = parseInt(target.dataset.index);
+        const selectionIndex = this.selectedLetters.findIndex(l => l.index === index);
 
-        if (this.firstSelectedCell === null) {
-            this.firstSelectedCell = { index, element: target };
-            target.classList.add('selected');
-            this.playSound('E5', '16n');
+        if (selectionIndex > -1) {
+            // Deselect
+            this.selectedLetters.splice(selectionIndex, 1);
+            target.classList.remove('selected');
         } else {
-            if (this.firstSelectedCell.index === index) {
-                this.firstSelectedCell.element.classList.remove('selected');
-                this.firstSelectedCell = null;
-            } else {
-                this.firstSelectedCell.element.classList.remove('selected');
-                this.swapCells(this.firstSelectedCell.index, index);
-                this.firstSelectedCell = null;
-            }
-        }
-    },
-
-    swapCells: async function(index1, index2) {
-        this.isProcessing = true;
-        this.playSound('A4', '16n');
-        [this.grid[index1], this.grid[index2]] = [this.grid[index2], this.grid[index1]];
-        this.drawGrid();
-        
-        await new Promise(resolve => setTimeout(resolve, 200));
-
-        await this.processMatches();
-        this.isProcessing = false;
-    },
-    
-    processMatches: async function() {
-        let foundAnyWords;
-        do {
-            const wordsToClear = this.findAllWords();
-            if (wordsToClear.size > 0) {
-                foundAnyWords = true;
-                this.playSound('G5', '8n');
-                await this.clearCells(wordsToClear);
-                await this.applyGravity();
-            } else {
-                foundAnyWords = false;
-            }
-        } while (foundAnyWords);
-    },
-
-    findAllWords: function() {
-        const cellsToClear = new Set();
-        const checkLine = (line) => {
-            const lineStr = line.map(cell => cell.letter || ' ').join('');
-            for (const word of this.dyslexiaWordSet) {
-                if (word.length < 3) continue;
-                let startIndex = lineStr.indexOf(word);
-                while (startIndex !== -1) {
-                    for (let i = 0; i < word.length; i++) {
-                        cellsToClear.add(line[startIndex + i].index);
-                    }
-                    if (!this.foundWords.has(word)) {
-                        this.foundWords.add(word);
-                        this.wordsFoundCount++;
-                        let wordScore = 0;
-                        for(const letter of word) {
-                            wordScore += this.scrabbleTiles[letter].score;
-                        }
-                        this.score += wordScore * word.length;
-                    }
-                    startIndex = lineStr.indexOf(word, startIndex + 1);
-                }
-            }
-        };
-
-        for (let r = 0; r < this.rows; r++) {
-            const row = Array.from({length: this.cols}, (_, c) => {
-                const index = r * this.cols + c;
-                return { letter: this.grid[index], index };
-            });
-            checkLine(row);
-        }
-
-        for (let c = 0; c < this.cols; c++) {
-            const col = Array.from({length: this.rows}, (_, r) => {
-                const index = r * this.cols + c;
-                return { letter: this.grid[index], index };
-            });
-            checkLine(col);
+            // Select
+            this.selectedLetters.push({ index });
+            target.classList.add('selected');
         }
         
-        if (cellsToClear.size > 0) {
-             this.updateStats();
-             this.checkLevelUp();
+        this.currentWord = this.selectedLetters.map(l => this.grid[l.index]).join('');
+        
+        this.updateCurrentWordDisplay();
+        this.updateActionButtons();
+        this.playSound('E5', '16n');
+    },
+
+    submitWord: async function() {
+        if (this.currentWord.length < 3 || this.isProcessing) return;
+
+        const word = this.currentWord.toUpperCase();
+        if (this.dyslexiaWordSet.has(word) && !this.foundWords.has(word)) {
+            this.isProcessing = true;
+            this.playSound('G5', '8n');
+            
+            let wordScore = 0;
+            for(const letter of word) {
+                wordScore += this.scrabbleTiles[letter].score;
+            }
+            this.score += wordScore * word.length;
+            
+            this.foundWords.add(word);
+            this.wordsFoundCount++;
+            this.updateStats();
+            this.checkLevelUp();
+
+            const indicesToClear = new Set(this.selectedLetters.map(l => l.index));
+            await this.clearCells(indicesToClear);
+            await this.applyGravity();
+            
+            this.clearSelection();
+            this.isProcessing = false;
+        } else {
+            this.playSound('A3', '8n');
+            this.clearSelection();
         }
-        return cellsToClear;
+    },
+
+    clearSelection: function() {
+        const gridElement = document.getElementById('grid-wordfall');
+        if (gridElement) {
+            this.selectedLetters.forEach(({ index }) => {
+                const cell = gridElement.querySelector(`[data-index='${index}']`);
+                if (cell) cell.classList.remove('selected');
+            });
+        }
+        this.selectedLetters = [];
+        this.currentWord = '';
+        this.updateCurrentWordDisplay();
+        this.updateActionButtons();
     },
     
     clearCells: async function(cellsToClear) {
@@ -437,7 +448,7 @@ export const wordFallGame = {
         }
         if (fell) {
             this.drawGrid();
-            await new Promise(resolve => setTimeout(resolve, 200)); // Animation time for falling
+            await new Promise(resolve => setTimeout(resolve, 200));
         }
     },
     
@@ -486,11 +497,10 @@ export const wordFallGame = {
         const modalContainer = document.getElementById('modal-container');
         if (!modalContainer) return;
         
-        // Create a temporary div to host the modal content
         const tempDiv = document.createElement('div');
         
         let wordListHTML = '<dl>';
-        const sortedWords = Array.from(wordFallGame.foundWords).sort();
+        const sortedWords = Array.from(this.foundWords).sort();
         
         sortedWords.forEach(word => {
             wordListHTML += `<dt>${word}</dt>`;
@@ -522,6 +532,7 @@ export const wordFallGame = {
     },
     
     playSound: function(note, duration) {
+        if (!window.Tone) return;
         if (!this.synth) {
             try {
                 this.synth = new Tone.Synth().toDestination();

@@ -1,6 +1,6 @@
 export const ticTacToeGame = {
     setup: () => {
-        gameState = { 
+        Object.assign(gameState, { 
             board: Array(9).fill(EMPTY), 
             currentPlayer: P1, 
             gameOver: false,
@@ -9,7 +9,7 @@ export const ticTacToeGame = {
                 [0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], 
                 [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]
             ]
-        };
+        });
         const modeButton = createControlButton(`Mode: ${gameState.mode}`, 'btn-blue', () => {
             gameState.mode = gameState.mode === 'CPU' ? '2P' : 'CPU';
             startGame(currentMode);

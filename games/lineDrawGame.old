@@ -1,9 +1,9 @@
-export const lineDrawGame = {
+const lineDrawGame = {
     setup: () => {
         const size = currentMode.gridSize;
         const puzzle = lineDrawGame.generatePuzzle(size);
         // Add completedPaths to the gameState object to track completed lines
-        Object.assign(gameState, { 
+        gameState = { 
             size, 
             board: Array(size * size).fill(0), 
             pairs: puzzle.pairs, 
@@ -13,7 +13,7 @@ export const lineDrawGame = {
             startNode: -1,
             gameOver: false,
             completedPaths: new Set() 
-        });
+        };
         puzzle.pairs.forEach(p => { gameState.paths[p.c] = []; });
 
         // --- FIX: Dynamically create the grid elements ---
